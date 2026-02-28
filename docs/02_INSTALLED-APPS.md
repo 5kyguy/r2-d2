@@ -23,7 +23,7 @@ This document lists everything installed during the Omarchy install process and 
 
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
-All packages from **`install/omarchy-base.packages`** are installed (one per line, comments and empty lines skipped). This single file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages. **Default browser:** Brave. **Browsers installed:** Brave, Chromium, Helium (AUR). Webapps are created using Helium when available.
+All packages from **`install/omarchy-base.packages`** (pacman) and **`install/omarchy-base.aur.packages`** (AUR, via yay) are installed. The main file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages; the AUR file lists base AUR packages such as Brave. **Default browser:** Brave. **Browsers installed:** Brave (brave-bin, AUR), Chromium, Helium (AUR). Webapps are created using Helium when available.
 
 #### Full pacman list (omarchy-base.packages)
 
@@ -39,7 +39,7 @@ All packages from **`install/omarchy-base.packages`** are installed (one per lin
 | bolt | Thunderbolt |
 | brightnessctl | Display brightness |
 | btop | System monitor TUI |
-| brave-browser | Browser (default) |
+| brave-bin (AUR) | Browser (default) |
 | chromium | Browser |
 | clang | Compiler |
 | cups, cups-browsed, cups-filters, cups-pdf | Printing |
@@ -144,7 +144,7 @@ All packages from **`install/omarchy-base.packages`** are installed (one per lin
 | yay | AUR helper |
 | zoxide | cd replacement |
 
-**Total:** One combined list in `install/omarchy-base.packages` (former base + former omarchy-other.packages); includes brave-browser, steam, and system/base packages.
+**Total:** Main list in `install/omarchy-base.packages` (former base + former omarchy-other.packages); AUR base packages (e.g. brave-bin) in `install/omarchy-base.aur.packages`. Includes steam, system/base packages.
 
 ### 1.3 Packaging – AUR and preinstalled optionals
 

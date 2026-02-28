@@ -53,7 +53,7 @@ This will:
 
 **Phase 4 — Packaging**
 
-- **Base packages** from single file `install/omarchy-base.packages` (includes system/base + desktop; Brave default browser, Chromium backup, Steam, etc.)
+- **Base packages** from `install/omarchy-base.packages` (pacman) and `install/omarchy-base.aur.packages` (AUR); includes system/base + desktop, Brave default browser, Chromium backup, Steam, etc.
 - **AUR:** Helium (webapps), Cursor (editor), pear-desktop
 - **Dev runtimes:** Go and Node.js via mise
 - **Dictation:** Voxtype (non-interactive)

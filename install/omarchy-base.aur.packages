@@ -1,0 +1,5 @@
+# AUR packages for base install (installed via omarchy-pkg-aur-add in install/packaging/base.sh)
+brave-bin
+cursor-appimage
+helium-browser
+pear-desktop
