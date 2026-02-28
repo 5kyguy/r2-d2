@@ -72,13 +72,13 @@
       "type": "command",
       "key": "│ ├󰘬",
       "keyColor": "blue",
-      "text": "branch=$(omarchy-version-branch); echo \"$branch\""
+      "text": "echo dev"
     },
     {
       "type": "command",
       "key": "│ ├󰔫",
       "keyColor": "blue",
-      "text": "channel=$(omarchy-version-channel); echo \"$channel\""
+      "text": "echo stable"
     },
     {
       "type": "kernel",

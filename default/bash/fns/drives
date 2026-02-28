@@ -1,34 +1,3 @@
-# Write iso file to sd card
-iso2sd() {
-  if (( $# < 1 )); then
-    echo "Usage: iso2sd <input_file> [output_device]"
-    echo "Example: iso2sd ~/Downloads/ubuntu-25.04-desktop-amd64.iso /dev/sda"
-    return 1
-  fi
-
-  local iso="$1"
-  local drive="$2"
-
-  if [[ -z $drive ]]; then
-    local available_sds=$(lsblk -dpno NAME | grep -E '/dev/sd')
-
-    if [[ -z $available_sds ]]; then
-      echo "No SD drives found and no drive specified"
-      return 1
-    fi
-
-    drive=$(omarchy-drive-select "$available_sds")
-
-    if [[ -z $drive ]]; then
-      echo "No drive selected"
-      return 1
-    fi
-  fi
-
-  sudo dd bs=4M status=progress oflag=sync if="$iso" of="$drive"
-  sudo eject "$drive"
-}
-
 # Format an entire drive for a single partition using exFAT
 format-drive() {
   if (( $# != 2 )); then

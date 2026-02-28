@@ -17,31 +17,20 @@ ansi_art='                 ▄▄▄
 clear
 echo -e "\n$ansi_art\n"
 
-# Use custom branch if instructed, otherwise default to master
-OMARCHY_REF="${OMARCHY_REF:-master}"
-
-# Set mirror based on branch
-if [[ $OMARCHY_REF == "dev" ]]; then
-  export OMARCHY_MIRROR=edge
-  echo 'Server = https://mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
-elif [[ $OMARCHY_REF == "rc" ]]; then
-  export OMARCHY_MIRROR=rc
-  echo 'Server = https://rc-mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
-else
-  export OMARCHY_MIRROR=stable
-  echo 'Server = https://stable-mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
-fi
+# Always use dev branch and stable mirror (online install only)
+export OMARCHY_REF=dev
+export OMARCHY_MIRROR=stable
+echo 'Server = https://stable-mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
 
 sudo pacman -Syu --noconfirm --needed git
 
-# Use custom repo if specified, otherwise default to basecamp/omarchy
-OMARCHY_REPO="${OMARCHY_REPO:-basecamp/omarchy}"
+# Always use 5kyguy/artoo-d2 dev branch
+export OMARCHY_REPO=5kyguy/artoo-d2
 
-echo -e "\nCloning Omarchy from: https://github.com/${OMARCHY_REPO}.git"
+echo -e "\nCloning from: https://github.com/${OMARCHY_REPO}.git (branch: ${OMARCHY_REF})"
 rm -rf ~/.local/share/omarchy/
 git clone "https://github.com/${OMARCHY_REPO}.git" ~/.local/share/omarchy >/dev/null
 
-echo -e "\e[32mUsing branch: $OMARCHY_REF\e[0m"
 cd ~/.local/share/omarchy
 git fetch origin "${OMARCHY_REF}" && git checkout "${OMARCHY_REF}"
 cd -
