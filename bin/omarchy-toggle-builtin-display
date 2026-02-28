@@ -1,0 +1,40 @@
+#!/bin/bash
+# Toggle built-in (eDP) display on/off. Session-only: resets to normal on reboot.
+
+set -e
+
+STATE_FILE="$HOME/.local/state/omarchy/toggles/builtin-display-disabled"
+
+# Get built-in monitor name from active monitors (eDP-1, eDP, etc.)
+get_builtin_monitor() {
+  hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1
+}
+
+# Count active monitors
+count_monitors() {
+  hyprctl monitors -j 2>/dev/null | jq 'length'
+}
+
+if [[ -f $STATE_FILE ]]; then
+  # Currently disabled — re-enable
+  name=$(cat "$STATE_FILE")
+  rm -f "$STATE_FILE"
+  hyprctl keyword monitor "$name,preferred,auto,1"
+  notify-send "Built-in display enabled" "Monitor $name is on"
+else
+  # Currently enabled — disable (only if another monitor exists)
+  name=$(get_builtin_monitor)
+  if [[ -z $name ]]; then
+    notify-send "Built-in display" "No built-in (eDP) monitor found"
+    exit 1
+  fi
+  count=$(count_monitors)
+  if (( count < 2 )); then
+    notify-send "Built-in display" "Connect an external monitor first. Disabling the only display would freeze the session."
+    exit 1
+  fi
+  mkdir -p "$(dirname "$STATE_FILE")"
+  echo "$name" >"$STATE_FILE"
+  hyprctl keyword monitor "$name,disable"
+  notify-send "Built-in display disabled" "Monitor $name is off until reboot"
+fi
