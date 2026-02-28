@@ -54,7 +54,7 @@ This will:
 **Phase 4 — Packaging**
 
 - **Base packages** from `install/omarchy-base.packages` (pacman) and `install/omarchy-base.aur.packages` (AUR); includes system/base + desktop, Brave default browser, Chromium backup, Steam, etc.
-- **AUR:** Helium (webapps), Cursor (editor), pear-desktop
+- **AUR:** Cursor (editor), pear-desktop. **AppImage:** Helium (webapps)
 - **Dev runtimes:** Go and Node.js via mise
 - **Dictation:** Voxtype (non-interactive)
 - Fonts, Neovim (LazyVim), icons, **webapps (YouTube, X — via Helium when available)**, TUIs (Disk Usage, Docker)

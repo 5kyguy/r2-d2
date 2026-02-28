@@ -23,7 +23,7 @@ This document lists everything installed during the Omarchy install process and 
 
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
-All packages from **`install/omarchy-base.packages`** (pacman) and **`install/omarchy-base.aur.packages`** (AUR, via yay) are installed. The main file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages; the AUR file lists base AUR packages such as Brave. **Default browser:** Brave. **Browsers installed:** Brave (brave-bin, AUR), Chromium, Helium (AUR). Webapps are created using Helium when available.
+All packages from **`install/omarchy-base.packages`** (pacman) and **`install/omarchy-base.aur.packages`** (AUR, via yay) are installed. The main file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages; the AUR file lists base AUR packages such as Brave. **Default browser:** Brave. **Browsers installed:** Brave (brave-bin, AUR), Chromium, Helium (AppImage via `packaging/helium.sh`). Webapps are created using Helium when available.
 
 #### Full pacman list (omarchy-base.packages)
 
@@ -150,7 +150,7 @@ All packages from **`install/omarchy-base.packages`** (pacman) and **`install/om
 
 | Script | What |
 | ------ | ---- |
-| `packaging/aur.sh` | **AUR:** helium-browser-bin (webapps), cursor-bin (editor), pear-desktop. |
+| `packaging/helium.sh` | **Helium AppImage** (browser for webapps; avoids AUR helium-browser which builds clang/llvm). |
 | `packaging/dev-runtimes.sh` | **Go** and **Node.js** via mise (omarchy-install-dev-env go/node). |
 | `packaging/voxtype.sh` | **Dictation:** Voxtype + model and systemd (non-interactive). |
 
@@ -160,7 +160,7 @@ All packages from **`install/omarchy-base.packages`** (pacman) and **`install/om
 | ------ | ---- |
 | `packaging/fonts.sh` | Copies `omarchy.ttf` to `~/.local/share/fonts`, runs `fc-cache` (no pacman). |
 | `packaging/nvim.sh` | Runs **omarchy-nvim-setup** (LazyVim + themes; no extra pacman). |
-| `packaging/icons.sh` | Copies bundled PNG icons to `~/.local/share/applications/icons` (no pacman). |
+| `packaging/icons.sh` | Copies bundled PNG icons to `~/.local/share/applications/icons` (no pacman). Helium adds its own icon via `helium.sh`. |
 | `packaging/webapps.sh` | **Web apps (Helium when available):** YouTube, X (twitter.com). |
 | `packaging/tuis.sh` | **TUI shortcuts:** "Disk Usage" (dust), "Docker" (lazydocker). |
 
@@ -240,7 +240,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | VSCode | **visual-studio-code-bin** | omarchy-install-vscode (AUR via yay if needed). |
 | Zed | **zed** | install_and_launch → omarchy-pkg-add. |
 
-(Cursor is preinstalled via packaging/aur.sh.)
+(Cursor is preinstalled via packaging/base.sh from AUR.)
 
 ### 2.9 Install → Terminal
 
@@ -295,7 +295,7 @@ Below is a **suggested** split. “Default” = install during main install; “
 - **Notifications:** mako  
 - **Basics:** grim, slurp, wl-clipboard, imagemagick  
 - **Terminal (one default):** alacritty  
-- **Browser:** Brave (default), Chromium (backup; no Google/Chromium account setup — `omarchy-refresh-chromium` only refreshes config), Helium (webapps)  
+- **Browser:** Brave (default), Chromium (backup; no Google/Chromium account setup — `omarchy-refresh-chromium` only refreshes config), Helium (AppImage; webapps)  
 - **File manager:** nautilus, nautilus-python, gvfs-*, sushi  
 - **Editor (CLI):** nvim, omarchy-nvim  
 - **Version manager:** mise  
@@ -328,7 +328,7 @@ Below is a **suggested** split. “Default” = install during main install; “
 ## 4. Summary counts
 
 - **Base packages (omarchy-base.packages):** 126 packages.  
-- **Preflight:** base-devel, omarchy-keyring (+ full upgrade). **Single package file:** `install/omarchy-base.packages` (includes former omarchy-other.packages). **Preinstalled from menu:** Go, Node (mise), Cursor, Voxtype, Steam, pear-desktop (AUR); Brave + Helium + Chromium; webapps use Helium.  
+- **Preflight:** base-devel, omarchy-keyring (+ full upgrade). **Single package file:** `install/omarchy-base.packages` (includes former omarchy-other.packages). **Preinstalled from menu:** Go, Node (mise), Cursor, Voxtype, Steam, pear-desktop (AUR); Brave + Helium (AppImage) + Chromium; webapps use Helium.  
 - **Conditional:** vulkan-radeon (AMD), limine-snapper-sync + limine-mkinitcpio-hook (if limine).  
 - **Default web apps:** 2 (YouTube, X).  
 - **Default TUI shortcuts:** 2 (Disk Usage, Docker).  
