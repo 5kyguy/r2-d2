@@ -10,7 +10,7 @@
 
 * {
   all: unset;
-  font-family: JetBrains Mono NF;
+  font-family: CaskaydiaMono Nerd Font Mono;
   color: @foreground;
   font-weight: bold;
   font-size: 16px;
