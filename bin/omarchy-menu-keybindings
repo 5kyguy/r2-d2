@@ -213,7 +213,6 @@ prioritize_entries() {
     if (match(line, /Scroll active workspace/))  prio = 95
     if (match(line, /Cycle to/))  prio = 96
     if (match(line, /Reveal active/))  prio = 97
-    if (match(line, /Apple Display/))  prio = 98
     if (match(line, /XF86/))  prio = 99
 
     # print "priority<TAB>line"

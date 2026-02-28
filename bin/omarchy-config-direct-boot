@@ -18,11 +18,6 @@ if cat /sys/class/dmi/id/bios_vendor 2>/dev/null | grep -qi "American Megatrends
   exit 1
 fi
 
-if cat /sys/class/dmi/id/bios_vendor 2>/dev/null | grep -qi "Apple"; then
-  echo "Error: Apple firmware uses its own boot manager" >&2
-  exit 1
-fi
-
 uki_file=$(find /boot/EFI/Linux/ -name "omarchy*.efi" -printf "%f\n" 2>/dev/null | head -1)
 
 if [[ -z $uki_file ]]; then

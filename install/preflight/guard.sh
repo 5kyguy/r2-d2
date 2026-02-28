@@ -21,7 +21,7 @@ if (( EUID == 0 )); then
   abort "Running as root (not user)"
 fi
 
-# Must be x86 only to fully work
+# Must be x86_64 (AMD; no ARM)
 if [[ $(uname -m) != "x86_64" ]]; then
   abort "x86_64 CPU"
 fi
