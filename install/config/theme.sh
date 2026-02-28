@@ -6,8 +6,8 @@ sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr
 mkdir -p ~/.config/omarchy/themes
 
 # Set initial theme
-omarchy-theme-set "Tokyo Night"
-rm -rf ~/.config/chromium/SingletonLock # otherwise archiso will own the chromium singleton
+omarchy-theme-set "My Theme"
+rm -rf ~/.config/chromium/SingletonLock
 
 # Set specific app links for current theme
 mkdir -p ~/.config/btop/themes

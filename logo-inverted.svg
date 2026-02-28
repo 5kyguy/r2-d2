@@ -7,7 +7,7 @@
       text {
         font-family: monospace;
         font-size: 18px;
-        fill: #000000;
+        fill: #ffffff;
       }
     </style>
   </defs>

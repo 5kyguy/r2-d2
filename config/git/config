@@ -17,12 +17,20 @@
 	mnemonicPrefix = true    # More intuitive refs in diff output
 [commit]
 	verbose = true           # Include diff comment in commit message template
+	gpgsign = true
 [column]
 	ui = auto 			     # Output in columns when possible
 [branch]
 	sort = -committerdate    # Sort branches by most recent commit first
 [tag]
 	sort = -version:refname  # Sort version numbers as you would expect
+	gpgSign = true
 [rerere]
 	enabled = true           # Record and reuse conflict resolutions
 	autoupdate = true        # Apply stored conflict resolutions automatically
+[user]
+	email = 0x5kyguy@gmail.com
+	name = 5kyguy
+	signingkey = /home/skyguy/.ssh/id_git_ssh.pub
+[gpg]
+	format = ssh
