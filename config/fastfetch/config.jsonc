@@ -114,7 +114,7 @@
       "type": "command",
       "key": "│ ├󰸌",
       "keyColor": "blue",
-      "text": "theme=$(omarchy-theme-current); echo -e \"$theme \\e[38m●\\e[37m●\\e[36m●\\e[35m●\\e[34m●\\e[33m●\\e[32m●\\e[31m●\""
+      "text": "echo -e \"default \\e[38m●\\e[37m●\\e[36m●\\e[35m●\\e[34m●\\e[33m●\\e[32m●\\e[31m●\""
     },
     {
       "type": "terminalfont",

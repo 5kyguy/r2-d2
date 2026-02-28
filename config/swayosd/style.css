@@ -1,28 +1,61 @@
-@import "../omarchy/current/theme/swayosd.css";
+@define-color background-color #121212;
+@define-color border-color #8B7F2E;
+@define-color label #8A8A8D;
+@define-color image #8A8A8D;
+@define-color progress #8A8A8D;
 
 window {
-  border-radius: 0;
-  opacity: 0.97;
-  border: 2px solid @border-color;
-
-  background-color: @background-color;
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    padding: 0;
+    box-shadow: none;
 }
 
-label {
-  font-family: 'CaskaydiaMono Nerd Font Mono';
-  font-size: 11pt;
-
-  color: @label;
+.osd,
+osd,
+osd {
+    background-color: alpha(@background-color, 0.4);
+    border: 1px solid @border-color;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 image {
-  color: @image;
+    color: @image;
+    -gtk-icon-size: 0px;
+    margin: 0 16px 0 0;
+}
+
+label {
+    color: @label;
+    font-size: 8px;
+    font-weight: 400;
+    margin: 0;
+    text-shadow: none;
 }
 
 progressbar {
-  border-radius: 0;
+    border-radius: 999px;
+    padding-bottom:8px;
+    margin: 8px 0 0 0;
+    min-height: 5px;
+    min-width: 200px;
 }
 
-progress {
-  background-color: @progress;
+progressbar > trough,
+progressbar trough {
+  background: alpha(@border-color, 0.15);
+  border-radius: 0;
+  border: none;
+  min-height: 16px;
+}
+
+progressbar > trough > progress,
+progressbar progress {
+  background: linear-gradient(90deg, @progress, @border-color);
+  border-radius: 0;
+  border: none;
+  min-height: 16px;
+  box-shadow: none;
 }

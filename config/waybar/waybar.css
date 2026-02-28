@@ -1,0 +1,52 @@
+/* vhs80 color scheme: dark #121212 background, gold/amber accents */
+@define-color background #121212;
+@define-color waybarBg rgba(18, 18, 18, 0.85);
+@define-color foreground #D4D4D4;
+@define-color surface #636e72;
+@define-color inactive #606060;
+
+@define-color accent_orange #E07924;
+@define-color accent_green #5BB775;
+@define-color accent_blue #8B7F2E;
+@define-color accent_critical #C73838;
+
+#waybar {
+  background-color: @waybarBg;
+}
+
+#battery.charging,
+#battery.plugged {
+  color: @accent_green;
+}
+
+#battery.warning:not(.charging) {
+  color: @accent_orange;
+}
+
+#battery.critical:not(.charging) {
+  color: @accent_critical;
+}
+
+#pulseaudio.muted {
+  color: @accent_critical;
+}
+
+#network.disconnected {
+  color: @accent_critical;
+}
+
+tooltip {
+  background-color: @waybarBg;
+  padding: 8px 12px;
+  border: 1px solid @accent_blue;
+}
+
+tooltip label {
+  color: @foreground;
+}
+
+#tray menu {
+  background-color: @waybarBg;
+  color: @foreground;
+  border: 1px solid @accent_blue;
+}
