@@ -25,23 +25,22 @@ bindings = [
 primary = { background = "#121212", foreground = "#d4d4d4", dim_foreground = "#8a8a8d" }
 cursor = { text = "#121212", cursor = "#A85511" }
 selection = { text = "CellForeground", background = "#A85511" }
-normal = {
-  black = "#333333",
-  red = "#862020",
-  green = "#277D46",
-  yellow = "#A85511",
-  blue = "#8B7F2E",
-  magenta = "#932A37",
-  cyan = "#2F8383",
-  white = "#bebebe"
-}
-bright = {
-  black = "#8a8a8d",
-  red = "#C73838",
-  green = "#5BB775",
-  yellow = "#E07924",
-  blue = "#C6B441",
-  magenta = "#C73838",
-  cyan = "#46BEBE",
-  white = "#eaeaea"
-}
+[colors.normal]
+black = "#333333"
+red = "#862020"
+green = "#277D46"
+yellow = "#A85511"
+blue = "#8B7F2E"
+magenta = "#932A37"
+cyan = "#2F8383"
+white = "#bebebe"
+
+[colors.bright]
+black = "#8a8a8d"
+red = "#C73838"
+green = "#5BB775"
+yellow = "#E07924"
+blue = "#C6B441"
+magenta = "#C73838"
+cyan = "#46BEBE"
+white = "#eaeaea"
