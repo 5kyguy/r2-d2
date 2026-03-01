@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Upload logs to 0x0.st
+# Upload logs to a code/file sharing service (free tier, no account).
+# Tries in order: 0x0.st, ix.io, transfer.sh.
 
 LOG_TYPE="${1:-install}"
 TEMP_LOG="/tmp/upload-log.txt"
@@ -51,7 +52,7 @@ install)
     exit 1
   fi
 
-  echo "Uploading installation log to 0x0.st..."
+  echo "Uploading installation log..."
   ;;
 
 this-boot)
@@ -64,7 +65,7 @@ this-boot)
     exit 1
   fi
 
-  echo "Uploading current boot logs to 0x0.st..."
+  echo "Uploading current boot logs..."
   ;;
 
 last-boot)
@@ -77,7 +78,7 @@ last-boot)
     exit 1
   fi
 
-  echo "Uploading previous boot logs to 0x0.st..."
+  echo "Uploading previous boot logs..."
   ;;
 
 installed|system-info)
@@ -96,7 +97,7 @@ installed|system-info)
     exit 1
   fi
 
-  echo "Uploading system information to 0x0.st..."
+  echo "Uploading system information..."
   ;;
 
 *)
@@ -111,16 +112,28 @@ esac
 
 echo ""
 
-URL=$(curl -sF "file=@$TEMP_LOG" -Fexpires=24 https://0x0.st)
+# Try free-tier upload services in order (no account required)
+URL=""
+# 0x0.st — 512 MiB max, 30 days–1 year retention
+if [[ -z $URL ]]; then
+  URL=$(curl -sf -F "file=@$TEMP_LOG" -F expires=24 https://0x0.st 2>/dev/null)
+fi
+# ix.io — paste from stdin
+if [[ -z $URL ]]; then
+  URL=$(curl -sf -F 'f:1=<-' http://ix.io <"$TEMP_LOG" 2>/dev/null | tr -d '\n')
+fi
+# transfer.sh — up to 10 GB, 14-day retention
+if [[ -z $URL ]]; then
+  URL=$(curl -sf --upload-file "$TEMP_LOG" "https://transfer.sh/$(basename "$TEMP_LOG")" 2>/dev/null | tr -d '\n')
+fi
 
-if (( $? == 0 )) && [[ -n $URL ]]; then
+if [[ -n $URL ]]; then
   echo "✓ Log uploaded successfully!"
   echo "Share this URL:"
   echo ""
   echo "  $URL"
   echo ""
-  echo "This link will expire in 24 hours."
 else
-  echo "Error: Failed to upload log file"
+  echo "Error: Failed to upload log (tried 0x0.st, ix.io, transfer.sh)"
   exit 1
 fi
