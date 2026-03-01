@@ -13,8 +13,8 @@ cp ~/.local/share/omarchy/applications/*.desktop ~/.local/share/applications/
 cp ~/.local/share/omarchy/applications/hidden/*.desktop ~/.local/share/applications/
 
 # Refresh the webapps and TUIs
-bash $OMARCHY_PATH/install/packaging/icons.sh
-bash $OMARCHY_PATH/install/packaging/webapps.sh
-bash $OMARCHY_PATH/install/packaging/tuis.sh
+bash "$OMARCHY_PATH/install/packaging/icons.sh"
+bash "$OMARCHY_PATH/install/packaging/webapps.sh"
+bash "$OMARCHY_PATH/install/packaging/tuis.sh"
 
 update-desktop-database ~/.local/share/applications

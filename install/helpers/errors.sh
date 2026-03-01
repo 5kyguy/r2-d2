@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Track if we're already handling an error to prevent double-trapping
 ERROR_HANDLING=false
 

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Install omarchy SDDM theme
 omarchy-refresh-sddm
 

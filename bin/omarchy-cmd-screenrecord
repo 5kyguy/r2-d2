@@ -3,6 +3,7 @@
 # Start and stop a screenrecording, which will be saved to ~/Videos by default.
 # Alternative location can be set via OMARCHY_SCREENRECORD_DIR or XDG_VIDEOS_DIR ENVs.
 
+# shellcheck source=/dev/null
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${OMARCHY_SCREENRECORD_DIR:-${XDG_VIDEOS_DIR:-$HOME/Videos}}"
 
@@ -44,15 +45,18 @@ start_webcam_overlay() {
   fi
 
   # Get monitor scale
-  local scale=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .scale')
+  local scale
+  scale=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .scale')
 
   # Target width (base 360px, scaled to monitor)
-  local target_width=$(awk "BEGIN {printf \"%.0f\", 360 * $scale}")
+  local target_width
+  target_width=$(awk "BEGIN {printf \"%.0f\", 360 * $scale}")
 
   # Try preferred 16:9 resolutions in order, use first available
   local preferred_resolutions=("640x360" "1280x720" "1920x1080")
   local video_size_arg=""
-  local available_formats=$(v4l2-ctl --list-formats-ext -d "$WEBCAM_DEVICE" 2>/dev/null)
+  local available_formats
+  available_formats=$(v4l2-ctl --list-formats-ext -d "$WEBCAM_DEVICE" 2>/dev/null)
 
   for resolution in "${preferred_resolutions[@]}"; do
     if echo "$available_formats" | grep -q "$resolution"; then
@@ -72,7 +76,8 @@ start_webcam_overlay() {
 }
 
 start_screenrecording() {
-  local filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+  local filename
+  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
   local audio_devices=""
   local audio_args=""
 
@@ -91,7 +96,8 @@ start_screenrecording() {
 }
 
 trim_first_frame() {
-  local latest=$(ls -t "$OUTPUT_DIR"/screenrecording-*.mp4 2>/dev/null | head -1)
+  local latest
+  latest=$(ls -t "$OUTPUT_DIR"/screenrecording-*.mp4 2>/dev/null | head -1)
   if [[ -n $latest ]]; then
     local trimmed="${latest%.mp4}-trimmed.mp4"
     if ffmpeg -y -ss 0.1 -i "$latest" -c copy "$trimmed" -loglevel quiet 2>/dev/null; then

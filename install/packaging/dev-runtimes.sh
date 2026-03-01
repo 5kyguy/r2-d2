@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Preinstall Go (official tarball to /usr/local) and Node.js (nvm), non-interactive
 GO_VERSION=1.26.0
 GO_TAR="go${GO_VERSION}.linux-amd64.tar.gz"

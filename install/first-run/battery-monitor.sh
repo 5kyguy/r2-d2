@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if omarchy-battery-present; then
   powerprofilesctl set balanced || true
 

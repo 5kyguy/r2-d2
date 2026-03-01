@@ -1,3 +1,5 @@
+#!/bin/bash
+
 source $OMARCHY_INSTALL/preflight/begin.sh
 run_logged $OMARCHY_INSTALL/preflight/pacman.sh
 run_logged $OMARCHY_INSTALL/preflight/migrations.sh

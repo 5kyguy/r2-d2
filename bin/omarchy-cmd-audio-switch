@@ -56,7 +56,7 @@ fi
 
 next_sink_volume_icon="sink-volume-${icon_state}-symbolic"
 
-if [[ $next_sink_name != $current_sink_name ]]; then
+if [[ $next_sink_name != "$current_sink_name" ]]; then
   pactl set-default-sink "$next_sink_name"
 fi
 

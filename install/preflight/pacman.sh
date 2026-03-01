@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Install build tools
 omarchy-pkg-add base-devel
 

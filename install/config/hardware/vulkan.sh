@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Install Vulkan drivers matching detected GPU hardware
 
 declare -A VULKAN_DRIVERS=(

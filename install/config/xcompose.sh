@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Set default XCompose that is triggered with CapsLock
 tee ~/.XCompose >/dev/null <<EOF
 # Run omarchy-restart-xcompose to apply changes

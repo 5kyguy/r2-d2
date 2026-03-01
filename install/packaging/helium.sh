@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # Install Helium browser as AppImage (avoids AUR helium-browser which builds clang/llvm).
 # Adds desktop entry and icon for Walker.
 
@@ -32,7 +33,7 @@ ln -sf "$HELIUM_APPIMAGE" "$BIN_DIR/helium"
 # Extract icon from AppImage if not already present
 if [[ ! -f $ICON_DIR/helium.png ]]; then
   extract_dir=$(mktemp -d)
-  trap "rm -rf $extract_dir" EXIT
+  trap 'rm -rf $extract_dir' EXIT
   (cd "$extract_dir" && "$HELIUM_APPIMAGE" --appimage-extract 2>/dev/null) || true
   if [[ -f $extract_dir/squashfs-root/.DirIcon ]]; then
     cp "$extract_dir/squashfs-root/.DirIcon" "$ICON_DIR/helium.png"

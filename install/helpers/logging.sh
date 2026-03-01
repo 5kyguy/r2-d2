@@ -1,3 +1,5 @@
+#!/bin/bash
+
 start_log_output() {
   local ANSI_SAVE_CURSOR="\033[s"
   local ANSI_RESTORE_CURSOR="\033[u"
@@ -56,7 +58,8 @@ start_install_log() {
   sudo touch "$OMARCHY_INSTALL_LOG_FILE"
   sudo chmod 666 "$OMARCHY_INSTALL_LOG_FILE"
 
-  export OMARCHY_START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+  export OMARCHY_START_TIME
+  OMARCHY_START_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 
   echo "=== Omarchy Installation Started: $OMARCHY_START_TIME ===" >>"$OMARCHY_INSTALL_LOG_FILE"
   start_log_output

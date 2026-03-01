@@ -22,9 +22,10 @@ echo -e "\nCloning from: https://github.com/5kyguy/artoo-d2.git (branch: dev)"
 rm -rf ~/.local/share/omarchy/
 git clone "https://github.com/5kyguy/artoo-d2.git" ~/.local/share/omarchy >/dev/null
 
-cd ~/.local/share/omarchy
+cd ~/.local/share/omarchy || exit
 git fetch origin dev && git checkout dev
-cd -
+cd - || exit
 
 echo -e "\nInstallation starting..."
+# shellcheck source=install.sh
 source ~/.local/share/omarchy/install.sh

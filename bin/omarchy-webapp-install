@@ -59,8 +59,10 @@ else
   ICON_PATH="$ICON_DIR/$ICON_REF"
 fi
 
-# Use Helium for webapps when available, else default browser
-if command -v helium &>/dev/null; then
+# Use custom exec if provided, else Helium when available, else default browser
+if [[ -n $CUSTOM_EXEC ]]; then
+  EXEC_COMMAND="$CUSTOM_EXEC"
+elif command -v helium &>/dev/null; then
   EXEC_COMMAND="helium --app=\"$APP_URL\""
 else
   EXEC_COMMAND="omarchy-launch-webapp $APP_URL"

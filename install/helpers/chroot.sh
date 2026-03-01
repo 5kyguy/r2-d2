@@ -1,3 +1,5 @@
+#!/bin/bash
+
 chrootable_systemctl_enable() {
   sudo systemctl enable --now $1
 }

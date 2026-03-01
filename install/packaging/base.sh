@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Install all base packages (official repos first, then AUR)
 mapfile -t packages < <(grep -v '^#' "$OMARCHY_INSTALL/omarchy-base.packages" | grep -v '^$')
 omarchy-pkg-add "${packages[@]}"

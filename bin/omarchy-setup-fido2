@@ -66,7 +66,7 @@ remove_pam_config() {
   fi
 }
 
-if [[ "--remove" == $1 ]]; then
+if [[ "--remove" == "$1" ]]; then
   print_success "Removing FIDO2 device from authentication.\n"
 
   # Remove PAM configuration

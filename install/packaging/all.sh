@@ -1,3 +1,5 @@
+#!/bin/bash
+
 run_logged $OMARCHY_INSTALL/packaging/base.sh
 run_logged $OMARCHY_INSTALL/packaging/helium.sh
 run_logged $OMARCHY_INSTALL/packaging/dev-runtimes.sh
