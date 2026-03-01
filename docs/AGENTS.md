@@ -20,7 +20,7 @@ All commands start with `omarchy-`. Prefixes indicate purpose:
 - `install-` - install optional software
 - `setup-` - interactive setup wizards
 - `toggle-` - toggle features on/off
-- `theme-` - theme management
+- `theme-` - wallpaper
 - `update-` - update components
 
 # Helper Commands
@@ -34,9 +34,8 @@ Use these instead of raw shell commands:
 
 # Config Structure
 
-- `config/` - default configs copied to `~/.config/`
-- `default/themed/*.tpl` - templates with `{{ variable }}` placeholders for theme colors
-- `themes/*/colors.toml` - theme color definitions (accent, background, foreground, color0-15)
+- `config/` - user-editable config; copied to `~/.config/` on install. Single place to edit (see `.cursor/rules/omarchy-single-user-and-boot.mdc`).
+- `default/` (limine, pacman, gpg, systemd, plymouth, sddm, etc.) - system-install assets only, not user config
 
 # Refresh Pattern
 
@@ -49,6 +48,8 @@ omarchy-refresh-config hypr/hyprlock.conf
 This copies `~/.local/share/omarchy/config/hypr/hyprlock.conf` to `~/.config/hypr/hyprlock.conf`.
 
 # Migrations
+
+Migrations run at the end of install (`omarchy-migrate`) and during `omarchy-update-perform`. They must be **idempotent** or no-op when preconditions are missing (e.g. first install vs re-run after pull): e.g. "move file A → B" should check for A; "create dir" is idempotent.
 
 To create a new migration, run `omarchy-dev-add-migration --no-edit`. This creates a migration file named after the unix timestamp of the last commit.
 

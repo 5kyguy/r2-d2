@@ -23,7 +23,7 @@ This document lists everything installed during the Omarchy install process and 
 
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
-All packages from **`install/omarchy-base.packages`** (pacman) and **`install/omarchy-base.aur.packages`** (AUR, via yay) are installed. The main file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages; the AUR file lists base AUR packages such as Brave. **Default browser:** Brave. **Browsers installed:** Brave (brave-bin, AUR), Chromium, Helium (AppImage via `packaging/helium.sh`). Webapps are created using Helium when available.
+All packages from **`install/omarchy-base.packages`** (pacman) and **`install/omarchy-base.aur.packages`** (AUR, via yay) are installed. The pacman file includes the former system/base set (base, base-devel, linux, pipewire, snapper, limine, etc.) and desktop/app packages. The AUR file lists base AUR packages: **brave-bin**, **cursor-appimage**, **pear-desktop**, **voxtype-bin**. **Default browser:** Brave. **Browsers installed:** Brave (AUR), Chromium, Helium (AppImage via `packaging/helium.sh`). Webapps are created using Helium when available. Voxtype config is applied in the config phase (`config/voxtype.sh`); `packaging/base.sh` runs `voxtype setup` if the binary is present.
 
 #### Full pacman list (omarchy-base.packages)
 
@@ -87,7 +87,6 @@ All packages from **`install/omarchy-base.packages`** (pacman) and **`install/om
 | mako | Notifications |
 | man-db | Man pages |
 | mariadb-libs | MySQL client libs |
-| mise | Runtime/version manager |
 | vlc | Video player |
 | nautilus, nautilus-python | File manager |
 | gnome-disk-utility | Disks |
@@ -151,8 +150,7 @@ All packages from **`install/omarchy-base.packages`** (pacman) and **`install/om
 | Script | What |
 | ------ | ---- |
 | `packaging/helium.sh` | **Helium AppImage** (browser for webapps; avoids AUR helium-browser which builds clang/llvm). |
-| `packaging/dev-runtimes.sh` | **Go** and **Node.js** via mise (omarchy-install-dev-env go/node). |
-| `packaging/voxtype.sh` | **Dictation:** Voxtype + model and systemd (non-interactive). |
+| `packaging/dev-runtimes.sh` | **Go** (pacman) and **Node.js** (nvm). |
 
 ### 1.4 Packaging – other steps
 
@@ -214,21 +212,20 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 
 | Option | What |
 | ------ | ---- |
-| Theme | **omarchy-theme-install** (themes from repo/config). |
-| Background | **omarchy-theme-bg-install** (user picks background dir). |
+| Background | **omarchy-theme-bg-set** (set wallpaper; or use background selector: Super + Ctrl + Space). |
 
 ### 2.7 Install → Development
 
 | Option | How | Pacman / other |
 | ------ | --- | --------------- |
 | Docker DB | **omarchy-install-docker-dbs** | Docker containers only: MySQL, PostgreSQL, Redis, MongoDB, ScyllaDB. |
-| JavaScript → Node.js | omarchy-install-dev-env node | **mise** (global node). |
-| JavaScript → Bun | omarchy-install-dev-env bun | **mise** (bun). |
-| JavaScript → Deno | omarchy-install-dev-env deno | **mise** (deno). |
-| Go | omarchy-install-dev-env go | **mise** (go). |
-| Python | omarchy-install-dev-env python | **mise** (python), **uv** (curl script). |
-| Elixir | omarchy-install-dev-env elixir | **mise** (erlang, elixir), mix local.hex. |
-| Zig | omarchy-install-dev-env zig | **mise** (zig, zls). |
+| JavaScript → Node.js | omarchy-install-dev-env node | **nvm** (Node LTS). |
+| JavaScript → Bun | omarchy-install-dev-env bun | **pacman** (bun). |
+| JavaScript → Deno | omarchy-install-dev-env deno | **pacman** (deno). |
+| Go | omarchy-install-dev-env go | **pacman** (go). |
+| Python | omarchy-install-dev-env python | **pacman** (python), **uv** (curl script). |
+| Elixir | omarchy-install-dev-env elixir | **pacman** (erlang, elixir), mix local.hex. |
+| Zig | omarchy-install-dev-env zig | **pacman** (zig), **AUR** (zls-git). |
 | Rust | omarchy-install-dev-env rust | **rustup** (curl script). |
 
 *Java, .NET, OCaml, Clojure, Scala, Phoenix removed from menu (not implemented in omarchy-install-dev-env).*
@@ -251,7 +248,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 
 ### 2.10 Install → AI
 
-(Dictation/Voxtype is preinstalled via packaging/voxtype.sh.)
+(Dictation/Voxtype is in base packages; config in config phase.)
 
 | Option | Package (or AUR) |
 | ------ | ----------------- |
@@ -298,7 +295,7 @@ Below is a **suggested** split. “Default” = install during main install; “
 - **Browser:** Brave (default), Chromium (backup; no Google/Chromium account setup — `omarchy-refresh-chromium` only refreshes config), Helium (AppImage; webapps)  
 - **File manager:** nautilus, nautilus-python, gvfs-*, sushi  
 - **Editor (CLI):** nvim, omarchy-nvim  
-- **Version manager:** mise  
+- **Version manager:** nvm (Node)  
 - **Firewall:** ufw, ufw-docker (if keeping Docker default)  
 - **Optional but small:** brightnessctl, inetutils, plocate, whois, tzupdate  
 
@@ -319,7 +316,7 @@ Below is a **suggested** split. “Default” = install during main install; “
 - **Steam, Cursor, Voxtype, Go, Node, pear-desktop** – preinstalled; Steam also in base packages.  
 - **RetroArch, Minecraft, Xbox** – menu-only.  
 - **VSCode, Zed** – menu-only (Cursor preinstalled).  
-- **Node/Bun/Deno, Go, Python, Elixir, Rust, Zig** – Go and Node preinstalled; others menu-only (mise/rustup).  
+- **Node/Bun/Deno, Go, Python, Elixir, Rust, Zig** – Go and Node preinstalled; others menu-only (nvm/pacman/rustup).  
 - **Web apps** – YouTube and X by default (via Helium when available); rest from menu.  
 - **TUIs** – Disk Usage and Docker by default; rest from menu.  
 
@@ -327,8 +324,8 @@ Below is a **suggested** split. “Default” = install during main install; “
 
 ## 4. Summary counts
 
-- **Base packages (omarchy-base.packages):** 126 packages.  
-- **Preflight:** base-devel, omarchy-keyring (+ full upgrade). **Single package file:** `install/omarchy-base.packages` (includes former omarchy-other.packages). **Preinstalled from menu:** Go, Node (mise), Cursor, Voxtype, Steam, pear-desktop (AUR); Brave + Helium (AppImage) + Chromium; webapps use Helium.  
+- **Base packages (omarchy-base.packages):** 125 packages.  
+- **Preflight:** base-devel, omarchy-keyring (+ full upgrade). **Single package file:** `install/omarchy-base.packages` (includes former omarchy-other.packages). **Preinstalled from menu:** Go, Node (nvm), Cursor, Voxtype, Steam, pear-desktop (AUR); Brave + Helium (AppImage) + Chromium; webapps use Helium.  
 - **Conditional:** vulkan-radeon (AMD), limine-snapper-sync + limine-mkinitcpio-hook (if limine).  
 - **Default web apps:** 2 (YouTube, X).  
 - **Default TUI shortcuts:** 2 (Disk Usage, Docker).  

@@ -26,54 +26,64 @@ curl -fsSL https://raw.githubusercontent.com/5kyguy/artoo-d2/refs/heads/dev/boot
 
 This will:
 
-1. **Bootstrap** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git
-2. **Clone** — Remove any existing `~/.local/share/omarchy/` and clone `5kyguy/artoo-d2` from the `dev` branch
-3. **Run the installer** — Execute the full installation pipeline
+1. **Bootstrap (boot.sh)** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/omarchy/`, clone `5kyguy/artoo-d2` from the `dev` branch, then source `install.sh`
+2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install)
 
-### Installation Phases
+The installer does **not** verify prerequisites (Vanilla Arch, x86_64, Btrfs root, Limine, Secure Boot off, no GNOME/KDE). Ensure they are met before running.
 
-**Phase 1 — Bootstrap (boot.sh)**
+### Installation Phases (install.sh)
 
-- Display ASCII logo
-- Configure pacman mirror to `stable-mirror.omarchy.org`
-- Install/update git
-- Clone `5kyguy/artoo-d2` (dev branch) into `~/.local/share/omarchy/`
-- Source `install.sh`
+**Phase 1 — Preflight** (`install/preflight/all.sh`)
 
-**Phase 2 — Guards**
+- **begin.sh** — Clear screen, show “Installing…”, start install log
+- **pacman.sh** — Install base-devel; copy pacman.conf and mirrorlist; import Omarchy key, install omarchy-keyring; full sync and upgrade (`pacman -Syyuu`)
+- **migrations.sh** — Prepare migration state directory; migrations run at end of install (omarchy-migrate)
+- **first-run-mode.sh** — Create first-run marker and sudoers entries for post-login cleanup
+- **disable-mkinitcpio.sh** — Temporarily disable mkinitcpio hooks during package install
 
-- Verify Vanilla Arch, x86_64, Btrfs root, Limine, Secure Boot disabled, no GNOME/KDE
+**Phase 2 — Packaging** (`install/packaging/all.sh`)
 
-**Phase 3 — Preflight**
+- **base.sh** — Install all packages from `install/omarchy-base.packages` (pacman) and `install/omarchy-base.aur.packages` (AUR). Includes base/system, desktop (Hyprland, waybar, etc.), Brave (default browser), Chromium, Steam, Cursor, Voxtype, and many others. Runs `voxtype setup` if Voxtype is present.
+- **helium.sh** — Install Helium AppImage (webapps)
+- **dev-runtimes.sh** — Go (pacman) and Node.js (nvm)
+- **fonts.sh** — Copy omarchy font, run fc-cache
+- **nvim.sh** — Run omarchy-nvim-setup (LazyVim)
+- **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
+- **webapps.sh** — Create web app shortcuts (YouTube, X) via Helium when available
+- **tuis.sh** — Add TUI shortcuts (Disk Usage, Docker)
 
-- Pacman setup: base-devel, **Omarchy keyring** (used for the Omarchy repo), mirror config, full system update
-- Mark migrations as run (for fresh installs)
-- First-run mode marker and sudoers for post-install cleanup
-- Temporarily disable mkinitcpio hooks during package installation
+**Phase 3 — Config** (`install/config/all.sh`)
 
-**Phase 4 — Packaging**
+- **config.sh** — Copy repo `config/*` to `~/.config/`, default bashrc to `~/.bashrc`
+- **theme.sh** — Theme/background setup, Chromium policy dirs
+- **branding.sh** — Copy logo for fastfetch/screensaver
+- **git, gpg, timezones** — User/config defaults
+- **increase-sudo-tries, increase-lockout-limit, ssh-flakiness, increase-file-watchers** — System tweaks
+- **detect-keyboard-layout, xcompose** — Input
+- **docker.sh, flatpak.sh** — Container/flatpak config
+- **mimetypes.sh** — Default apps (e.g. Brave as browser)
+- **localdb.sh, walker-elephant.sh, fast-shutdown.sh, input-group.sh**
+- **voxtype.sh** — Copy Voxtype config to `~/.config/voxtype/`
+- **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
+- **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad
 
-- **Base packages** from `install/omarchy-base.packages` (pacman) and `install/omarchy-base.aur.packages` (AUR); includes system/base + desktop, Brave default browser, Chromium backup, Steam, etc.
-- **AUR:** Cursor (editor), pear-desktop. **AppImage:** Helium (webapps)
-- **Dev runtimes:** Go and Node.js via mise
-- **Dictation:** Voxtype (non-interactive)
-- Fonts, Neovim (LazyVim), icons, **webapps (YouTube, X — via Helium when available)**, TUIs (Disk Usage, Docker)
+**Phase 4 — Login** (`install/login/all.sh`)
 
-**Phase 5 — Config**
+- **plymouth.sh** — Boot splash
+- **default-keyring.sh** — Default keyring setup
+- **sddm.sh** — SDDM display manager
+- **limine-snapper.sh** — Limine + Snapper (when limine present)
 
-- Theme, branding, git, GPG, timezones, Docker, **mimetypes (Brave as default browser)**, hardware config (Vulkan, Bluetooth, printer, etc.). Chromium config is refreshed from defaults only (no Google/Chromium account setup).
+**Phase 5 — Post-install** (`install/post-install/all.sh`)
 
-**Phase 6 — Login**
-
-- Plymouth, default keyring, SDDM, Limine + Snapper
-
-**Phase 7 — Post-install**
-
-- Hibernation setup, final pacman config, reboot prompt
+- **pacman.sh** — Final pacman.conf and mirrorlist
+- **omarchy-migrate** — Run pending migrations (idempotent; safe on first install and re-run)
+- **allow-reboot.sh** — Sudoers for reboot
+- **finished.sh** — Stop log, show logo and install time, remove reboot sudoers, prompt to reboot now
 
 ## Themes
 
-The default theme is a work in progress. Other [Omarchy themes](https://omarchythemes.com/) can be installed from the menu (Install → Theme). To install additional themes from other Omarchy theme repos, use `omarchy-theme-install <git-repo-url>`.
+Single theme only: colors and look are set once via config. To change the wallpaper, use the background selector (**Super + Ctrl + Space**) or `omarchy-theme-bg-set <path-to-image>`.
 
 ## Install / Remove / Update
 
