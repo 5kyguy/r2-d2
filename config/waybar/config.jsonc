@@ -8,17 +8,9 @@
   "margin-left": 5,
   "margin-right": 5,
 
-  "modules-left": ["custom/omarchy", "hyprland/workspaces"],
-  "modules-center": [
-    "hyprland/window",
-    "custom/update",
-    "custom/screenrecording-indicator",
-  ],
-  "modules-right": ["tray", "memory", "cpu", "temperature", "group/island", "clock", "battery"],
-  "group/island": {
-    "orientation": "horizontal",
-    "modules": ["network", "backlight", "bluetooth", "pulseaudio"],
-  },
+  "modules-left": ["battery", "pulseaudio", "network", "bluetooth", "tray"],
+  "modules-center": ["clock"],
+  "modules-right": ["custom/omarchy", "hyprland/workspaces", "memory", "cpu", "temperature"],
 
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -88,6 +80,7 @@
   "tray": {
     "icon-size": 12,
     "spacing": 12,
+    "show-passive-items": true,
   },
 
   "memory": {

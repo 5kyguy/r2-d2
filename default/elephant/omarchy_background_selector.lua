@@ -22,8 +22,8 @@ end
 function GetEntries()
   local entries = {}
   local home = os.getenv("HOME")
-  local omarchy_default = os.getenv("OMARCHY_PATH") or (home .. "/.local/share/omarchy/default")
-  local wallpaper_dir = omarchy_default .. "/backgrounds"
+  local omarchy_base = os.getenv("OMARCHY_PATH") or (home .. "/.local/share/omarchy")
+  local wallpaper_dir = omarchy_base .. "/default/backgrounds"
 
   local handle = io.popen(
     "find " .. ShellEscape(wallpaper_dir)
