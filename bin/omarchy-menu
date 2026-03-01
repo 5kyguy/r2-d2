@@ -71,33 +71,13 @@ aur_install_and_launch() {
   present_terminal "echo 'Installing $1 from AUR...'; omarchy-pkg-aur-add $2 && setsid gtk-launch $3"
 }
 
-show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Omarchy\n  Hyprland\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
-  *Keybindings*) omarchy-menu-keybindings ;;
-  *Omarchy*) omarchy-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
-  *Hyprland*) omarchy-launch-webapp "https://wiki.hypr.land/" ;;
-  *Arch*) omarchy-launch-webapp "https://wiki.archlinux.org/title/Main_page" ;;
-  *Bash*) omarchy-launch-webapp "https://devhints.io/bash" ;;
-  *Neovim*) omarchy-launch-webapp "https://www.lazyvim.org/keymaps" ;;
-  *) show_main_menu ;;
-  esac
-}
-
 show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n  Share\n󰔎  Toggle") in
-  *Capture*) show_capture_menu ;;
+  case $(menu "Trigger" "  Screenshot\n  Screenrecord\n  Share\n󰔎  Toggle") in
+  *Screenshot*) omarchy-cmd-screenshot ;;
+  *Screenrecord*) show_screenrecord_menu ;;
   *Share*) show_share_menu ;;
   *Toggle*) show_toggle_menu ;;
   *) show_main_menu ;;
-  esac
-}
-
-show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
-  *Screenshot*) omarchy-cmd-screenshot ;;
-  *Screenrecord*) show_screenrecord_menu ;;
-  *Color*) pkill hyprpicker || hyprpicker -a ;;
-  *) show_trigger_menu ;;
   esac
 }
 
@@ -140,12 +120,12 @@ show_screenrecord_menu() {
   *"With desktop + microphone audio + webcam")
     local device
     device=$(show_webcam_select_menu) || {
-      back_to show_capture_menu
+      back_to show_trigger_menu
       return
     }
     omarchy-cmd-screenrecord --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
     ;;
-  *) back_to show_capture_menu ;;
+  *) back_to show_trigger_menu ;;
   esac
 }
 
@@ -159,25 +139,14 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar\n󰍹  Built-in Display") in
+  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar\n󰍹  Device Display") in
   *Screensaver*) omarchy-toggle-screensaver ;;
   *Nightlight*) omarchy-toggle-nightlight ;;
   *Idle*) omarchy-toggle-idle ;;
   *Bar*) omarchy-toggle-waybar ;;
-  *Built-in*) omarchy-toggle-builtin-display ;;
+  *Device*) omarchy-toggle-builtin-display ;;
   *) show_trigger_menu ;;
   esac
-}
-
-show_style_menu() {
-  case $(menu "Style" "  Background") in
-  *Background*) show_background_menu ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_background_menu() {
-  omarchy-launch-walker -m menus:omarchyBackgroundSelector --width 800 --minheight 400
 }
 
 show_setup_menu() {
@@ -274,28 +243,21 @@ show_install_terminal_menu() {
 }
 
 show_install_ai_menu() {
-  ollama_pkg=$(
-    (command -v rocminfo &>/dev/null && echo ollama-rocm) ||
-      echo ollama
-  )
-
-  case $(menu "Install" "  Dictation\n󱚤  Claude Code\n󱚤  Codex\n󱚤  Gemini CLI\n󱚤  Copilot CLI\n󱚤  Cursor CLI\n󱚤  LM Studio\n󱚤  Ollama\n󱚤  Crush") in
-  *Dictation*) present_terminal omarchy-voxtype-install ;;
+  case $(menu "Install" "󱚤  Claude Code\n󱚤  Codex\n󱚤  Gemini CLI\n󱚤  Copilot CLI\n󱚤  Cursor CLI\n󱚤  LM Studio\n󱚤  Ollama\n󱚤  Crush") in
   *Claude*) install "Claude Code" "claude-code" ;;
   *Codex*) install "Codex" "openai-codex" ;;
   *Gemini*) install "Gemini CLI" "gemini-cli" ;;
   *Copilot*) install "Copilot CLI" "github-copilot-cli" ;;
   *Cursor*) install "Cursor CLI" "cursor-cli" ;;
   *Studio*) install "LM Studio" "lmstudio" ;;
-  *Ollama*) install "Ollama" $ollama_pkg ;;
+  *Ollama*) install "Ollama" "ollama-rocm" ;;
   *Crush*) install "Crush" "crush-bin" ;;
   *) show_install_menu ;;
   esac
 }
 
 show_install_gaming_menu() {
-  case $(menu "Install" "  Steam\n  RetroArch [AUR]\n󰍳  Minecraft\n󰖺  Xbox Controller [AUR]") in
-  *Steam*) present_terminal omarchy-install-steam ;;
+  case $(menu "Install" "  RetroArch [AUR]\n󰍳  Minecraft\n󰖺  Xbox Controller [AUR]") in
   *RetroArch*) aur_install_and_launch "RetroArch" "retroarch retroarch-assets libretro libretro-fbneo" "com.libretro.RetroArch.desktop" ;;
   *Minecraft*) install_and_launch "Minecraft" "minecraft-launcher" "minecraft-launcher" ;;
   *Xbox*) present_terminal omarchy-install-xbox-controllers ;;
@@ -309,7 +271,7 @@ show_install_development_menu() {
   *JavaScript*) show_install_javascript_menu ;;
   *Go*) present_terminal "omarchy-install-dev-env go" ;;
   *Python*) present_terminal "omarchy-install-dev-env python" ;;
-  *Elixir*) show_install_elixir_menu ;;
+  *Elixir*) present_terminal "omarchy-install-dev-env elixir" ;;
   *Zig*) present_terminal "omarchy-install-dev-env zig" ;;
   *Rust*) present_terminal "omarchy-install-dev-env rust" ;;
   *) show_install_menu ;;
@@ -321,13 +283,6 @@ show_install_javascript_menu() {
   *Node*) present_terminal "omarchy-install-dev-env node" ;;
   *Bun*) present_terminal "omarchy-install-dev-env bun" ;;
   *Deno*) present_terminal "omarchy-install-dev-env deno" ;;
-  *) show_install_development_menu ;;
-  esac
-}
-
-show_install_elixir_menu() {
-  case $(menu "Install" "  Elixir") in
-  *Elixir*) present_terminal "omarchy-install-dev-env elixir" ;;
   *) show_install_development_menu ;;
   esac
 }
@@ -350,7 +305,7 @@ show_remove_development_menu() {
   *JavaScript*) show_remove_javascript_menu ;;
   *Go*) present_terminal "omarchy-remove-dev-env go" ;;
   *Python*) present_terminal "omarchy-remove-dev-env python" ;;
-  *Elixir*) show_remove_elixir_menu ;;
+  *Elixir*) present_terminal "omarchy-remove-dev-env elixir" ;;
   *Zig*) present_terminal "omarchy-remove-dev-env zig" ;;
   *Rust*) present_terminal "omarchy-remove-dev-env rust" ;;
   *) show_remove_menu ;;
@@ -366,43 +321,14 @@ show_remove_javascript_menu() {
   esac
 }
 
-show_remove_elixir_menu() {
-  case $(menu "Remove" "  Elixir") in
-  *Elixir*) present_terminal "omarchy-remove-dev-env elixir" ;;
-  *) show_remove_development_menu ;;
-  esac
-}
-
 show_update_menu() {
-  case $(menu "Update" "  Omarchy\n  Process\n󰇅  Hardware\n  Firmware\n  Password\n  Timezone\n  Time") in
+  case $(menu "Update" "  Omarchy\n  Firmware\n  Password\n  Timezone\n  Time") in
   *Omarchy*) present_terminal omarchy-update ;;
-  *Process*) show_update_process_menu ;;
-  *Hardware*) show_update_hardware_menu ;;
   *Firmware*) present_terminal omarchy-update-firmware ;;
   *Timezone*) present_terminal omarchy-tz-select ;;
   *Time*) present_terminal omarchy-update-time ;;
   *Password*) show_update_password_menu ;;
   *) show_main_menu ;;
-  esac
-}
-
-show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
-  *Hypridle*) omarchy-restart-hypridle ;;
-  *Hyprsunset*) omarchy-restart-hyprsunset ;;
-  *Swayosd*) omarchy-restart-swayosd ;;
-  *Walker*) omarchy-restart-walker ;;
-  *Waybar*) omarchy-restart-waybar ;;
-  *) show_update_menu ;;
-  esac
-}
-
-show_update_hardware_menu() {
-  case $(menu "Restart" "  Audio\n󱚾  Wi-Fi\n󰂯  Bluetooth") in
-  *Audio*) present_terminal omarchy-restart-pipewire ;;
-  *Wi-Fi*) present_terminal omarchy-restart-wifi ;;
-  *Bluetooth*) present_terminal omarchy-restart-bluetooth ;;
-  *) show_update_menu ;;
   esac
 }
 
@@ -437,18 +363,14 @@ show_system_menu() {
 }
 
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+  go_to_menu "$(menu "Go" "󱓞  Trigger\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
 }
 
 go_to_menu() {
   case "${1,,}" in
-  *apps*) walker -p "Launch…" ;;
-  *learn*) show_learn_menu ;;
   *trigger*) show_trigger_menu ;;
   *share*) show_share_menu ;;
-  *background*) show_background_menu ;;
   *capture*) show_capture_menu ;;
-  *style*) show_style_menu ;;
   *screenrecord*) show_screenrecord_menu ;;
   *setup*) show_setup_menu ;;
   *power*) show_setup_power_menu ;;
@@ -459,11 +381,6 @@ go_to_menu() {
   *system*) show_system_menu ;;
   esac
 }
-
-# Allow user extensions and overrides
-USER_EXTENSIONS="$HOME/.config/omarchy/extensions/menu.sh"
-# shellcheck source=../config/omarchy/extensions/menu.sh
-[[ -f $USER_EXTENSIONS ]] && source "$USER_EXTENSIONS"
 
 if [[ -n $1 ]]; then
   BACK_TO_EXIT=true
