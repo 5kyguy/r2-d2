@@ -8,7 +8,7 @@ echo_in_style() {
 
 clear
 echo
-tte -i ~/.local/share/r2-d2/logo.txt --canvas-width 0 --anchor-text c --frame-rate 920 laseretch
+tte -i ~/.local/share/r2-d2/assets/logo.txt --canvas-width 0 --anchor-text c --frame-rate 920 laseretch
 echo
 
 # Display installation time (from log or persisted file) and persist for later

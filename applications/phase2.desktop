@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Start Phase 2
+Comment=Install R2-D2 Phase 2 user applications
+Exec=r2-d2-phase2-launcher
+Icon=system-software-install
+Terminal=false
+Categories=System;
+NoDisplay=false
