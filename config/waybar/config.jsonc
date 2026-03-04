@@ -31,7 +31,7 @@
   ],
 
   "custom/r2-d2": {
-    "format": "<span font='r2-d2'>\ue900</span>",
+    "format": " <span font='r2-d2'>\ue900</span>",
     "on-click": "r2-d2-menu",
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "R2-D2 Menu\n\nSuper + Alt + Space"
