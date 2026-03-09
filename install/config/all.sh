@@ -24,6 +24,7 @@ run_logged $R2D2_INSTALL/config/voxtype.sh
 run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
 run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
 run_logged $R2D2_INSTALL/config/wifi-powersave-rules.sh
+run_logged $R2D2_INSTALL/config/plocate-ac-only.sh
 run_logged $R2D2_INSTALL/config/hardware/network.sh
 run_logged $R2D2_INSTALL/config/hardware/set-wireless-regdom.sh
 run_logged $R2D2_INSTALL/config/hardware/bluetooth.sh

@@ -6,9 +6,16 @@ BATTERY_THRESHOLD=10
 NOTIFICATION_FLAG="/run/user/$UID/r2-d2_battery_notified"
 BATTERY_LEVEL=$(r2-d2-battery-remaining)
 BATTERY_STATE=$(upower -i "$(upower -e | grep 'BAT')" | grep -E "state" | awk '{print $2}')
+SOUND_FILE="/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
+
+notify_sound() {
+  if r2-d2-cmd-present mpv && [[ -f $SOUND_FILE ]]; then
+    mpv --no-video "$SOUND_FILE" >/dev/null 2>&1
+  fi
+}
 
 send_notification() {
-  notify-send -u critical "󱐋 Time to recharge!" "Battery is down to ${1}%" -i battery-caution -t 30000
+  notify-send -u critical "󱐋 Time to recharge!" "Battery is down to ${1}%" -i battery-caution -t 30000 && notify_sound
 }
 
 if [[ -n $BATTERY_LEVEL && $BATTERY_LEVEL =~ ^[0-9]+$ ]]; then

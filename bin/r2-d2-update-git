@@ -4,5 +4,7 @@ set -e
 
 echo -e "\e[32mUpdate R2-D2\e[0m"
 
+r2-d2-update-time
+
 git -C $R2D2_PATH pull --autostash
 git -C $R2D2_PATH --no-pager diff --check || git -C $R2D2_PATH reset --merge
