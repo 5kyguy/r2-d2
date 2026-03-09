@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=T3 Code
+Comment=Agentic Coding App
+Exec=/home/skyguy/.local/bin/t3
+Icon=/home/skyguy/.local/share/applications/icons/T3.png
+Terminal=false
+Categories=Development;
+StartupNotify=true
+StartupWMClass=t3

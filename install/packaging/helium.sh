@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Install Helium browser as AppImage (avoids AUR helium-browser which builds clang/llvm).
-# Sets up AppImage, symlink, and icon; desktop entry is managed via r2-d2 applications.
+# Sets up AppImage, symlink; desktop entry is managed via r2-d2 applications.
 
 set -e
 
@@ -28,17 +28,8 @@ if [[ $need_download == true ]]; then
 fi
 
 # Symlink into PATH so `helium` command works (r2-d2-webapp-install checks command -v helium)
-ln -sf "$HELIUM_APPIMAGE" "$BIN_DIR/helium"
-
-# Extract icon from AppImage if not already present
-if [[ ! -f $ICON_DIR/helium.png ]]; then
-  extract_dir=$(mktemp -d)
-  trap 'rm -rf $extract_dir' EXIT
-  (cd "$extract_dir" && "$HELIUM_APPIMAGE" --appimage-extract 2>/dev/null) || true
-  if [[ -f $extract_dir/squashfs-root/.DirIcon ]]; then
-    cp "$extract_dir/squashfs-root/.DirIcon" "$ICON_DIR/helium.png"
-  else
-    icon_candidate=$(find "$extract_dir" -type f \( -name ".DirIcon" -o -name "helium*.png" \) 2>/dev/null | head -1)
-    [[ -n $icon_candidate ]] && cp "$icon_candidate" "$ICON_DIR/helium.png"
-  fi
-fi
+cat <<EOF >"$BIN_DIR/helium"
+#!/bin/bash
+exec "$HELIUM_APPIMAGE" --password-store=gnome-libsecret "\$@"
+EOF
+chmod +x "$BIN_DIR/helium"
