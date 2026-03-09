@@ -135,14 +135,19 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar\n󰍹  Device Display\n󰂵  Notification Silencing") in
+  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar\n󰍹  Device Display\n󰂵  Notification Silencing\n󱂬  Workspace Layout\n  Window Gaps\n  1-Window Ratio\n󰍹  Display Scaling") in
+
   *Screensaver*) r2-d2-toggle-screensaver ;;
   *Nightlight*) r2-d2-toggle-nightlight ;;
   *Idle*) r2-d2-toggle-idle ;;
   *Bar*) r2-d2-toggle-waybar ;;
   *Device*) r2-d2-toggle-builtin-display ;;
   *Silencing*) r2-d2-toggle-notification-silencing ;;
-  *) show_trigger_menu ;;
+  *Layout*) r2-d2-hyprland-workspace-layout-toggle ;;
+  *Gaps*) r2-d2-hyprland-window-gaps-toggle ;;
+  *Ratio*) r2-d2-hyprland-window-single-square-aspect-toggle ;;
+  *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
+  *) back_to show_trigger_menu ;;
   esac
 }
 
@@ -382,6 +387,7 @@ go_to_menu() {
   *trigger*) show_trigger_menu ;;
   *share*) show_share_menu ;;
   *screenrecord*) show_screenrecord_menu ;;
+  *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
   *power*) show_setup_power_menu ;;
   *restart*) show_restart_menu ;;

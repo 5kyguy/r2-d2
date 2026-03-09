@@ -8,7 +8,10 @@ set -e
 
 PRESET="${1:-external-left}"
 
-MONITORS_JSON=$(hyprctl monitors -j 2>/dev/null) || { echo "hyprctl failed" >&2; exit 1; }
+MONITORS_JSON=$(hyprctl monitors -j 2>/dev/null) || {
+  echo "hyprctl failed" >&2
+  exit 1
+}
 COUNT=$(echo "$MONITORS_JSON" | jq 'length')
 if ((COUNT < 2)); then
   notify-send "Monitor layout" "Connect 2 monitors to apply a layout preset."
@@ -48,20 +51,20 @@ BUI_W=$(echo "$MONITORS_JSON" | jq -r --arg n "$BUILTIN" '.[] | select(.name == 
 BUI_LOGICAL_W=$(awk "BEGIN { printf \"%.0f\", $BUI_W / $BUI_SCALE }")
 
 case "$PRESET" in
-  external-left)
-    # External at 0x0, built-in to its right
-    hyprctl keyword monitor "$(monitor_rule "$EXTERNAL" "$EXT_RES" "0x0" "$EXT_SCALE")"
-    hyprctl keyword monitor "$(monitor_rule "$BUILTIN" "$BUI_RES" "${EXT_LOGICAL_W}x0" "$BUI_SCALE")"
-    notify-send "Monitor layout" "External left, laptop right"
-    ;;
-  external-right)
-    # Built-in at 0x0, external to its right
-    hyprctl keyword monitor "$(monitor_rule "$BUILTIN" "$BUI_RES" "0x0" "$BUI_SCALE")"
-    hyprctl keyword monitor "$(monitor_rule "$EXTERNAL" "$EXT_RES" "${BUI_LOGICAL_W}x0" "$EXT_SCALE")"
-    notify-send "Monitor layout" "Laptop left, external right"
-    ;;
-  *)
-    echo "Unknown preset: $PRESET. Use: external-left | external-right" >&2
-    exit 1
-    ;;
+external-left)
+  # External at 0x0, built-in to its right
+  hyprctl keyword monitor "$(monitor_rule "$EXTERNAL" "$EXT_RES" "0x0" "$EXT_SCALE")"
+  hyprctl keyword monitor "$(monitor_rule "$BUILTIN" "$BUI_RES" "${EXT_LOGICAL_W}x0" "$BUI_SCALE")"
+  notify-send "Monitor layout" "External left, laptop right"
+  ;;
+external-right)
+  # Built-in at 0x0, external to its right
+  hyprctl keyword monitor "$(monitor_rule "$BUILTIN" "$BUI_RES" "0x0" "$BUI_SCALE")"
+  hyprctl keyword monitor "$(monitor_rule "$EXTERNAL" "$EXT_RES" "${BUI_LOGICAL_W}x0" "$EXT_SCALE")"
+  notify-send "Monitor layout" "Laptop left, external right"
+  ;;
+*)
+  echo "Unknown preset: $PRESET. Use: external-left | external-right" >&2
+  exit 1
+  ;;
 esac

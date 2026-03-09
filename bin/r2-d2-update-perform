@@ -8,6 +8,7 @@ BIN="$(dirname "$0")"
 hyprctl dispatch tagwindow +noidle &>/dev/null || true
 
 # Capture update logs
+export CLICOLOR_FORCE=1
 exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 
 # Perform all update steps (invoke by path so this works when run from menu without bin in PATH)
