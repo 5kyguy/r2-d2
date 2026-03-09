@@ -1,3 +1,5 @@
+#!/bin/bash
+
 abort() {
   echo -e "\e[31mR2-D2 install requires: $1\e[0m"
   echo
@@ -17,7 +19,7 @@ for marker in /etc/cachyos-release /etc/eos-release /etc/garuda-release /etc/man
 done
 
 # Must not be running as root
-if (( EUID == 0 )); then
+if ((EUID == 0)); then
   abort "Running as root (not user)"
 fi
 
@@ -40,7 +42,7 @@ fi
 command -v limine &>/dev/null || abort "Limine bootloader"
 
 # Must have btrfs root filesystem
-[[ $(findmnt -n -o FSTYPE /) = "btrfs" ]] || abort "Btrfs root filesystem" 
+[[ $(findmnt -n -o FSTYPE /) == "btrfs" ]] || abort "Btrfs root filesystem"
 
 # Cleared all guards
 echo "Guards: OK"

@@ -19,6 +19,7 @@ run_logged $R2D2_INSTALL/config/terminal-default.sh
 run_logged $R2D2_INSTALL/config/walker-elephant.sh
 run_logged $R2D2_INSTALL/config/fast-shutdown.sh
 run_logged $R2D2_INSTALL/config/input-group.sh
+run_logged $R2D2_INSTALL/config/makima.sh
 run_logged $R2D2_INSTALL/config/voxtype.sh
 run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
 run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
@@ -31,4 +32,3 @@ run_logged $R2D2_INSTALL/config/hardware/usb-autosuspend.sh
 run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
 run_logged $R2D2_INSTALL/config/hardware/vulkan.sh
 run_logged $R2D2_INSTALL/config/hardware/fix-synaptic-touchpad.sh
-run_logged $R2D2_INSTALL/config/hardware/copilot-key-zbook.sh
