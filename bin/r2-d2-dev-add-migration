@@ -3,7 +3,7 @@
 # Creates a new R2-D2 migration named after the unix timestamp of the last commit.
 # Only intended for R2-D2 developers.
 
-cd ~/.local/share/r2-d2 || exit 
+cd ~/.local/share/r2-d2 || exit
 migration_file="$HOME/.local/share/r2-d2/migrations/$(git log -1 --format=%cd --date=unix).sh"
 touch $migration_file
 

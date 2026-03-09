@@ -20,8 +20,8 @@ set_stable_mirror() {
 
 refresh_mirrorlist_fallback() {
   echo "Stable mirror failed. Refreshing mirrorlist from Arch Linux mirrors..."
-  if curl -fsSL 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' \
-    | sed 's/^#Server/Server/' | sudo tee /etc/pacman.d/mirrorlist >/dev/null; then
+  if curl -fsSL 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' |
+    sed 's/^#Server/Server/' | sudo tee /etc/pacman.d/mirrorlist >/dev/null; then
     echo "Mirrorlist updated. Retrying..."
     return 0
   fi
@@ -41,12 +41,12 @@ while ! sudo pacman -Syu --noconfirm --needed git; do
   attempt=$((attempt + 1))
 done
 
-echo -e "\nCloning from: https://github.com/5kyguy/artoo-d2.git (branch: dev)"
+echo -e "\nCloning from: https://github.com/5kyguy/artoo-d2.git (branch: master)"
 rm -rf ~/.local/share/r2-d2/
 git clone "https://github.com/5kyguy/artoo-d2.git" ~/.local/share/r2-d2 >/dev/null
 
 cd ~/.local/share/r2-d2 || exit
-git fetch origin dev && git checkout dev
+git fetch origin master && git checkout master
 cd - || exit
 
 echo -e "\nInstallation starting..."

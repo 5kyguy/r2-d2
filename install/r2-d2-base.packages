@@ -144,6 +144,13 @@ unzip
 usage
 uwsm
 vlc
+vlc-plugin-ass
+vlc-plugin-bluray
+vlc-plugin-dca
+vlc-plugin-dvd
+vlc-plugin-ffmpeg
+vlc-plugin-freetype
+vlc-plugin-srt
 waybar
 webp-pixbuf-loader
 wget
@@ -159,6 +166,7 @@ xdg-desktop-portal-hyprland
 xdg-terminal-exec
 xmlstarlet
 yaru-icon-theme
+yarn
 yay
 yay-debug
 zoxide
