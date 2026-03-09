@@ -20,12 +20,12 @@ Install Arch Linux using archinstall, with the following options:
 Use this path for a fresh install, a repair, or when you want to reset the machine to the repo defaults — **online only**, from a running Arch system:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/5kyguy/artoo-d2/refs/heads/master/boot.sh | bash
+curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot.sh | bash
 ```
 
 This will:
 
-1. **Bootstrap (boot.sh)** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/artoo-d2` from the `master` branch, then source `install.sh`
+1. **Bootstrap (boot.sh)** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
 2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install)
 
 The installer does **not** verify prerequisites (Arch Linux, x86_64, Btrfs root, Limine, Secure Boot off, no GNOME/KDE). Ensure they are met before running.
@@ -42,20 +42,22 @@ This is the normal day-to-day update path. It:
 
 1. Creates a snapshot when available
 2. Runs `git pull --autostash` in `~/.local/share/r2-d2`
-3. Runs `r2-d2-update-perform` for system updates, migrations, AUR updates, orphan cleanup, and post-update hooks
+3. Overwrites repo-managed user config from `config/` and refreshes `applications/`
+4. Updates system packages and installs any missing packages from the repo base package lists
+5. Runs migrations for `default/` and other special-command changes, then AUR updates, orphan cleanup, and post-update hooks
 
-Use the full `boot.sh` flow when you want a full reinstall/repair or you intentionally want to overwrite repo-managed config with the defaults again.
+Use the full `boot.sh` flow when you want a full reinstall/repair.
 
 ### Which path should I use?
 
 | Path | When to use | What it does |
 | ------- | ------- | ------- |
 | **Full install / repair (`boot.sh`)** | Fresh install, repair, or reset to repo defaults | Re-clones `~/.local/share/r2-d2` and runs the full install pipeline, including packaging, config copy, login, and post-install steps |
-| **In-session update (`r2-d2-update`)** | Normal updates on an already-installed system | Pulls the latest repo into `~/.local/share/r2-d2`, updates packages, and runs only pending migrations |
+| **In-session update (`r2-d2-update`)** | Normal updates on an already-installed system | Pulls the latest repo into `~/.local/share/r2-d2`, overwrites repo-managed user config from `config/`, refreshes `applications/`, syncs base packages, and runs pending migrations |
 
 ### What migrations do during updates
 
-Migrations are the mechanism for applying one-time repo changes on an existing install.
+Migrations are the mechanism for applying `default/`, `default/config/`, and other special-command changes on an existing install.
 
 - Migration scripts live in `migrations/*.sh`
 - Their state lives in `~/.local/state/r2-d2/migrations/`
@@ -64,11 +66,18 @@ Migrations are the mechanism for applying one-time repo changes on an existing i
 
 This means `r2-d2-update` applies only newly added migrations after a pull, not the whole migration history every time.
 
+Use migrations for:
+
+- `default/`-backed system files that land in `/etc`, `/boot`, `/usr/share`, and similar system paths
+- `default/config/` support assets that live under `~/.config` but should not be overwritten by normal update sync
+- special commands or one-time actions that are not simple repo file overwrites
+
 ### What `r2-d2-update` does not refresh automatically
 
 - It does **not** re-run the full install pipeline
-- It does **not** copy `config/` back into `~/.config/`
-- It does **not** install newly added entries from `install/r2-d2-base.packages` unless you handle them separately
+- It does **not** blindly overwrite `default/` into system paths; that remains migration/refresh-script territory
+- It does **not** overwrite `default/config/` support assets during normal update sync; those are handled by install/reinstall and migrations
+- It does **not** need to copy `bin/` or `backgrounds/` anywhere else; they are already live from `~/.local/share/r2-d2`
 
 If you want a repo config file refreshed without doing a full reinstall, use:
 
@@ -101,7 +110,8 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 **Phase 3 — Config** (`install/config/all.sh`)
 
-- **config.sh** — Copy repo `config/*` to `~/.config/`, default bashrc to `~/.bashrc`
+- **config.sh** — Copy repo `config/*` user config to `~/.config/`, default bashrc to `~/.bashrc`
+- **default-config.sh** — Copy repo `default/config/*` support assets into their live `~/.config` locations
 - **theme.sh** — Theme/background setup, Chromium policy dirs
 - **branding.sh** — Copy logo for fastfetch/screensaver
 - **git, gpg, timezones** — User/config defaults
@@ -109,7 +119,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
 - **mimetypes.sh** — Default apps (e.g. Brave as browser)
-- **terminal-default.sh** — Set Alacritty as default terminal (copy desktop entry; xdg-terminals.list in config)
+- **terminal-default.sh** — Set Alacritty as default terminal (copy desktop entry; terminal order comes from `default/config/xdg-terminals.list`)
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
 - **voxtype.sh** — Copy Voxtype config to `~/.config/voxtype/`
 - **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
@@ -136,7 +146,7 @@ Single theme only: colors and look are set once via config. To change the wallpa
 ## Install / Remove / Update
 
 - **Full install / repair / reset-to-defaults** — Re-run the same curl command from a running Arch system to clone the latest repo and run the installer again.
-- **In-session update** — `r2-d2-update` (snapshot + git pull + package updates + pending migrations)
+- **In-session update** — `r2-d2-update` (snapshot + git pull + config/app refresh + base package sync + pending migrations)
 - **Reinstall** — `r2-d2-reinstall` (reinstall packages and reset default configs)
 - **Reinstall packages only** — `r2-d2-reinstall-pkgs`
 - **Reinstall configs only** — `r2-d2-reinstall-configs`

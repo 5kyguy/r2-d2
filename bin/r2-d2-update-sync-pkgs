@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+
+echo -e "\e[32m\nSync base package lists\e[0m"
+
+mapfile -t packages < <(grep -v '^#' "$R2D2_PATH/install/r2-d2-base.packages" | grep -v '^$')
+if ((${#packages[@]} > 0)); then
+  r2-d2-pkg-add "${packages[@]}"
+fi
+
+if [[ -f $R2D2_PATH/install/r2-d2-base.aur.packages ]]; then
+  mapfile -t aur_packages < <(grep -v '^#' "$R2D2_PATH/install/r2-d2-base.aur.packages" | grep -v '^$')
+  if ((${#aur_packages[@]} > 0)); then
+    if r2-d2-pkg-aur-accessible; then
+      r2-d2-pkg-aur-add "${aur_packages[@]}"
+    else
+      echo -e "\e[31mAUR is unavailable (so skipping missing AUR package installs)\e[0m"
+    fi
+  fi
+fi

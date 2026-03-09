@@ -23,7 +23,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 | ------ | ---- |
 | **helium.sh** | **Helium** AppImage (browser for webapps); symlinked into PATH; desktop entry and icon for Walker. |
 | **dev-runtimes.sh** | **Go** (official tarball to `/usr/local`), **Node.js** (nvm, LTS). |
-| **fonts.sh** | Copies **r2-d2.ttf** from repo config to `~/.local/share/fonts`, runs `fc-cache`. |
+| **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
 | **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**, **Discord**. |
 | **tuis.sh** | TUI shortcuts: **Disk Usage** (dust), **Docker** (lazydocker). |
@@ -64,7 +64,7 @@ bash-completion, bat, eza, fd, fzf, less, ripgrep, starship, tmux, zoxide, tldr,
 
 ### Terminal and editor
 
-alacritty, ghostty, neovim, tree-sitter-cli. Alacritty is the default terminal (config/terminal-default.sh and config/xdg-terminals.list).
+alacritty, ghostty, neovim, tree-sitter-cli. Alacritty is the default terminal (`config/terminal-default.sh` and `default/config/xdg-terminals.list`).
 
 ### Audio
 

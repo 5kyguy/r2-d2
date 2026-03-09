@@ -1,27 +1,23 @@
 #!/bin/bash
 
-# Overwrite the user configs for the Walker application launcher (which also powers the R2-D2 Menu) and restart the services.
+# Overwrite the user-facing Walker configs and restart the services.
+# Repo-managed support assets for Walker are installed separately.
 
 # Ensure walker is set to autostart
 mkdir -p ~/.config/autostart/
-cp "${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/walker/walker.desktop" ~/.config/autostart/
+cp ~/.config/walker/walker.desktop ~/.config/autostart/
 
 # And restarts if it crashes or is killed
 mkdir -p ~/.config/systemd/user/app-walker@autostart.service.d/
-cp "${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/walker/restart.conf" ~/.config/systemd/user/app-walker@autostart.service.d/restart.conf
+cp ~/.config/walker/restart.conf ~/.config/systemd/user/app-walker@autostart.service.d/restart.conf
 
 systemctl --user daemon-reload
 
 # Refresh configs
 r2-d2-refresh-config walker/config.toml
 
-# Refresh theme assets used by config.toml
-mkdir -p ~/.config/walker/themes
-cp -R "${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/walker/themes/." ~/.config/walker/themes/
-
 r2-d2-refresh-config elephant/calc.toml
 r2-d2-refresh-config elephant/desktopapplications.toml
-r2-d2-refresh-config elephant/menus/background_selector.lua
 
 # Restart service
 r2-d2-restart-walker

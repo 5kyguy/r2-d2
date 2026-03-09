@@ -8,9 +8,23 @@ elif [[ -f $HOME/.local/state/r2-d2/reboot-required ]]; then
   gum confirm "Updates require reboot. Ready?" && r2-d2-system-reboot
 fi
 
+if [[ -f $HOME/.local/state/r2-d2/desktop-refresh-required ]]; then
+  r2-d2-state clear desktop-refresh-required
+
+  if gum confirm "Repo-managed files were refreshed. Reload desktop components now?"; then
+    r2-d2-restart-hyprctl || true
+    r2-d2-restart-waybar || true
+    r2-d2-restart-mako || true
+    r2-d2-restart-walker || true
+    r2-d2-restart-hypridle || true
+    r2-d2-restart-hyprsunset || true
+    r2-d2-restart-swayosd || true
+  fi
+fi
+
 running_hyprland=$(readlink /proc/$(pgrep -x Hyprland)/exe 2>/dev/null)
 if [[ $running_hyprland == *"(deleted)"* ]]; then
-  gum confirm "Hyprland has been updated. Reboot?" && omarchy-system-reboot
+  gum confirm "Hyprland has been updated. Reboot?" && r2-d2-system-reboot
 fi
 
 for file in "$HOME"/.local/state/r2-d2/restart-*-required; do
@@ -22,3 +36,11 @@ for file in "$HOME"/.local/state/r2-d2/restart-*-required; do
     r2-d2-restart-"$service"
   fi
 done
+
+if [[ -f $HOME/.local/state/r2-d2/relogin-required ]]; then
+  r2-d2-state clear relogin-required
+
+  if gum confirm "Repo-managed files were refreshed. Log out now to fully apply all changes?"; then
+    r2-d2-system-logout
+  fi
+fi

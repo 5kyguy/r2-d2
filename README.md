@@ -3,7 +3,7 @@
 R2-D2 is my own config and setup on top of **Arch Linux** — a modern, opinionated desktop and tooling layer. It was forked from [Omarchy](https://github.com/basecamp/omarchy). Omarchy ships both a curl-based install and an ISO; this project uses **only the curl method** (no ISO). Use the curl command for fresh installs, repairs, or a full reset:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/5kyguy/artoo-d2/refs/heads/master/boot.sh | bash
+curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot.sh | bash
 ```
 
 - My implementation is in `master` branch, Omarchy is in `dev` branch.

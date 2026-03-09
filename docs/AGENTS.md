@@ -29,12 +29,15 @@ Use these instead of raw shell commands:
 
 - `r2-d2-cmd-missing` / `r2-d2-cmd-present` - check for commands
 - `r2-d2-pkg-missing` / `r2-d2-pkg-present` - check for packages
-- `r2-d2-pkg-add` - install packages (handles both pacman and AUR)
+- `r2-d2-pkg-add` - install packages from the official repos
+- `r2-d2-pkg-aur-add` - install packages from the AUR
 - `r2-d2-hw-*` - hardware detection commands (return exit codes for use in conditionals)
 
 # Config Structure
 
-- `config/` - user-editable config; copied to `~/.config/` on install. Single place to edit (see `.cursor/rules/r2-d2-single-user-and-boot.mdc`).
+- `config/` - user-visible/editable config; copied to `~/.config/` on install and overwritten again during `r2-d2-update`
+- `default/config/` - repo-managed support assets that live under `~/.config`, but are applied by install/reinstall and updated via migrations rather than normal update sync
+- `applications/` - repo-managed desktop entries and icons refreshed during `r2-d2-update`
 - `default/` (limine, pacman, gpg, systemd, plymouth, sddm, etc.) - system-install assets only, not user config
 
 # Refresh Pattern
@@ -50,6 +53,16 @@ This copies `~/.local/share/r2-d2/config/hypr/hyprlock.conf` to `~/.config/hypr/
 # Migrations
 
 Migrations run at the end of install (`r2-d2-migrate`) and during `r2-d2-update-perform`. They must be **idempotent** or no-op when preconditions are missing (e.g. first install vs re-run after pull): e.g. "move file A → B" should check for A; "create dir" is idempotent.
+
+Use migrations for:
+
+- `default/`-backed system files that land in `/etc`, `/boot`, `/usr/share`, etc.
+- `default/config/` support assets that should not be overwritten by normal `r2-d2-update`
+- special commands that cannot be handled by a simple repo file overwrite (`systemctl`, `sed`, data moves, one-time setup)
+
+Do not use migrations for:
+
+- simple user-facing `config/`, `applications/`, `bin/`, or `backgrounds/` repo updates that already flow through `r2-d2-update`
 
 To create a new migration, run `r2-d2-dev-add-migration --no-edit`. This creates a migration file named after the unix timestamp of the last commit.
 

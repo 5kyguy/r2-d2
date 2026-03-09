@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+
+echo -e "\e[32m\nSync user config and applications\e[0m"
+
+mkdir -p ~/.config
+cp -R "$R2D2_PATH"/config/* ~/.config/
+cp ~/.config/bashrc ~/.bashrc
+
+r2-d2-refresh-applications
+
+# Prompt after update so the user can choose when to refresh the running session.
+r2-d2-state set desktop-refresh-required
+r2-d2-state set relogin-required
