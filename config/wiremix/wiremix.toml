@@ -1,17 +1,13 @@
 # overwrites default wiremix configuration
 # defaults: https://github.com/tsowell/wiremix/blob/main/wiremix.toml
 
+# Main options (must be top-level, not under [char_sets])
+tab = "playback"
+max_volume_percent = 100.0
+enforce_max_volume = true
+
 [char_sets.default]
 default_device = "⮞"
-
-# Initial tab (set this to Output devices)
-tab = "playback"
-
-# Maximum percentage for volume sliders
-max_volume_percent = 100.0
-
-# Whether to prevent increasing volume past max_volume
-enforce_max_volume = true
 
 # Themes
 #

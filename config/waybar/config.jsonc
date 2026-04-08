@@ -78,9 +78,12 @@
   },
 
   "clock": {
+    "interval": 5,
     "format": "{:%A %H:%M}",
     "tooltip": true,
-    "tooltip-format": "{:%d-%m} | {:%H:%M} UTC",
+    "timezones": ["", "UTC"],
+    "timezone-tooltip-format": "{:%Y-%m-%d %H:%M %Z}",
+    "tooltip-format": "{tz_list}",
     "on-click-right": "r2-d2-launch-floating-terminal-with-presentation r2-d2-tz-select"
   },
   "custom/voxtype": {
@@ -153,7 +156,7 @@
   },
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "$TERMINAL --class=Wiremix -e wiremix",
+    "on-click": "r2-d2-launch-audio",
     "on-click-right": "pamixer -t",
     "tooltip": false,
     "scroll-step": 5,

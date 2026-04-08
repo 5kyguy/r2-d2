@@ -129,11 +129,11 @@ tooltip {
   border-radius: 8px;
   margin: 0;
   padding: 4px 8px;
-  color: @fg-dim;
+  color: @fg;
 }
 
 tooltip label {
-  color: @fg-dim;
+  color: @fg;
   font-size: 12px;
 }
 
