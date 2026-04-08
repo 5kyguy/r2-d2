@@ -4,7 +4,8 @@ set -e
 # Install voxtype and configure it for use.
 
 if gum confirm "Install Voxtype + AI model (~150MB) to enable dictation?"; then
-  r2-d2-pkg-add wtype voxtype-bin
+  r2-d2-pkg-add wtype
+  r2-d2-pkg-aur-add voxtype-bin
 
   # Setup voxtype
   mkdir -p ~/.config/voxtype

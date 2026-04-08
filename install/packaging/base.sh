@@ -27,8 +27,4 @@ if [[ ${#aur_packages[@]} -gt 0 ]]; then
   echo "All AUR packages from r2-d2-base.aur.packages are installed."
 fi
 
-# Voxtype dictation: download model and enable systemd (config is in config phase)
-if command -v voxtype &>/dev/null; then
-  voxtype setup --download --no-post-install
-  voxtype setup systemd
-fi
+# Voxtype dictation setup is optional and handled via menu (see `r2-d2-voxtype-install`)

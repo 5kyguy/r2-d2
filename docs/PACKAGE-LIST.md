@@ -14,14 +14,13 @@ This document lists what is installed during the R2-D2 install and what can be i
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** If **`install/r2-d2-base.aur.packages`** exists, those packages are installed via yay (e.g. brave-bin, cursor-appimage, voxtype-bin). The repo does not ship this file by default; add it if you want base AUR packages.
-- **Voxtype:** If the Voxtype binary is present after install, `packaging/base.sh` runs `voxtype setup`. Config is applied in the config phase (`config/voxtype.sh`).
+- **AUR:** If **`install/r2-d2-base.aur.packages`** exists, those packages are installed via yay (e.g. brave-bin, cursor-appimage). The repo does not ship this file by default; add it if you want base AUR packages.
+- **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
 
 ### 1.3 Packaging – other steps
 
 | Script | What |
 | ------ | ---- |
-| **helium.sh** | **Helium** AppImage (browser for webapps); symlinked into PATH; desktop entry and icon for Walker. |
 | **dev-runtimes.sh** | **Go** (official tarball to `/usr/local`), **Node.js** (nvm, LTS). |
 | **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
@@ -96,7 +95,7 @@ nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-load
 
 ### Browsers and default apps
 
-chromium (default browser when no Brave from AUR). Helium is installed as AppImage by `helium.sh`.
+chromium (default browser when no Brave from AUR).
 
 ### Containers and Docker
 
@@ -153,7 +152,8 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Development** | Docker DB (containers), JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. Go and Node are preinstalled by `dev-runtimes.sh`. |
 | **Editor** | VSCode (`r2-d2-install-vscode`), Zed (pacman). Cursor is typically from AUR base list if used. |
 | **Terminal** | Alacritty, Ghostty (set as default terminal for R2-D2). Alacritty is already in base packages. |
-| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama (script uses ollama-rocm), Crush. Dictation (Voxtype) is preinstalled when AUR base list is used. |
+| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama (script uses ollama-rocm), Crush. |
+| **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
 | **Gaming** | RetroArch [AUR], Minecraft, Xbox Controller [AUR]. Steam is in base packages. |
 
 Background/wallpaper is set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
@@ -163,7 +163,7 @@ Background/wallpaper is set via the background selector (**Super + Ctrl + Space*
 ## 4. Summary
 
 - **Base pacman packages:** 163 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** Optional; if `install/r2-d2-base.aur.packages` exists, those are installed (e.g. brave-bin, cursor-appimage, voxtype-bin).
+- **Base AUR packages:** Optional; if `install/r2-d2-base.aur.packages` exists, those are installed (e.g. brave-bin, cursor-appimage).
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
 - **Default web apps:** 4 (WhatsApp, YouTube, X, Discord).
 - **Default TUI shortcuts:** 2 (Disk Usage, Docker).

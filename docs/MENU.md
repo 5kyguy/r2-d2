@@ -30,7 +30,8 @@ The main menu offers: **Trigger**, **Setup**, **Restart**, **Install**, **Remove
 | **Web App** | Create a web app shortcut (`r2-d2-webapp-install`). Default install adds WhatsApp, YouTube, X, Discord (via Helium when available). |
 | **TUI** | Add a TUI shortcut (`r2-d2-tui-install`). Default install adds Disk Usage and Docker. |
 | **Development** | Docker DB (containers), JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. Go and Node are preinstalled. |
-| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama, Crush. Dictation (Voxtype) is preinstalled when AUR base packages are used. |
+| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama, Crush. |
+| **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
 | **Gaming** | Install Steam and Xbox controllers (runs both `r2-d2-install-steam` and `r2-d2-install-xbox-controllers`). |
 | **Dropbox** | Install Dropbox (`r2-d2-install-dropbox`). |
 | **Tailscale** | Install Tailscale (`r2-d2-install-tailscale`). |

@@ -99,8 +99,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 **Phase 2 — Packaging** (`install/packaging/all.sh`)
 
-- **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and, if present, `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed. Runs `voxtype setup` if Voxtype is present.
-- **helium.sh** — Install Helium AppImage (webapps)
+- **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and, if present, `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
 - **dev-runtimes.sh** — Go (official tarball to /usr/local) and Node.js (nvm)
 - **fonts.sh** — Copy R2-D2 font (r2-d2.ttf) to `~/.local/share/fonts`, run fc-cache
 - Neovim uses omarchy-nvim package + theme from config (no separate packaging step)
