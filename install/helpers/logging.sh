@@ -13,13 +13,12 @@ start_log_output() {
   printf $ANSI_HIDE_CURSOR
 
   (
-    local log_lines=20
-    local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
-    # Center the log block: prefix "  → " (4 chars) + content (max_line_width)
-    local log_block_width=$((4 + max_line_width))
-    local log_padding=$(((TERM_WIDTH - log_block_width) / 2))
-    local log_padding_spaces
-    log_padding_spaces=$(printf "%*s" $log_padding "")
+    # Use all available lines under the logo for logs
+    local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 2))
+    ((log_lines < 1)) && log_lines=1
+
+    # Use full terminal width (bounded by LOG_LINE_WIDTH)
+    local max_line_width=${LOG_LINE_WIDTH:-$TERM_WIDTH}
 
     while true; do
       # Read the last N lines into an array
@@ -35,11 +34,11 @@ start_log_output() {
           line="${line:0:max_line_width}..."
         fi
 
-        # Add clear line escape and formatted output for each line (centered)
+        # Add clear line escape and formatted output for each line (full width, no centering)
         if [[ -n $line ]]; then
-          output+="${ANSI_CLEAR_LINE}${ANSI_GRAY}${log_padding_spaces}  → ${line}${ANSI_RESET}\n"
+          output+="${ANSI_CLEAR_LINE}${ANSI_GRAY}${line}${ANSI_RESET}\n"
         else
-          output+="${ANSI_CLEAR_LINE}${log_padding_spaces}\n"
+          output+="${ANSI_CLEAR_LINE}\n"
         fi
       done
 

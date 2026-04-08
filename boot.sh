@@ -33,7 +33,7 @@ set_stable_mirror
 max_attempts=2
 attempt=1
 while ! sudo pacman -Syu --noconfirm --needed git; do
-  if [ "$attempt" -ge "$max_attempts" ]; then
+  if ((attempt >= max_attempts)); then
     echo "Failed to sync and install git after $max_attempts attempt(s)." >&2
     exit 1
   fi

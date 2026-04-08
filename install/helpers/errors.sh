@@ -11,7 +11,7 @@ show_cursor() {
 # Display truncated log lines from the install log
 show_log_tail() {
   if [[ -f $R2D2_INSTALL_LOG_FILE ]]; then
-    local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 35))
+    local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 8))
     local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
 
     tail -n $log_lines "$R2D2_INSTALL_LOG_FILE" | while IFS= read -r line; do
@@ -86,15 +86,10 @@ catch_errors() {
   while true; do
     options=()
     options+=("Retry installation")
-
-    if ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1; then
-      options+=("Upload logs")
-    fi
-
     options+=("View full log")
     options+=("Exit")
 
-    choice=$(gum choose "${options[@]}" --header "What would you like to do?" --height 6 --padding "1 $PADDING_LEFT")
+    choice=$(gum choose "${options[@]}" --header "What would you like to do?" --height 5 --padding "1 $PADDING_LEFT")
 
     case "$choice" in
     "Retry installation")
@@ -107,9 +102,6 @@ catch_errors() {
       else
         tail "$R2D2_INSTALL_LOG_FILE"
       fi
-      ;;
-    "Upload logs")
-      r2-d2-upload-log
       ;;
     "Exit" | "")
       exit 1
