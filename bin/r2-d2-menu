@@ -112,7 +112,6 @@ show_screenrecord_menu() {
   case $(menu "Screenrecord" "  With no audio\n  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
   *"With no audio") r2-d2-cmd-screenrecord ;;
   *"With desktop audio") r2-d2-cmd-screenrecord --with-desktop-audio ;;
-  *"With desktop + microphone audio") r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
   *"With desktop + microphone audio + webcam")
     local device
     device=$(show_webcam_select_menu) || {
@@ -121,6 +120,7 @@ show_screenrecord_menu() {
     }
     r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
     ;;
+  *"With desktop + microphone audio") r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
   *) back_to show_trigger_menu ;;
   esac
 }
@@ -170,10 +170,10 @@ show_setup_menu() {
 
 show_setup_dictation_menu() {
   case $(menu "Dictation" "  Config\n󱚤  Model\n󰒲  Status") in
-  *Config*) present_terminal r2-d2-voxtype-config ;;
-  *Model*) present_terminal r2-d2-voxtype-model ;;
-  *Status*) present_terminal r2-d2-voxtype-status ;;
-  *) show_setup_menu ;;
+    *Config*) present_terminal r2-d2-voxtype-config ;;
+    *Model*) present_terminal r2-d2-voxtype-model ;;
+    *Status*) present_terminal r2-d2-voxtype-status ;;
+    *) show_setup_menu ;;
   esac
 }
 
@@ -325,15 +325,18 @@ show_remove_javascript_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  R2-D2\n󰣇  System packages\n󰒲  Keyring\n  Firmware\n  Password\n  Timezone\n  Time\n󰒲  Plocate DB\n󰒲  Reinstall") in
-  *R2-D2*) present_terminal r2-d2-update ;;
-  *System*) present_terminal r2-d2-update-system-pkgs ;;
+  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  System packages\n󰣇  Flatpaks & AppImages\n󰒲  Keyring\n  Firmware\n  Password\n  Timezone\n  Time\n󰒲  Plocate DB\n󰒲  Rest of settings\n󰒲  Reinstall") in
+  *"R2-D2 (full)"*) present_terminal r2-d2-update ;;
+  *Config*) present_terminal r2-d2-update-config ;;
+  *"System packages"*) present_terminal r2-d2-update-system-pkgs ;;
+  *Flatpaks*) present_terminal r2-d2-update-flatpaks-appimages ;;
   *Keyring*) present_terminal r2-d2-update-keyring ;;
   *Firmware*) present_terminal r2-d2-update-firmware ;;
   *Timezone*) present_terminal r2-d2-tz-select ;;
   *Time*) present_terminal r2-d2-update-time ;;
   *Password*) show_update_password_menu ;;
   *Plocate*) present_terminal r2-d2-update-locate ;;
+  *"Rest of settings"*) present_terminal r2-d2-update-settings ;;
   *Reinstall*) show_reinstall_menu ;;
   *) show_main_menu ;;
   esac
