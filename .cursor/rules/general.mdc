@@ -1,3 +1,8 @@
+---
+description: General rules for interacting and updating this repo.
+alwaysApply: true
+---
+
 # Style
 
 - Two spaces for indentation, no tabs
@@ -68,7 +73,6 @@ To create a new migration, run `r2-d2-dev-add-migration --no-edit`. This creates
 
 Migration format:
 
-- No shebang line
 - Start with an `echo` describing what the migration does
 - Use `$R2D2_PATH` to reference the r2-d2 directory
 
