@@ -94,7 +94,7 @@ start_screenrecording() {
   local filename
   filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
   local audio_devices=""
-  local audio_args=""
+  local -a audio_args=()
 
   [[ $DESKTOP_AUDIO == "true" ]] && audio_devices+="default_output"
 
@@ -108,7 +108,7 @@ start_screenrecording() {
 
   local resolution="${RESOLUTION:-$(default_resolution)}"
 
-  gpu-screen-recorder -w portal -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+  gpu-screen-recorder -w portal -k h264 -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
 
   # Wait for the output file (appears after portal selection). Do not rely on the
   # background PID: gpu-screen-recorder may fork and the parent exits while recording
@@ -118,7 +118,7 @@ start_screenrecording() {
     sleep 0.2
     waited=$((waited + 1))
     # After a short grace period, stop if nothing is recording (startup failed or user dismissed portal)
-    if ((waited >= 25)) && ! pgrep -f "^gpu-screen-recorder" >/dev/null; then
+    if ((waited >= 25)) && ! pgrep -f "[g]pu-screen-recorder" >/dev/null; then
       break
     fi
   done
@@ -134,11 +134,11 @@ start_screenrecording() {
 }
 
 stop_screenrecording() {
-  pkill -SIGINT -f "^gpu-screen-recorder" # SIGINT required to save video properly
+  pkill -SIGINT -f "[g]pu-screen-recorder" # SIGINT required to save video properly
 
   # Wait a maximum of 5 seconds to finish before hard killing
   local count=0
-  while pgrep -f "^gpu-screen-recorder" >/dev/null && ((count < 50)); do
+  while pgrep -f "[g]pu-screen-recorder" >/dev/null && ((count < 50)); do
     sleep 0.1
     count=$((count + 1))
   done
@@ -146,8 +146,8 @@ stop_screenrecording() {
   toggle_screenrecording_indicator
   cleanup_webcam
 
-  if pgrep -f "^gpu-screen-recorder" >/dev/null; then
-    pkill -9 -f "^gpu-screen-recorder"
+  if pgrep -f "[g]pu-screen-recorder" >/dev/null; then
+    pkill -9 -f "[g]pu-screen-recorder"
     notify-send "Screen recording error" "Recording process had to be force-killed. Video may be corrupted." -u critical -t 5000
   else
     trim_first_frame
@@ -172,7 +172,7 @@ toggle_screenrecording_indicator() {
 }
 
 screenrecording_active() {
-  pgrep -f "^gpu-screen-recorder" >/dev/null
+  pgrep -f "[g]pu-screen-recorder" >/dev/null
 }
 
 trim_first_frame() {
