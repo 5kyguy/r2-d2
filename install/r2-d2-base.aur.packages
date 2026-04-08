@@ -1,5 +1,5 @@
 # AUR packages for base install (installed via r2-d2-pkg-aur-add in install/packaging/base.sh)
 brave-bin
 cursor-appimage
-pear-desktop
-voxtype-bin
+helium-browser-bin
+pear-desktop-bin
