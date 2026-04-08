@@ -237,11 +237,12 @@ show_restart_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰵮  Development\n󱚤  AI\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󱚤  AI\n  Dictation (Voxtype)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
   *Package*) terminal r2-d2-pkg-install ;;
   *AUR*) terminal r2-d2-pkg-aur-install ;;
   *Web*) present_terminal r2-d2-webapp-install ;;
   *TUI*) present_terminal r2-d2-tui-install ;;
+  *AppImage*) present_terminal r2-d2-appimage-install ;;
   *Development*) show_install_development_menu ;;
   *AI*) show_install_ai_menu ;;
     *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;

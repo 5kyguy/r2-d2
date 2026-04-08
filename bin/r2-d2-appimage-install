@@ -1,0 +1,82 @@
+#!/bin/bash
+
+set -e
+
+APP_DIR="$HOME/Applications"
+ICON_DIR="$HOME/.local/share/applications/icons"
+DESKTOP_DIR="$HOME/.local/share/applications"
+
+mkdir -p "$APP_DIR" "$ICON_DIR" "$DESKTOP_DIR"
+
+INTERACTIVE_MODE=false
+
+if (($# < 3)); then
+  echo -e "\e[32mLet's create an AppImage shortcut you can start with the app launcher.\n\e[0m"
+  APP_NAME=$(gum input --prompt "Name> " --placeholder "My AppImage app")
+  APP_SOURCE=$(gum input --prompt "AppImage URL or local path> " --placeholder "https://example.com/app.AppImage or /path/to/app.AppImage")
+  ICON_REF=$(gum input --prompt "Icon URL or local path (optional)> " --placeholder "Leave blank for no custom icon")
+  EXTRA_ARGS=$(gum input --prompt "Extra arguments (optional)> " --placeholder "--flag1 --flag2")
+  INTERACTIVE_MODE=true
+else
+  APP_NAME="$1"
+  APP_SOURCE="$2"
+  ICON_REF="$3"
+  EXTRA_ARGS="${4:-}"
+fi
+
+if [[ -z $APP_NAME || -z $APP_SOURCE ]]; then
+  echo "You must set app name and AppImage URL or path!"
+  exit 1
+fi
+
+APP_TARGET="$APP_DIR/$APP_NAME.AppImage"
+
+if [[ -f $APP_SOURCE ]]; then
+  cp "$APP_SOURCE" "$APP_TARGET"
+else
+  echo "Downloading AppImage..."
+  curl -fsSL -o "$APP_TARGET" "$APP_SOURCE"
+fi
+
+chmod +x "$APP_TARGET"
+
+ICON_PATH=""
+if [[ -n $ICON_REF ]]; then
+  if [[ -f $ICON_REF && ! $ICON_REF =~ ^https?:// ]]; then
+    ICON_PATH="$ICON_REF"
+  else
+    ICON_PATH="$ICON_DIR/$APP_NAME.png"
+    if ! curl -fsSL -o "$ICON_PATH" "$ICON_REF"; then
+      echo "Warning: Failed to download icon; continuing without icon."
+      ICON_PATH=""
+    fi
+  fi
+fi
+
+EXEC_COMMAND="\"$APP_TARGET\""
+if [[ -n $EXTRA_ARGS ]]; then
+  EXEC_COMMAND="$EXEC_COMMAND $EXTRA_ARGS"
+fi
+
+DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
+
+{
+  echo "[Desktop Entry]"
+  echo "Version=1.0"
+  echo "Name=$APP_NAME"
+  echo "Comment=$APP_NAME"
+  echo "Exec=$EXEC_COMMAND"
+  echo "Terminal=false"
+  echo "Type=Application"
+  if [[ -n $ICON_PATH ]]; then
+    echo "Icon=$ICON_PATH"
+  fi
+  echo "StartupNotify=true"
+} >"$DESKTOP_FILE"
+
+chmod +x "$DESKTOP_FILE"
+
+if [[ $INTERACTIVE_MODE == true ]]; then
+  echo -e "You can now find $APP_NAME using the app launcher (SUPER + SPACE)\n"
+fi
+
