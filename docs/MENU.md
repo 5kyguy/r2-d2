@@ -11,7 +11,7 @@ The main menu offers: **Trigger**, **Setup**, **Restart**, **Install**, **Remove
 | Entry | Action |
 | ----- | ------ |
 | **Trigger** | Screenshot, Screenrecord, Share (clipboard/file/folder), Toggle (screensaver, nightlight, idle lock, top bar, device display, notification silencing) |
-| **Setup** | Audio, Wifi, Bluetooth, Power profile, System sleep (enable/disable suspend/hibernate), DNS, Security (Fingerprint, Fido2), Dictation (Voxtype: install/config/model/status), Reset sudo (lockout) |
+| **Setup** | Audio, Wifi, Bluetooth, Power profile, System sleep (enable/disable suspend/hibernate), DNS, Security (Fingerprint, Fido2), Dictation (Voxtype: config/model/status), Reset sudo (lockout) |
 | **Restart** | Restart Waybar, Walker, Mako, Hypridle, Hyprsunset, SwayOSD, Pipewire, Terminal, Tmux, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
 | **Remove** | See [Remove submenu](#remove-submenu) |
@@ -29,6 +29,7 @@ The main menu offers: **Trigger**, **Setup**, **Restart**, **Install**, **Remove
 | **AUR** | Install from AUR (`r2-d2-pkg-aur-install`). |
 | **Web App** | Create a web app shortcut (`r2-d2-webapp-install`). Default install adds WhatsApp, YouTube, X, Discord (via Helium when available). |
 | **TUI** | Add a TUI shortcut (`r2-d2-tui-install`). Default install adds Disk Usage and Docker. |
+| **AppImage** | Install an AppImage and create a launcher (`r2-d2-appimage-install`). Stores AppImages under `~/Applications`. |
 | **Development** | Docker DB (containers), JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. Go and Node are preinstalled. |
 | **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama, Crush. |
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |

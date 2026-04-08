@@ -17,7 +17,6 @@
   ],
   "modules-center": [
     "clock", 
-    "custom/update", 
     "custom/voxtype", 
     "custom/screenrecording-indicator",
     "custom/notification-silencing-indicator"
@@ -34,7 +33,7 @@
     "format": " <span font='r2-d2'>\ue900</span>",
     "on-click": "r2-d2-menu",
     "on-click-right": "xdg-terminal-exec",
-    "tooltip-format": "R2-D2 Menu\n\nSuper + Alt + Space"
+    "tooltip-format": "R2-D2"
   },
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -64,32 +63,25 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛 {usage}%",
-    "on-click": "$TERMINAL -e btop"
+    "on-click": "r2-d2-launch-tui btop"
   },
   "memory": {
     "interval": 2,
-    "format": "  {percentage}%"
+    "format": "  {percentage}%",
+    "on-click": "r2-d2-launch-tui btop"
   },
   "temperature": {
     "interval": 5,
     "format": "{temperatureC}°C",
-    "tooltip-format": "CPU Temperature: {temperatureC}°C",
     "critical-threshold": 80,
-    "on-click": "$TERMINAL -e btop"
+    "on-click": "r2-d2-launch-tui btop"
   },
 
   "clock": {
     "format": "{:%A %H:%M}",
-    "tooltip": false,
+    "tooltip": true,
+    "tooltip-format": "{:%d-%m} | {:%H:%M} UTC",
     "on-click-right": "r2-d2-launch-floating-terminal-with-presentation r2-d2-tz-select"
-  },
-  "custom/update": {
-    "format": "",
-    "exec": "r2-d2-update-available",
-    "on-click": "r2-d2-launch-floating-terminal-with-presentation r2-d2-update",
-    "tooltip-format": "R2-D2 update available",
-    "signal": 7,
-    "interval": 21600
   },
   "custom/voxtype": {
     "exec": "omarchy-voxtype-status",

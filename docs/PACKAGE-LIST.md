@@ -63,7 +63,7 @@ bash-completion, bat, eza, fd, fzf, less, ripgrep, starship, tmux, zoxide, tldr,
 
 ### Terminal and editor
 
-alacritty, ghostty, neovim, tree-sitter-cli. Alacritty is the default terminal (`config/terminal-default.sh` and `default/config/xdg-terminals.list`).
+alacritty, ghostty, neovim, tree-sitter-cli. Alacritty is the default terminal (`default/config/xdg-terminals.list`; terminal `.desktop` files come from `applications/` via `r2-d2-refresh-applications` in `mimetypes.sh`).
 
 ### Audio
 

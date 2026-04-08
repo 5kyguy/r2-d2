@@ -64,6 +64,8 @@ if [[ -n $CUSTOM_EXEC ]]; then
   EXEC_COMMAND="$CUSTOM_EXEC"
 elif command -v helium &>/dev/null; then
   EXEC_COMMAND="helium --app=\"$APP_URL\""
+elif command -v helium-browser &>/dev/null; then
+  EXEC_COMMAND="helium-browser --app=\"$APP_URL\""
 else
   EXEC_COMMAND="r2-d2-launch-webapp $APP_URL"
 fi

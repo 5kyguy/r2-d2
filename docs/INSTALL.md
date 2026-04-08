@@ -114,13 +114,11 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **theme.sh** — Theme/background setup, Chromium policy dirs
 - **branding.sh** — Copy logo for fastfetch/screensaver
 - **git, gpg, timezones** — User/config defaults
-- **increase-sudo-tries, increase-lockout-limit, ssh-flakiness, increase-file-watchers** — System tweaks
+- **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
-- **mimetypes.sh** — Default apps (e.g. Brave as browser)
-- **terminal-default.sh** — Set Alacritty as default terminal (copy desktop entry; terminal order comes from `default/config/xdg-terminals.list`)
+- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (e.g. Brave); terminal order from `default/config/xdg-terminals.list`
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
-- **voxtype.sh** — Copy Voxtype config to `~/.config/voxtype/`
 - **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
 - **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad
 

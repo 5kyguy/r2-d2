@@ -3,3 +3,109 @@
 
 [char_sets.default]
 default_device = "⮞"
+
+# Initial tab (set this to Output devices)
+tab = "playback"
+
+# Maximum percentage for volume sliders
+max_volume_percent = 100.0
+
+# Whether to prevent increasing volume past max_volume
+enforce_max_volume = true
+
+# Themes
+#
+# Themes determine the styling of user interface elements.
+#
+# Theme styles are based on ratatui's Style struct.
+# https://docs.rs/ratatui/latest/ratatui/style/struct.Style.html
+#
+# Each style can have an fg color, a bg color, and modifiers. Any property not
+# specified will inherit from the default style for your terminal.
+#
+# fg and bg can be an RGB hex value in the form "#RRGGBB" or named ANSI colors:
+#   Black Red Green Yellow Blue Magenta Cyan Gray DarkGray LightRed LightGreen
+#   LightYellow LightBlue LightMagenta LightCyan White
+#
+# add_modifier can be one or more of BOLD DIM ITALIC UNDERLINED SLOW_BLINK
+# RAPID_BLINK REVERSED HIDDEN CROSSED_OUT combined with |.
+#
+# For example:
+#
+# # Red foreground on a black background with bold, underlined text
+# { fg = "#FF0000", bg = "Black", add_modifier = "BOLD | UNDERLINE" }
+#
+# An empty style with no properties ({ }) corresponds to the default style.
+#
+# You can modify built-in themes. Anything you don't specify will remain
+# unchanged. For example:
+#
+# # Modify the "default" theme to make the selection indicator blink.
+# [themes.default]
+# selector = { fg = "LightCyan", add_modifier = "SLOW_BLINK" }
+#
+# And you can create a new theme that inherits unspecified styles from a
+# built-in theme. For example:
+#
+# # Create a new theme called "my_custom_theme" based on "nocolor"
+# [themes.my_custom_theme]
+# inherit = "nocolor"
+# tab_selected = { fg = "LightCyan", add_modifier = "SLOW_BLINK" }
+#
+# The "inherit" option is optional. If not present, the new theme will inherit
+# from the "default" theme.
+#
+# The following is the default theme with each themeable property described.
+[themes.default]
+# The symbol marking the default device on the Input/Output Devices tabs
+default_device = { }
+# The symbol marking the default endpoint on the Playback/Recording tabs
+default_stream = { }
+# The selection indicator in a tab
+selector = { fg = "LightCyan" }
+# The name of a tab in the tab menu
+tab = { }
+# The name of the selected tab in the tab menu
+tab_selected = { fg = "LightCyan" }
+# The symbols surrounding the selected tab in the tab menu
+tab_marker = { fg = "LightCyan" }
+# The symbol at the top/bottom of a tab indicating that there are more items
+list_more = { fg = "DarkGray" }
+# The name of a PipeWire node
+node_title = { }
+# The name of the selected target for a node
+node_target = { }
+# The volume percentage label
+volume = { }
+# Volume bar
+volume_empty = { fg = "DarkGray" }
+volume_filled = { fg = "LightBlue" }
+# Peak meter. Inactive = unlit, active = lit, overload = greater than 0.0 dB
+meter_inactive = { fg = "DarkGray" }
+meter_active = { fg = "LightGreen" }
+meter_overload = { fg = "Red" }
+# The "live" indicator in the center of the meter
+meter_center_inactive = { fg = "DarkGray" }
+meter_center_active = { fg = "LightGreen" }
+# The name of a device in the Configuration tab
+config_device = { }
+# The name of the selected profile in the Configuration tab
+config_profile = { }
+# Dropdown marker next to the profiles in the Configuration tab
+dropdown_icon = { }
+# Border around dropdowns
+dropdown_border = { }
+# The name of an item in a dropdown
+dropdown_item = { }
+# The name of the currently-selected item in a dropdown
+dropdown_selected = { fg = "LightCyan", add_modifier = "REVERSED" }
+# The symbol at the top/bottom of a dropdown indicating that there are more
+# items
+dropdown_more = { fg = "DarkGray" }
+# Border around help menu
+help_border = { }
+# The name of an item in a the help menu
+help_item = { }
+# The symbol at the top/bottom of the help menu indicating that there are more
+# items
+help_more = { fg = "DarkGray" }

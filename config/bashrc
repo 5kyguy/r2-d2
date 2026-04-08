@@ -7,7 +7,9 @@ source ~/.config/bash/rc
 
 # Load SSH keys into agent (keychain)
 if command -v keychain &>/dev/null; then
-  eval $(keychain --eval --agents ssh id_git_ssh id_rsa_ssh_login id_ssh_login 2>/dev/null)
+  eval $(keychain --eval --agents ssh id_git_ssh 2>/dev/null)
+  eval $(keychain --eval --agents ssh id_rsa_ssh_login 2>/dev/null)
+  eval $(keychain --eval --agents ssh id_ssh_login 2>/dev/null)
 fi
 
 # Add your own exports, aliases, and functions here.
