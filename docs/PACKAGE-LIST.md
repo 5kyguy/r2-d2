@@ -14,7 +14,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** If **`install/r2-d2-base.aur.packages`** exists, those packages are installed via yay (e.g. brave-bin, cursor-appimage). The repo does not ship this file by default; add it if you want base AUR packages.
+- **AUR:** If **`install/r2-d2-base.aur.packages`** exists, those packages are installed via yay (e.g. brave-bin, cursor-bin). The repo does not ship this file by default; add it if you want base AUR packages.
 - **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
 
 ### 1.3 Packaging – other steps
@@ -163,7 +163,7 @@ Background/wallpaper is set via the background selector (**Super + Ctrl + Space*
 ## 4. Summary
 
 - **Base pacman packages:** 163 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** Optional; if `install/r2-d2-base.aur.packages` exists, those are installed (e.g. brave-bin, cursor-appimage).
+- **Base AUR packages:** Optional; if `install/r2-d2-base.aur.packages` exists, those are installed (e.g. brave-bin, cursor-bin).
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
 - **Default web apps:** 4 (WhatsApp, YouTube, X, Discord).
 - **Default TUI shortcuts:** 2 (Disk Usage, Docker).

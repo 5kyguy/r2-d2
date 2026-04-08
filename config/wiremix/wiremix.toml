@@ -58,13 +58,13 @@ enforce_max_volume = true
 # The following is the default theme with each themeable property described.
 [themes.default]
 # The symbol marking the default device on the Input/Output Devices tabs
-default_device = { }
+default_device = {}
 # The symbol marking the default endpoint on the Playback/Recording tabs
-default_stream = { }
+default_stream = {}
 # The selection indicator in a tab
 selector = { fg = "LightCyan" }
 # The name of a tab in the tab menu
-tab = { }
+tab = {}
 # The name of the selected tab in the tab menu
 tab_selected = { fg = "LightCyan" }
 # The symbols surrounding the selected tab in the tab menu
@@ -72,11 +72,11 @@ tab_marker = { fg = "LightCyan" }
 # The symbol at the top/bottom of a tab indicating that there are more items
 list_more = { fg = "DarkGray" }
 # The name of a PipeWire node
-node_title = { }
+node_title = {}
 # The name of the selected target for a node
-node_target = { }
+node_target = {}
 # The volume percentage label
-volume = { }
+volume = {}
 # Volume bar
 volume_empty = { fg = "DarkGray" }
 volume_filled = { fg = "LightBlue" }
@@ -88,24 +88,24 @@ meter_overload = { fg = "Red" }
 meter_center_inactive = { fg = "DarkGray" }
 meter_center_active = { fg = "LightGreen" }
 # The name of a device in the Configuration tab
-config_device = { }
+config_device = {}
 # The name of the selected profile in the Configuration tab
-config_profile = { }
+config_profile = {}
 # Dropdown marker next to the profiles in the Configuration tab
-dropdown_icon = { }
+dropdown_icon = {}
 # Border around dropdowns
-dropdown_border = { }
+dropdown_border = {}
 # The name of an item in a dropdown
-dropdown_item = { }
+dropdown_item = {}
 # The name of the currently-selected item in a dropdown
 dropdown_selected = { fg = "LightCyan", add_modifier = "REVERSED" }
 # The symbol at the top/bottom of a dropdown indicating that there are more
 # items
 dropdown_more = { fg = "DarkGray" }
 # Border around help menu
-help_border = { }
+help_border = {}
 # The name of an item in a the help menu
-help_item = { }
+help_item = {}
 # The symbol at the top/bottom of the help menu indicating that there are more
 # items
 help_more = { fg = "DarkGray" }

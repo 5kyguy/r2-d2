@@ -170,10 +170,10 @@ show_setup_menu() {
 
 show_setup_dictation_menu() {
   case $(menu "Dictation" "  Config\n󱚤  Model\n󰒲  Status") in
-    *Config*) present_terminal r2-d2-voxtype-config ;;
-    *Model*) present_terminal r2-d2-voxtype-model ;;
-    *Status*) present_terminal r2-d2-voxtype-status ;;
-    *) show_setup_menu ;;
+  *Config*) present_terminal r2-d2-voxtype-config ;;
+  *Model*) present_terminal r2-d2-voxtype-model ;;
+  *Status*) present_terminal r2-d2-voxtype-status ;;
+  *) show_setup_menu ;;
   esac
 }
 
@@ -245,7 +245,7 @@ show_install_menu() {
   *AppImage*) present_terminal r2-d2-appimage-install ;;
   *Development*) show_install_development_menu ;;
   *AI*) show_install_ai_menu ;;
-    *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;
+  *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;
   *Gaming*) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
   *Dropbox*) present_terminal r2-d2-install-dropbox ;;
   *Tailscale*) present_terminal r2-d2-install-tailscale ;;

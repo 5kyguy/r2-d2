@@ -7,4 +7,3 @@ BIN="$(dirname "$0")"
 echo -e "\e[32m\nUpdate R2-D2 settings (without configs or system packages)\e[0m"
 
 R2D2_UPDATE_SKIP_SYNC_FILES=1 R2D2_UPDATE_SKIP_SYSTEM_PKGS=1 "$BIN/r2-d2-update-perform"
-

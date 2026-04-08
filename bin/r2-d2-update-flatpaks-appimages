@@ -1,0 +1,24 @@
+#!/bin/bash
+
+set -e
+
+echo -e "\e[32m\nUpdate Flatpaks and AppImages\e[0m"
+
+if r2-d2-cmd-missing flatpak; then
+  echo "flatpak is not installed; skipping Flatpak updates."
+else
+  flatpak update -y
+fi
+
+if r2-d2-cmd-present ail-cli; then
+  echo -e "\e[32mUpdating AppImages via AppImageLauncher...\e[0m"
+  ail-cli update
+else
+  shopt -s nullglob
+  appimages=("$HOME/Applications"/*.AppImage)
+  shopt -u nullglob
+  if ((${#appimages[@]} > 0)); then
+    echo "AppImages in ~/Applications are not updated automatically without AppImageLauncher."
+    echo "Install appimagelauncher and use ail-cli update, or replace AppImages manually."
+  fi
+fi
