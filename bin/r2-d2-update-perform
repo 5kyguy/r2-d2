@@ -12,16 +12,16 @@ export CLICOLOR_FORCE=1
 exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 
 # Perform all update steps (invoke by path so this works when run from menu without bin in PATH)
-"$BIN/r2-d2-update-time"
-"$BIN/r2-d2-update-keyring"
-"$BIN/r2-d2-update-available-reset"
-"$BIN/r2-d2-update-sync-files"
-"$BIN/r2-d2-update-system-pkgs"
-"$BIN/r2-d2-update-sync-pkgs"
-"$BIN/r2-d2-migrate"
-"$BIN/r2-d2-update-aur-pkgs"
-"$BIN/r2-d2-update-orphan-pkgs"
-"$BIN/r2-d2-hook" post-update
+[[ -n $R2D2_UPDATE_SKIP_TIME ]] || "$BIN/r2-d2-update-time"
+[[ -n $R2D2_UPDATE_SKIP_KEYRING ]] || "$BIN/r2-d2-update-keyring"
+[[ -n $R2D2_UPDATE_SKIP_AVAILABLE_RESET ]] || "$BIN/r2-d2-update-available-reset"
+[[ -n $R2D2_UPDATE_SKIP_SYNC_FILES ]] || "$BIN/r2-d2-update-sync-files"
+[[ -n $R2D2_UPDATE_SKIP_SYSTEM_PKGS ]] || "$BIN/r2-d2-update-system-pkgs"
+[[ -n $R2D2_UPDATE_SKIP_SYNC_PKGS ]] || "$BIN/r2-d2-update-sync-pkgs"
+[[ -n $R2D2_UPDATE_SKIP_MIGRATE ]] || "$BIN/r2-d2-migrate"
+[[ -n $R2D2_UPDATE_SKIP_AUR_PKGS ]] || "$BIN/r2-d2-update-aur-pkgs"
+[[ -n $R2D2_UPDATE_SKIP_ORPHAN_PKGS ]] || "$BIN/r2-d2-update-orphan-pkgs"
+[[ -n $R2D2_UPDATE_SKIP_HOOK ]] || "$BIN/r2-d2-hook" post-update
 
 "$BIN/r2-d2-update-analyze-logs"
 

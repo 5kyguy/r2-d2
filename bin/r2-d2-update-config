@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+BIN="$(dirname "$0")"
+
+echo -e "\e[32m\nUpdate R2-D2 user config\e[0m"
+
+"$BIN/r2-d2-update-sync-files"
+"$BIN/r2-d2-update-restart"
+
