@@ -3,7 +3,4 @@
 # Overwrite the user tmux config with the R2-D2 default and reload tmux.
 
 r2-d2-refresh-config tmux/tmux.conf
-
-if pgrep -x tmux; then
-  tmux source-file ~/.config/tmux/tmux.conf
-fi
+r2-d2-restart-tmux

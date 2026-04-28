@@ -108,7 +108,7 @@ start_screenrecording() {
 
   local resolution="${RESOLUTION:-$(default_resolution)}"
 
-  gpu-screen-recorder -w portal -k h264 -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+  gpu-screen-recorder -w portal -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
 
   # Wait for the output file (appears after portal selection). Do not rely on the
   # background PID: gpu-screen-recorder may fork and the parent exits while recording

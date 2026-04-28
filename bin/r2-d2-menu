@@ -19,6 +19,13 @@ back_to() {
   fi
 }
 
+toggle_existing_menu() {
+  if pgrep -f "walker.*--dmenu" >/dev/null; then
+    walker --close >/dev/null 2>&1
+    exit 0
+  fi
+}
+
 menu() {
   local prompt="$1"
   local options="$2"
@@ -407,5 +414,6 @@ if [[ -n $1 ]]; then
   BACK_TO_EXIT=true
   go_to_menu "$1"
 else
+  toggle_existing_menu
   show_main_menu
 fi
