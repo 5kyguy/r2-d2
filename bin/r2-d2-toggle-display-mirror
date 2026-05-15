@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Toggle between mirror and extend display mode when an external monitor is connected.
+
+set -e
+
+STATE_DIR="$HOME/.local/state/r2-d2/toggles"
+STATE_FILE="$STATE_DIR/display-mirror"
+
+MONITORS_JSON=$(hyprctl monitors -j 2>/dev/null)
+COUNT=$(echo "$MONITORS_JSON" | jq 'length')
+
+if ((COUNT < 2)); then
+  notify-send "Display mirror" "Connect an external monitor first"
+  exit 0
+fi
+
+BUILTIN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1)
+EXTERNAL=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
+
+if [[ -z $BUILTIN ]] || [[ -z $EXTERNAL ]]; then
+  notify-send "Display mirror" "Could not identify built-in and external monitors"
+  exit 1
+fi
+
+if [[ -f $STATE_FILE ]]; then
+  # Currently mirroring — switch to extend
+  rm -f "$STATE_FILE"
+  hyprctl keyword monitor "$EXTERNAL,preferred,auto,1"
+  hyprctl keyword monitor "$BUILTIN,preferred,auto,1"
+  notify-send "󰍺  Display extended"
+else
+  # Currently extending — switch to mirror
+  mkdir -p "$STATE_DIR"
+  touch "$STATE_FILE"
+  hyprctl keyword monitor "$EXTERNAL,preferred,0x0,1,mirror,$BUILTIN"
+  notify-send "󰍺  Display mirrored"
+fi
+
+pkill -RTMIN+9 waybar
