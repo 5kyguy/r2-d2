@@ -1,0 +1,236 @@
+#!/bin/bash
+
+# Build and install AMD ISP4 webcam drivers (OV05C10 sensor + ISP4 capture)
+# for machines with AMD Strix Halo / ISP4 pipeline lacking mainline drivers.
+#
+# Patches AMD's out-of-tree drivers from:
+#   https://github.com/amd/Linux_ISP_Kernel (branch 4.0)
+# to build against mainline kernels that export the ISP buffer API via
+# <drm/amd/isp.h>.
+
+set -euo pipefail
+
+# ── Checks ───────────────────────────────────────────────────────────────
+
+if ls /dev/video* >/dev/null 2>&1; then
+  echo "Webcam already working — no fix needed."
+  notify-send "📷  Webcam already working" 2>/dev/null || true
+  exit 0
+fi
+
+if ! ls /sys/bus/platform/devices/amd_isp_capture.*.auto >/dev/null 2>&1 ||
+  ! ls /sys/bus/i2c/devices/i2c-ov05c10 >/dev/null 2>&1; then
+  echo "AMD ISP4 webcam hardware not detected on this system."
+  notify-send "📷  AMD ISP4 hardware not found" 2>/dev/null || true
+  exit 1
+fi
+
+echo "AMD ISP4 hardware detected — building webcam drivers..."
+
+# ── Dependencies ─────────────────────────────────────────────────────────
+
+KVER=$(uname -r)
+
+if ! pacman -Q base-devel >/dev/null 2>&1 ||
+  ! pacman -Q linux-headers >/dev/null 2>&1; then
+  echo "Installing build dependencies..."
+  sudo pacman -S --noconfirm --needed base-devel linux-headers
+fi
+
+# ── Clone ────────────────────────────────────────────────────────────────
+
+BUILD_DIR=$(mktemp -d)
+trap 'rm -rf "$BUILD_DIR"' EXIT
+
+echo "Cloning AMD ISP kernel sources..."
+git clone -b 4.0 --depth 1 \
+  https://github.com/amd/Linux_ISP_Kernel.git \
+  "$BUILD_DIR/amd-isp-kernel"
+
+SENSOR_SRC="$BUILD_DIR/amd-isp-kernel/drivers/media/i2c/ov05c.c"
+CAP="$BUILD_DIR/amd-isp-kernel/drivers/media/platform/amd/isp4"
+
+# ── Patch sensor driver (ov05c.c) ───────────────────────────────────────
+
+echo "Patching sensor driver..."
+
+# Add ov05c10 to I2C device ID table (mainline amd_isp4 creates client as "ov05c10")
+sed -i '/{"ov05", 0 },/a\	{"ov05c10", 0 },' "$SENSOR_SRC"
+
+# ── Patch capture driver ────────────────────────────────────────────────
+
+echo "Patching ISP4 capture driver..."
+
+# --- isp_common.h: add ISP header, rename platform data type ---
+sed -i '1i #include <drm/amd/isp.h>' "$CAP/isp_common.h"
+sed -i 's/struct amdisp_platform_data/struct isp_platform_data/g' "$CAP/isp_common.h"
+
+# --- isp_core.h: remove local amdisp_platform_data definition ---
+perl -i -0pe '
+  s/struct amdisp_platform_data \{\n\tvoid \*adev;\n\tvoid \*bo;\n\tvoid \*cpu_ptr;\n\tu64 gpu_addr;\n\tu32 size;\n\tu32 asic_type;\n\tresource_size_t base_rmmio_size;\n};\n//g
+' "$CAP/isp_core.h"
+
+# Replace remaining amdisp references in isp_core.h
+sed -i 's/struct amdisp_platform_data/struct isp_platform_data/g' "$CAP/isp_core.h"
+
+# --- isp_hwa.c: replace amdgpu buffer API with ISP exported API ---
+# Remove amdgpu includes
+sed -i '/#include <drm\/ttm\/ttm_tt.h>/d' "$CAP/isp_hwa.c"
+sed -i '/#include "amdgpu_object.h"/d' "$CAP/isp_hwa.c"
+sed -i '/#include <linux\/page_ref.h>/d' "$CAP/isp_hwa.c"
+
+# Add ISP header
+sed -i '1i #include <drm/amd/isp.h>' "$CAP/isp_hwa.c"
+
+# Replace platform data type
+sed -i 's/struct amdisp_platform_data/struct isp_platform_data/g' "$CAP/isp_hwa.c"
+
+# isp_gpu_mem_alloc: remove pltf_data variable declaration
+sed -i '/struct isp_platform_data \*pltf_data;/d' "$CAP/isp_hwa.c"
+
+# isp_gpu_mem_alloc: replace adev+bo declarations with buf_obj
+perl -i -0pe '
+  s/\tstruct amdgpu_device \*adev;\n\tstruct amdgpu_bo \*bo = NULL;/\tvoid *buf_obj = NULL;/g
+' "$CAP/isp_hwa.c"
+
+# isp_gpu_mem_alloc: replace the alloc block
+perl -i -0pe '
+  s/\tpltf_data = isp->amd_cam->pltf_data;\n\tadev = \(struct amdgpu_device \*\)pltf_data->adev;\n\tmem_info->mem_size = mem_size;\n\tmem_info->mem_align = ISP_MC_ADDR_ALIGN;\n\tmem_info->mem_domain = AMDGPU_GEM_DOMAIN_GTT;\n\n\tret = amdgpu_bo_create_kernel\(adev,\n\t\t\t\t      mem_info->mem_size,\n\t\t\t\t      mem_info->mem_align,\n\t\t\t\t      mem_info->mem_domain,\n\t\t\t\t      \&bo,\n\t\t\t\t      \&gpu_addr,\n\t\t\t\t      \&cpu_ptr\);/\tmem_info->mem_size = mem_size;\n\n\tret = isp_kernel_buffer_alloc\(dev,\n\t\t\t\t      mem_info->mem_size,\n\t\t\t\t      \&buf_obj,\n\t\t\t\t      \&gpu_addr,\n\t\t\t\t      \&cpu_ptr\);/g
+' "$CAP/isp_hwa.c"
+
+# isp_gpu_mem_alloc: fix mem_handle assignment
+sed -i 's/mem_info->mem_handle = (void \*)bo;/mem_info->mem_handle = buf_obj;/' "$CAP/isp_hwa.c"
+
+# isp_gpu_mem_free: replace bo with buf_obj
+perl -i -0pe '
+  s/\tstruct amdgpu_bo \*bo;/\tvoid *buf_obj;/g
+' "$CAP/isp_hwa.c"
+
+perl -i -0pe '
+  s/\tbo = \(struct amdgpu_bo \*\)mem_info->mem_handle;\n\n\tamdgpu_bo_free_kernel\(&bo, &mem_info->gpu_mc_addr, &mem_info->sys_addr\);/\tbuf_obj = mem_info->mem_handle;\n\n\tisp_kernel_buffer_free\(\&buf_obj, \&mem_info->gpu_mc_addr, \&mem_info->sys_addr\);/g
+' "$CAP/isp_hwa.c"
+
+# --- isp_core.c: replace amdgpu user buffer API + misc fixes ---
+
+# Remove amdgpu includes
+sed -i '/#include <drm\/ttm\/ttm_tt.h>/d' "$CAP/isp_core.c"
+sed -i '/#include "amdgpu_object.h"/d' "$CAP/isp_core.c"
+sed -i '/#include <linux\/page_ref.h>/d' "$CAP/isp_core.c"
+
+# Add ISP header
+sed -i '1i #include <drm/amd/isp.h>' "$CAP/isp_core.c"
+
+# Replace platform data type
+sed -i 's/struct amdisp_platform_data/struct isp_platform_data/g' "$CAP/isp_core.c"
+
+# Rename vb2_amdgpu_attachment → vb2_isp_attachment
+sed -i 's/vb2_amdgpu_attachment/vb2_isp_attachment/g' "$CAP/isp_core.c"
+
+# vb2_amdisp_put: remove amdgpu_bo variable, replace free call
+sed -i '/struct amdgpu_bo \*bo = (struct amdgpu_bo \*)buf->bo;/d' "$CAP/isp_core.c"
+sed -i 's/amdgpu_bo_free_isp_user(bo);/isp_user_buffer_free(buf->bo);/' "$CAP/isp_core.c"
+
+# vb2_amdisp_alloc: replace amdgpu_bo with buf_obj
+perl -i -0pe '
+  s/\tstruct amdgpu_bo \*bo;/\tvoid *buf_obj;/g
+' "$CAP/isp_core.c"
+
+perl -i -0pe '
+  s/\tret = amdgpu_bo_create_isp_user\(cam->pltf_data->adev, buf->dbuf,\n\t\t\t\t\tAMDGPU_GEM_DOMAIN_GTT, &bo, &gpu_addr\);/\tret = isp_user_buffer_alloc\(\&cam->pdev->dev, buf->dbuf,\n\t\t\t\t    \&buf_obj, \&gpu_addr\);/g
+' "$CAP/isp_core.c"
+
+sed -i 's/buf->bo = (void \*)bo;/buf->bo = buf_obj;/' "$CAP/isp_core.c"
+
+# Remove wait_prepare/wait_finish (removed in kernel 6.12+)
+perl -i -0pe '
+  s/static void isp4_qops_wait_prepare\(struct vb2_queue \*vq\)\n\{\n\tvb2_ops_wait_prepare\(vq\);\n\}\n\nstatic void isp4_qops_wait_finish\(struct vb2_queue \*vq\)\n\{\n\tvb2_ops_wait_finish\(vq\);\n\}\n//g
+' "$CAP/isp_core.c"
+
+sed -i '/\.wait_prepare = isp4_qops_wait_prepare,/d' "$CAP/isp_core.c"
+sed -i '/\.wait_finish = isp4_qops_wait_finish,/d' "$CAP/isp_core.c"
+
+# ── Build sensor driver ──────────────────────────────────────────────────
+
+echo "Building sensor driver (ov05c)..."
+
+cd "$BUILD_DIR/amd-isp-kernel/drivers/media/i2c"
+
+cat >Makefile <<'EOF'
+obj-m += ov05c.o
+
+all:
+	make -C /usr/lib/modules/$(shell uname -r)/build M=$(PWD) modules
+clean:
+	make -C /usr/lib/modules/$(shell uname -r)/build M=$(PWD) clean
+EOF
+
+make 2>&1
+
+if [[ ! -f ov05c.ko ]]; then
+  echo "ERROR: ov05c.ko build failed"
+  exit 1
+fi
+
+# ── Build capture driver ─────────────────────────────────────────────────
+
+echo "Building capture driver (amd_capture)..."
+
+cd "$CAP"
+
+cat >Makefile <<'EOF'
+obj-m += amd_capture.o
+amd_capture-objs := isp_core.o \
+                     isp_hwa.o \
+                     isp_debug.o \
+                     isp_phy.o \
+                     isp_fw_ctrl.o \
+                     isp_events.o \
+                     isp_module_intf.o \
+                     isp_mc_addr_mgr.o \
+                     isp_queue.o \
+                     isp_utils.o \
+                     isp_pwr.o
+
+ccflags-y += -I$(src)
+
+all:
+	make -C /usr/lib/modules/$(shell uname -r)/build M=$(PWD) modules
+clean:
+	make -C /usr/lib/modules/$(shell uname -r)/build M=$(PWD) clean
+EOF
+
+make 2>&1
+
+if [[ ! -f amd_capture.ko ]]; then
+  echo "ERROR: amd_capture.ko build failed"
+  exit 1
+fi
+
+# ── Install ──────────────────────────────────────────────────────────────
+
+echo "Installing modules for kernel $KVER..."
+
+sudo mkdir -p "/usr/lib/modules/$KVER/extra"
+sudo cp "$BUILD_DIR/amd-isp-kernel/drivers/media/i2c/ov05c.ko" \
+  "/usr/lib/modules/$KVER/extra/"
+sudo cp "$CAP/amd_capture.ko" \
+  "/usr/lib/modules/$KVER/extra/"
+sudo depmod -a "$KVER"
+
+# ── Load ─────────────────────────────────────────────────────────────────
+
+echo "Loading modules..."
+sudo modprobe ov05c 2>/dev/null || sudo insmod "/usr/lib/modules/$KVER/extra/ov05c.ko"
+sudo modprobe amd_capture 2>/dev/null || sudo insmod "/usr/lib/modules/$KVER/extra/amd_capture.ko"
+
+# ── Verify ───────────────────────────────────────────────────────────────
+
+sleep 2
+
+if ls /dev/video* >/dev/null 2>&1; then
+  echo "SUCCESS: Webcam is now working!"
+  notify-send "📷  Webcam fixed — working!" 2>/dev/null || true
+else
+  echo "Drivers installed and loaded. You may need to reboot for the webcam to appear."
+  notify-send "📷  Drivers installed — reboot may be needed" 2>/dev/null || true
+fi

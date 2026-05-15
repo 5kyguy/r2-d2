@@ -29,3 +29,4 @@ run_logged $R2D2_INSTALL/config/hardware/usb-autosuspend.sh
 run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
 run_logged $R2D2_INSTALL/config/hardware/vulkan.sh
 run_logged $R2D2_INSTALL/config/hardware/fix-synaptic-touchpad.sh
+run_logged $R2D2_INSTALL/config/hardware/amd-isp-webcam.sh

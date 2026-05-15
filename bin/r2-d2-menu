@@ -170,6 +170,7 @@ show_setup_menu() {
   *DNS*) present_terminal r2-d2-setup-dns ;;
   *Security*) show_setup_security_menu ;;
   *Dictation*) show_setup_dictation_menu ;;
+  *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *Reset*) present_terminal r2-d2-reset-sudo ;;
   *) show_main_menu ;;
   esac
