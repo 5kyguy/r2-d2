@@ -1,4 +1,6 @@
 .cursor/plans/
+.opencode/
+
 .markdownlint.json
 assets/font.txt
 omarchy/
