@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# Called with the current battery percentage when the low battery notification is sent.
+# To enable, copy or rename without .sample and make executable:
+#   cp battery-low.sample battery-low && chmod +x battery-low
+
+SOUND_FILE="/usr/share/sounds/freedesktop/stereo/dialog-warning.oga"
+
+if r2-d2-cmd-present mpv && [[ -f $SOUND_FILE ]]; then
+  mpv --no-video "$SOUND_FILE" >/dev/null 2>&1
+fi

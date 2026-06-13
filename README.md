@@ -8,7 +8,7 @@ curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot
 
 - My implementation is in `master` branch, Omarchy is in `dev` branch.
 - Forked at commit [8e88b78](https://github.com/basecamp/omarchy/commit/8e88b780d3add21e94ca2f16c9eef5e3b8b35285)
-- Updated till commit [e5b69c5](https://github.com/basecamp/omarchy/commit/e5b69c52f8de920a2903d668681e3e3ebf016227)
+- Updated till commit [e5b69c5](https://github.com/basecamp/omarchy/commit/e5b69c52f8de920a2903d668681e3e3ebf016227) (Omarchy dev sync through approved ports)
 
 ## License
 
