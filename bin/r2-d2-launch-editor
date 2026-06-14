@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Launch the default editor as determined by $EDITOR (set via ~/.config/uwsm/default) (or nvim if missing).
-# Starts suitable editors in a terminal window and otherwise as a regular application.
+# Launch the default editor as determined by $EDITOR (set via ~/.config/uwsm/default).
+# Starts terminal editors in a terminal window and otherwise as a regular application.
 
 r2-d2-cmd-present "$EDITOR" || EDITOR=nano
 
 case "$EDITOR" in
-nvim | nano)
+nano)
   exec r2-d2-launch-tui "$EDITOR" "$@"
   ;;
 *)
