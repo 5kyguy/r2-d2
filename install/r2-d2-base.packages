@@ -38,7 +38,6 @@ flatpak
 fontconfig
 fuse2
 fzf
-ghostty
 git
 github-cli
 gnome-calculator
@@ -100,7 +99,6 @@ noto-fonts-emoji
 nss-mdns
 obs-studio
 omarchy-keyring
-omarchy-nvim
 omarchy-walker
 pamixer
 pinta
@@ -121,7 +119,6 @@ python-poetry-core
 python-terminaltexteffects
 qt5-wayland
 ripgrep
-rust
 satty
 sddm
 slurp
@@ -134,8 +131,8 @@ swayosd
 system-config-printer
 tldr
 tmux
+totem
 tree
-tree-sitter-cli
 ttf-cascadia-mono-nerd
 ttf-jetbrains-mono-nerd
 tzupdate
@@ -144,14 +141,6 @@ ufw-docker
 unzip
 usage
 uwsm
-vlc
-vlc-plugin-ass
-vlc-plugin-bluray
-vlc-plugin-dca
-vlc-plugin-dvd
-vlc-plugin-ffmpeg
-vlc-plugin-freetype
-vlc-plugin-srt
 waybar
 webp-pixbuf-loader
 wget

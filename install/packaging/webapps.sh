@@ -3,4 +3,3 @@
 r2-d2-webapp-install "WhatsApp" https://web.whatsapp.com/ WhatsApp.png
 r2-d2-webapp-install "YouTube" https://youtube.com/ YouTube.png
 r2-d2-webapp-install "X" https://x.com/ X.png
-r2-d2-webapp-install "Discord" https://discord.com/channels/@me Discord.png

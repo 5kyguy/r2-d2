@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+TryExec=nano
+Exec=xdg-terminal-exec -e nano %F
+Icon=accessories-text-editor
+Terminal=false
+Categories=Utility;TextEditor;
+Name=Nano
+GenericName=Text Editor
+Comment=Edit text files in the terminal
+MimeType=text/plain;
+StartupNotify=true

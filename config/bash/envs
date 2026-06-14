@@ -4,4 +4,4 @@ export BAT_THEME=ansi
 
 # Duplicated from .config/uwsm/env so SSH works too
 export R2D2_PATH=$HOME/.local/share/r2-d2
-export PATH=$R2D2_PATH/bin:$PATH:$HOME/.local/bin
+export PATH=$HOME/.opencode/bin:$R2D2_PATH/bin:$PATH:$HOME/.local/bin
