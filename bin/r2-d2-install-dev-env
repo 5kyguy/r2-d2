@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Install one of the supported development environments. Usually called via Install > Development > * in the R2-D2 Menu.
+# Install one of the supported development environments. Usually called via Install > Development in the R2-D2 Menu.
 
 if [[ -z $1 ]]; then
-  echo "Usage: r2-d2-install-dev-env <node|bun|deno|go|python|elixir|rust|zig>" >&2
+  echo "Usage: r2-d2-install-dev-env <node|go|python|rust>" >&2
   exit 1
 fi
 
@@ -24,14 +24,6 @@ case "$1" in
 node)
   install_node
   ;;
-bun)
-  echo -e "Installing Bun...\n"
-  r2-d2-pkg-add bun
-  ;;
-deno)
-  echo -e "Installing Deno...\n"
-  r2-d2-pkg-add deno
-  ;;
 go)
   echo -e "Installing Go (official tarball to /usr/local)...\n"
   GO_VERSION=1.26.0
@@ -46,19 +38,9 @@ python)
   echo -e "\nInstalling uv...\n"
   curl -fsSL https://astral.sh/uv/install.sh | sh
   ;;
-elixir)
-  echo -e "Installing Elixir...\n"
-  r2-d2-pkg-add erlang elixir
-  mix local.hex --force 2>/dev/null || true
-  ;;
 rust)
   echo -e "Installing Rust...\n"
   bash -c "$(curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs)" -- -y
-  ;;
-zig)
-  echo -e "Installing Zig...\n"
-  r2-d2-pkg-add zig
-  r2-d2-pkg-aur-add zls-git 2>/dev/null || true
   ;;
 *)
   echo "Unknown environment: $1" >&2

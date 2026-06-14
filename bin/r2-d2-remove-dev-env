@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Remove a development environment that was previously installed via r2-d2-install-dev-env.
-# Usage: r2-d2-remove-dev-env <node|bun|deno|go|python|elixir|zig|rust>
+# Usage: r2-d2-remove-dev-env <node|go|python|rust>
 
 if [[ -z $1 ]]; then
-  echo "Usage: r2-d2-remove-dev-env <node|bun|deno|go|python|elixir|zig|rust>" >&2
+  echo "Usage: r2-d2-remove-dev-env <node|go|python|rust>" >&2
   exit 1
 fi
 
@@ -19,14 +19,6 @@ node)
     nvm alias default '' 2>/dev/null || true
   fi
   ;;
-bun)
-  echo -e "Removing Bun...\n"
-  r2-d2-pkg-drop bun
-  ;;
-deno)
-  echo -e "Removing Deno...\n"
-  r2-d2-pkg-drop deno
-  ;;
 go)
   echo -e "Removing Go (/usr/local/go)...\n"
   sudo rm -rf /usr/local/go
@@ -36,15 +28,6 @@ python)
   echo -e "Removing Python (packages) and uv...\n"
   r2-d2-pkg-drop python
   rm -rf ~/.local/bin/uv ~/.local/bin/uvx ~/.cargo/bin/uv 2>/dev/null || true
-  ;;
-elixir)
-  echo -e "Removing Elixir/Erlang...\n"
-  r2-d2-pkg-drop elixir erlang
-  ;;
-zig)
-  echo -e "Removing Zig...\n"
-  r2-d2-pkg-drop zls-git 2>/dev/null || true
-  r2-d2-pkg-drop zig
   ;;
 rust)
   echo -e "Removing Rust...\n"

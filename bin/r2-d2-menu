@@ -152,7 +152,7 @@ show_toggle_menu() {
   *Mirror*) r2-d2-toggle-display-mirror ;;
   *Silencing*) r2-d2-toggle-notification-silencing ;;
   *Layout*) r2-d2-hyprland-workspace-layout-toggle ;;
-  *Gaps*) r2-d2-hyprland-window-gaps-toggle ;;
+  *Gaps*) r2-d2-hyprland-workspace-gaps-toggle ;;
   *Ratio*) r2-d2-hyprland-window-single-square-aspect-toggle ;;
   *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
   *) back_to show_trigger_menu ;;
@@ -160,7 +160,7 @@ show_toggle_menu() {
 }
 
 show_setup_menu() {
-  local options="  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Webcam\n󰒲  Reset sudo (lockout)"
+  local options="  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Audio*) r2-d2-launch-audio ;;
@@ -246,14 +246,14 @@ show_restart_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󱚤  AI\n  Dictation (Voxtype)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n  Dictation (Voxtype)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
   *Package*) terminal r2-d2-pkg-install ;;
   *AUR*) terminal r2-d2-pkg-aur-install ;;
   *Web*) present_terminal r2-d2-webapp-install ;;
   *TUI*) present_terminal r2-d2-tui-install ;;
   *AppImage*) present_terminal r2-d2-appimage-install ;;
   *Development*) show_install_development_menu ;;
-  *AI*) show_install_ai_menu ;;
+  *Editor*) show_install_editor_menu ;;
   *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;
   *Gaming*) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
   *Dropbox*) present_terminal r2-d2-install-dropbox ;;
@@ -262,46 +262,31 @@ show_install_menu() {
   esac
 }
 
-show_install_ai_menu() {
-  case $(menu "Install" "󱚤  Claude Code\n󱚤  Codex\n󱚤  Gemini CLI\n󱚤  Copilot CLI\n󱚤  Cursor CLI\n󱚤  LM Studio\n󱚤  Ollama\n󱚤  Crush") in
-  *Claude*) install "Claude Code" "claude-code" ;;
-  *Codex*) install "Codex" "openai-codex" ;;
-  *Gemini*) install "Gemini CLI" "gemini-cli" ;;
-  *Copilot*) install "Copilot CLI" "github-copilot-cli" ;;
-  *Cursor*) install "Cursor CLI" "cursor-cli" ;;
-  *Studio*) install "LM Studio" "lmstudio-bin" ;;
-  *Ollama*) install "Ollama" "ollama-rocm" ;;
-  *Crush*) install "Crush" "crush-bin" ;;
+show_install_editor_menu() {
+  case $(menu "Install" "󰨞  VS Code\n󰆼  T3 Code") in
+  *"VS Code"*) present_terminal "r2-d2-install-editor vscode" ;;
+  *"T3 Code"*) present_terminal "r2-d2-install-editor t3code" ;;
   *) show_install_menu ;;
   esac
 }
 
 show_install_development_menu() {
-  case $(menu "Install" "  Docker DB\n  JavaScript\n  Go\n  Python\n  Elixir\n  Zig\n  Rust") in
+  case $(menu "Install" "  Docker DB\n  Node.js\n  Go\n  Python\n  Rust") in
   *Docker*) present_terminal r2-d2-install-docker-dbs ;;
-  *JavaScript*) show_install_javascript_menu ;;
+  *Node*) present_terminal "r2-d2-install-dev-env node" ;;
   *Go*) present_terminal "r2-d2-install-dev-env go" ;;
   *Python*) present_terminal "r2-d2-install-dev-env python" ;;
-  *Elixir*) present_terminal "r2-d2-install-dev-env elixir" ;;
-  *Zig*) present_terminal "r2-d2-install-dev-env zig" ;;
   *Rust*) present_terminal "r2-d2-install-dev-env rust" ;;
   *) show_install_menu ;;
   esac
 }
 
-show_install_javascript_menu() {
-  case $(menu "Install" "  Node.js\n  Bun\n  Deno") in
-  *Node*) present_terminal "r2-d2-install-dev-env node" ;;
-  *Bun*) present_terminal "r2-d2-install-dev-env bun" ;;
-  *Deno*) present_terminal "r2-d2-install-dev-env deno" ;;
-  *) show_install_development_menu ;;
-  esac
-}
-
 show_remove_menu() {
-  case $(menu "Remove" "󰣇  Package\n  Web App\n  TUI\n󰵮  Development\n  Dictation\n󰈷  Fingerprint\n  Fido2\n󰒲  Drop package (by name)") in
+  case $(menu "Remove" "󰣇  Package\n  Web App\n  Web Apps (all)\n  TUI\n  TUI (all)\n󰵮  Development\n  Dictation\n󰈷  Fingerprint\n  Fido2\n󰒲  Drop package (by name)") in
   *Package*) terminal r2-d2-pkg-remove ;;
+  *"Web Apps (all)"*) present_terminal r2-d2-webapp-remove-all ;;
   *Web*) present_terminal r2-d2-webapp-remove ;;
+  *"TUI (all)"*) present_terminal r2-d2-tui-remove-all ;;
   *TUI*) present_terminal r2-d2-tui-remove ;;
   *Development*) show_remove_development_menu ;;
   *Dictation*) present_terminal r2-d2-voxtype-remove ;;
@@ -313,34 +298,24 @@ show_remove_menu() {
 }
 
 show_remove_development_menu() {
-  case $(menu "Remove" "  JavaScript\n  Go\n  Python\n  Elixir\n  Zig\n  Rust") in
-  *JavaScript*) show_remove_javascript_menu ;;
+  case $(menu "Remove" "  Node.js\n  Go\n  Python\n  Rust") in
+  *Node*) present_terminal "r2-d2-remove-dev-env node" ;;
   *Go*) present_terminal "r2-d2-remove-dev-env go" ;;
   *Python*) present_terminal "r2-d2-remove-dev-env python" ;;
-  *Elixir*) present_terminal "r2-d2-remove-dev-env elixir" ;;
-  *Zig*) present_terminal "r2-d2-remove-dev-env zig" ;;
   *Rust*) present_terminal "r2-d2-remove-dev-env rust" ;;
   *) show_remove_menu ;;
   esac
 }
 
-show_remove_javascript_menu() {
-  case $(menu "Remove" "  Node.js\n  Bun\n  Deno") in
-  *Node*) present_terminal "r2-d2-remove-dev-env node" ;;
-  *Bun*) present_terminal "r2-d2-remove-dev-env bun" ;;
-  *Deno*) present_terminal "r2-d2-remove-dev-env deno" ;;
-  *) show_remove_development_menu ;;
-  esac
-}
-
 show_update_menu() {
-  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  System packages\n󰣇  Flatpaks & AppImages\n󰒲  Keyring\n  Firmware\n  Password\n  Timezone\n  Time\n󰒲  Plocate DB\n󰒲  Rest of settings\n󰒲  Reinstall") in
+  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  System packages\n󰣇  Flatpaks & AppImages\n󰒲  Keyring\n  Firmware\n📷  Webcam drivers (AMD)\n  Password\n  Timezone\n  Time\n󰒲  Plocate DB\n󰒲  Rest of settings\n󰒲  Reinstall") in
   *"R2-D2 (full)"*) present_terminal r2-d2-update ;;
   *Config*) present_terminal r2-d2-update-config ;;
   *"System packages"*) present_terminal r2-d2-update-system-pkgs ;;
   *Flatpaks*) present_terminal r2-d2-update-flatpaks-appimages ;;
   *Keyring*) present_terminal r2-d2-update-keyring ;;
   *Firmware*) present_terminal r2-d2-update-firmware ;;
+  *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *Timezone*) present_terminal r2-d2-tz-select ;;
   *Time*) present_terminal r2-d2-update-time ;;
   *Password*) show_update_password_menu ;;
@@ -402,6 +377,7 @@ go_to_menu() {
   *screenrecord*) show_screenrecord_menu ;;
   *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
+  *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *power*) show_setup_power_menu ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;
