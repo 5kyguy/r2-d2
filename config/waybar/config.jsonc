@@ -87,7 +87,7 @@
     "on-click-right": "r2-d2-launch-floating-terminal-with-presentation r2-d2-tz-select"
   },
   "custom/voxtype": {
-    "exec": "omarchy-voxtype-status",
+    "exec": "r2-d2-voxtype-status",
     "return-type": "json",
     "format": "{icon}",
     "format-icons": {
@@ -96,8 +96,8 @@
       "transcribing": "󰔟"
     },
     "tooltip": true,
-    "on-click-right": "omarchy-voxtype-config",
-    "on-click": "omarchy-voxtype-model"
+    "on-click-right": "r2-d2-voxtype-config",
+    "on-click": "r2-d2-voxtype-model"
   },
   "custom/screenrecording-indicator": {
     "on-click": "r2-d2-cmd-screenrecord",
@@ -106,7 +106,7 @@
     "return-type": "json"
   },
   "custom/notification-silencing-indicator": {
-    "on-click": "omarchy-toggle-notification-silencing",
+    "on-click": "r2-d2-toggle-notification-silencing",
     "exec": "$HOME/.config/waybar/indicators/notification-silencing.sh",
     "signal": 10,
     "return-type": "json"
@@ -117,11 +117,9 @@
     "rewrite": {
       " - ": "",
       "(.*?) - chromium - chromium": " $1",
-      "(.*nvim)...(.*)": " $2",
       "(.*code) - (.*)": "󰨞 $1",
       "^.*btop( .*|$)": "󰧨 btop $1",
       "^.*cmatrix( .*|$)": "󰘨 matrix $1",
-      "(.*) - com.mitchellh.ghostty": "󰊠 $1",
       "(.*) - alacritty": "  $1",
       "(.*) - beepertexts": "󰻞  $1",
       "(.*discord)...(.*).. (.*)": " $2",
