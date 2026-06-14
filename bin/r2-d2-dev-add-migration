@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Create a new migration file named after the last commit timestamp.
+
+if [[ -z $R2D2_PATH ]]; then
+  echo "R2D2_PATH is not set" >&2
+  exit 1
+fi
+
+timestamp=$(git -C "$R2D2_PATH" log -1 --format=%ct 2>/dev/null)
+if [[ -z $timestamp ]]; then
+  timestamp=$(date +%s)
+fi
+
+migration="$R2D2_PATH/migrations/${timestamp}.sh"
+
+if [[ -f $migration ]]; then
+  echo "Migration already exists: $migration" >&2
+  exit 1
+fi
+
+cat >"$migration" <<'EOF'
+#!/bin/bash
+
+echo "Describe what this migration does"
+
+EOF
+
+chmod +x "$migration"
+
+if [[ ${1:-} != --no-edit ]]; then
+  "${EDITOR:-nano}" "$migration"
+fi
+
+echo "Created $migration"

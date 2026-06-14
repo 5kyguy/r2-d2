@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Overwrite the user configs for swayosd (controls on-screen feedback for changing volume/songs etc) with the R2-D2 defaults and restart the service.
-
-r2-d2-refresh-config swayosd/config.toml
-r2-d2-refresh-config swayosd/style.css
-r2-d2-restart-swayosd

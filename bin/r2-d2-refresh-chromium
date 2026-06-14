@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Refresh the ~/.config/chromium-flags.conf file from the R2-D2 defaults.
-# Chromium is used as backup browser only; no Google/Chromium account setup.
-
-r2-d2-refresh-config chromium-flags.conf

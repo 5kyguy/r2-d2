@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Overwrite the user config for hypridle with the R2-D2 default and restart the service.
-
-r2-d2-refresh-config hypr/hypridle.conf
-r2-d2-restart-hypridle

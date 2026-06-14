@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Overwrite the user tmux config with the R2-D2 default and reload tmux.
-
-r2-d2-refresh-config tmux/tmux.conf
-r2-d2-restart-tmux

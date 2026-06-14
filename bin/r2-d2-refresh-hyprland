@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# Overwrite all the user configs in ~/.config/hypr with the R2-D2 defaults.
-
-r2-d2-refresh-config hypr/autostart.conf
-r2-d2-refresh-config hypr/bindings.conf
-r2-d2-refresh-config hypr/input.conf
-r2-d2-refresh-config hypr/looknfeel.conf
-r2-d2-refresh-config hypr/hyprland.conf
