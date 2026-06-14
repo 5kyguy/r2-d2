@@ -7,10 +7,10 @@ bash "${R2D2_PATH:-$HOME/.local/share/r2-d2}/install/first-run/gnome-theme.sh"
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-previous-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-previous-symbolic.svg
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-next-symbolic.svg
 
-# Set default background once (Omarchy Matte Black)
+# Set default background once
 BACKGROUND_DIR="$R2D2_PATH/backgrounds"
 mkdir -p "$BACKGROUND_DIR"
-ln -nsf "$BACKGROUND_DIR/omarchy-matte-black.jpg" "$BACKGROUND_DIR/@background"
+ln -nsf "$BACKGROUND_DIR/dark_limits.jpg" "$BACKGROUND_DIR/@background"
 
 rm -rf ~/.config/chromium/SingletonLock
 
