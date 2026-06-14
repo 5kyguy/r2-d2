@@ -1,6 +1,6 @@
 # Menu and keybindings
 
-The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. It is launched with **Super + Alt + Space** or by clicking the R2-D2 icon in Waybar. You can open a specific submenu and exit after one action: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu power`. The Waybar battery icon opens the Power profile submenu (`r2-d2-menu power`).
+The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. It is launched with **Super + Alt + Space** or by clicking the R2-D2 icon in Waybar. You can open a specific submenu and exit after one action: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu power`, `r2-d2-menu webcam`. The Waybar battery icon opens the Power profile submenu (`r2-d2-menu power`).
 
 ---
 
@@ -11,11 +11,11 @@ The main menu offers: **Trigger**, **Setup**, **Restart**, **Install**, **Remove
 | Entry | Action |
 | ----- | ------ |
 | **Trigger** | Screenshot, Screenrecord, Share (clipboard/file/folder), Toggle (screensaver, nightlight, idle lock, top bar, device display, notification silencing) |
-| **Setup** | Audio, Wifi, Bluetooth, Power profile, System sleep (enable/disable suspend/hibernate), DNS, Security (Fingerprint, Fido2), Dictation (Voxtype: config/model/status), Reset sudo (lockout) |
+| **Setup** | Audio, Wifi, Bluetooth, Power profile, System sleep (enable/disable suspend/hibernate), DNS, Security (Fingerprint, Fido2), Dictation (Voxtype: config/model/status), Fix webcam (AMD), Reset sudo (lockout) |
 | **Restart** | Restart Waybar, Walker, Mako, Hypridle, Hyprsunset, SwayOSD, Pipewire, Terminal, Tmux, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
 | **Remove** | See [Remove submenu](#remove-submenu) |
-| **Update** | R2-D2, System packages, Keyring, Firmware, Password (drive/user), Timezone, Time, Plocate DB, Reinstall (full / packages / configs / git) |
+| **Update** | R2-D2, System packages, Keyring, Firmware, Webcam drivers (AMD), Password (drive/user), Timezone, Time, Plocate DB, Reinstall (full / packages / configs / git) |
 | **About** | About / branding |
 | **System** | Screensaver, Lock, Suspend, Hibernate, Logout, Restart, Shutdown |
 
@@ -27,17 +27,17 @@ The main menu offers: **Trigger**, **Setup**, **Restart**, **Install**, **Remove
 | ----- | ---- |
 | **Package** | Install from official repos (`r2-d2-pkg-install` — fzf picker). |
 | **AUR** | Install from AUR (`r2-d2-pkg-aur-install`). |
-| **Web App** | Create a web app shortcut (`r2-d2-webapp-install`). Default install adds WhatsApp, YouTube, X, Discord (via Helium when available). |
+| **Web App** | Create a web app shortcut (`r2-d2-webapp-install`). Default install adds WhatsApp, YouTube, X (via Helium when available). |
 | **TUI** | Add a TUI shortcut (`r2-d2-tui-install`). Default install adds Disk Usage and Docker. |
 | **AppImage** | Install an AppImage and create a launcher (`r2-d2-appimage-install`). Stores AppImages under `~/Applications`. |
-| **Development** | Docker DB (containers), JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. Go and Node are preinstalled. |
-| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama, Crush. |
+| **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
+| **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
 | **Gaming** | Install Steam and Xbox controllers (runs both `r2-d2-install-steam` and `r2-d2-install-xbox-controllers`). |
 | **Dropbox** | Install Dropbox (`r2-d2-install-dropbox`). |
 | **Tailscale** | Install Tailscale (`r2-d2-install-tailscale`). |
 
-Alacritty and Ghostty are installed by default; Alacritty is the default terminal (Super + Enter). To change the wallpaper, use the background selector: **Super + Ctrl + Space** (Walker menu).
+Alacritty is the default terminal (Super + Enter). To change the wallpaper, use the background selector: **Super + Ctrl + Space** (Walker menu).
 
 ---
 
@@ -50,7 +50,7 @@ Alacritty and Ghostty are installed by default; Alacritty is the default termina
 | **Web Apps (all)** | Remove all web apps (`r2-d2-webapp-remove-all`). |
 | **TUI** | Remove one TUI shortcut (`r2-d2-tui-remove`). |
 | **TUI (all)** | Remove all TUI shortcuts (`r2-d2-tui-remove-all`). |
-| **Development** | Remove runtimes: JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. |
+| **Development** | Remove runtimes: Node.js, Go, Python, Rust. |
 | **Dictation** | Remove Voxtype (`r2-d2-voxtype-remove`). |
 | **Fingerprint** | Remove fingerprint setup. |
 | **Fido2** | Remove Fido2 setup. |
@@ -160,3 +160,4 @@ Bindings are defined under `~/.config/hypr/bindings/` (and optional overrides in
 - `r2-d2-menu share` — Share (clipboard/file/folder)
 - `r2-d2-menu screenrecord` — Screenrecord menu
 - `r2-d2-menu power` — Power profile (also via Waybar battery icon)
+- `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers (`r2-d2-fix-amd-webcam`)

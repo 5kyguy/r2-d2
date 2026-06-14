@@ -14,17 +14,17 @@ This document lists what is installed during the R2-D2 install and what can be i
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** If **`install/r2-d2-base.aur.packages`** exists, those packages are installed via yay (e.g. brave-bin, cursor-bin). The repo does not ship this file by default; add it if you want base AUR packages.
+- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (brave-origin-nightly-bin, cursor-bin, helium-browser-bin).
 - **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
 
 ### 1.3 Packaging – other steps
 
 | Script | What |
 | ------ | ---- |
-| **dev-runtimes.sh** | **Go** (official tarball to `/usr/local`), **Node.js** (nvm, LTS). |
+| **opencode.sh** | **Opencode** via the official curl installer (`~/.opencode/bin`). |
 | **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
-| **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**, **Discord**. |
+| **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
 | **tuis.sh** | TUI shortcuts: **Disk Usage** (dust), **Docker** (lazydocker). |
 
 ### 1.4 Config – conditional packages
@@ -47,7 +47,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **163** packages (pacman only; AUR base is optional via `r2-d2-base.aur.packages` if present).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **161** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -61,9 +61,9 @@ hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, hyprlan
 
 bash-completion, bat, eza, fd, fzf, less, ripgrep, starship, tmux, zoxide, tldr, gum, expac, man-db, wget, nano
 
-### Terminal and editor
+### Terminal
 
-alacritty, ghostty, neovim, tree-sitter-cli. Alacritty is the default terminal (`default/config/xdg-terminals.list`; terminal `.desktop` files come from `applications/` via `r2-d2-refresh-applications` in `mimetypes.sh`).
+alacritty. Alacritty is the default terminal (`default/config/xdg-terminals.list`; terminal `.desktop` files come from `applications/` via `r2-d2-refresh-applications` in `mimetypes.sh`).
 
 ### Audio
 
@@ -95,7 +95,7 @@ nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-load
 
 ### Browsers and default apps
 
-chromium (default browser when no Brave from AUR).
+chromium (fallback). Default browser is **Brave Origin Nightly** (AUR); **Helium** is used for web apps when available.
 
 ### Containers and Docker
 
@@ -103,11 +103,11 @@ docker, docker-buildx, docker-compose, lazydocker
 
 ### Development and runtimes (base list)
 
-git, github-cli, clang, llvm, rust, jdk-openjdk, python-pip, python-poetry-core, python-gobject, python-terminaltexteffects, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
+git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, python-terminaltexteffects, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
 
 ### System info and monitoring
 
-btop, htop, inxi, fastfetch, dust, usage, brightnessctl
+btop, inxi, fastfetch, dust, usage, brightnessctl
 
 ### Printing
 
@@ -123,7 +123,7 @@ mako, swayosd
 
 ### Apps and tools (user-facing)
 
-gnome-calculator, gnome-disk-utility, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, kdenlive, obs-studio, vlc, steam
+gnome-calculator, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kdenlive, obs-studio, steam
 
 ### Firewall and security
 
@@ -131,7 +131,7 @@ ufw, ufw-docker
 
 ### App launcher and helpers
 
-r2-d2-walker, flatpak
+omarchy-walker, flatpak
 
 ### Misc
 
@@ -147,14 +147,12 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | ---------- | ---- |
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
-| **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X, Discord. |
+| **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
 | **TUI** | `r2-d2-tui-install` — add a TUI shortcut. Default install adds Disk Usage and Docker. |
-| **Development** | Docker DB (containers), JavaScript (Node/Bun/Deno), Go, Python, Elixir, Zig, Rust. Go and Node are preinstalled by `dev-runtimes.sh`. |
-| **Editor** | VSCode (`r2-d2-install-vscode`), Zed (pacman). Cursor is typically from AUR base list if used. |
-| **Terminal** | Alacritty, Ghostty (set as default terminal for R2-D2). Alacritty is already in base packages. |
-| **AI** | Claude Code, Codex, Gemini CLI, Copilot CLI, Cursor CLI, LM Studio, Ollama (script uses ollama-rocm), Crush. |
+| **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
+| **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
-| **Gaming** | RetroArch [AUR], Minecraft, Xbox Controller [AUR]. Steam is in base packages. |
+| **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
 
 Background/wallpaper is set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
 
@@ -162,11 +160,12 @@ Background/wallpaper is set via the background selector (**Super + Ctrl + Space*
 
 ## 4. Summary
 
-- **Base pacman packages:** 163 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** Optional; if `install/r2-d2-base.aur.packages` exists, those are installed (e.g. brave-bin, cursor-bin).
+- **Base pacman packages:** 161 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
-- **Default web apps:** 4 (WhatsApp, YouTube, X, Discord).
+- **Default web apps:** 3 (WhatsApp, YouTube, X).
 - **Default TUI shortcuts:** 2 (Disk Usage, Docker).
-- **Menu-installable:** Package (any), AUR (any), Web App, TUI, Development runtimes, Editor (VSCode, Zed), Terminal (Alacritty, Ghostty), AI tools, Gaming (RetroArch, Minecraft, Xbox).
+- **Default editors:** Cursor (AUR), Opencode (curl installer).
+- **Menu-installable:** Package (any), AUR (any), Web App, TUI, Development runtimes, Editor (VS Code, T3 Code), Gaming (Steam, Xbox controllers).
 
 Use this list to adjust `install/r2-d2-base.packages` and menu entries when moving items between defaults and optionals.
