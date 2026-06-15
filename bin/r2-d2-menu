@@ -75,12 +75,20 @@ aur_install_and_launch() {
 }
 
 show_trigger_menu() {
-  case $(menu "Trigger" "  Screenshot\n  Screenrecord\n  Share\n󰔎  Toggle") in
+  case $(menu "Trigger" "󰔎  Toggle\n  Screenshot\n  Screenrecord\n  Share") in
+  *Toggle*) show_toggle_menu ;;
   *Screenshot*) r2-d2-cmd-screenshot ;;
   *Screenrecord*) show_screenrecord_menu ;;
   *Share*) show_share_menu ;;
-  *Toggle*) show_toggle_menu ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_capture_menu() {
+  case $(menu "Capture" "  Screenshot\n  Screenrecord") in
+  *Screenshot*) r2-d2-cmd-screenshot ;;
+  *Screenrecord*) show_screenrecord_menu ;;
+  *) back_to show_trigger_menu ;;
   esac
 }
 
@@ -142,25 +150,22 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar\n󰍹  Device Display\n󰍺  Display Mirror\n󰂵  Notification Silencing\n󱂬  Workspace Layout\n  Window Gaps\n  1-Window Ratio\n󰍹  Display Scaling") in
-
-  *Screensaver*) r2-d2-toggle-screensaver ;;
-  *Nightlight*) r2-d2-toggle-nightlight ;;
-  *Idle*) r2-d2-toggle-idle ;;
-  *Bar*) r2-d2-toggle-waybar ;;
-  *Device*) r2-d2-toggle-builtin-display ;;
+  case $(menu "Toggle" "󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver") in
+  *Display*) r2-d2-toggle-builtin-display ;;
   *Mirror*) r2-d2-toggle-display-mirror ;;
-  *Silencing*) r2-d2-toggle-notification-silencing ;;
+  *Notifications*) r2-d2-toggle-notification-silencing ;;
+  *Idle*) r2-d2-toggle-idle ;;
   *Layout*) r2-d2-hyprland-workspace-layout-toggle ;;
   *Gaps*) r2-d2-hyprland-workspace-gaps-toggle ;;
   *Ratio*) r2-d2-hyprland-window-single-square-aspect-toggle ;;
   *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
+  *Screensaver*) r2-d2-toggle-screensaver ;;
   *) back_to show_trigger_menu ;;
   esac
 }
 
 show_setup_menu() {
-  local options="  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="󱐋  Power Profile\n  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Audio*) r2-d2-launch-audio ;;
@@ -367,12 +372,13 @@ show_system_menu() {
 }
 
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󱓞  Trigger\n  Setup\n󰍜  Restart\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+  go_to_menu "$(menu "Go" "󱓞  Trigger\n  Setup\n󰍜  Restart\n󰉉  Install\n  Update\n󰭌  Remove\n  About\n  System")"
 }
 
 go_to_menu() {
   case "${1,,}" in
   *trigger*) show_trigger_menu ;;
+  *capture*) show_capture_menu ;;
   *share*) show_share_menu ;;
   *screenrecord*) show_screenrecord_menu ;;
   *toggle*) show_toggle_menu ;;
