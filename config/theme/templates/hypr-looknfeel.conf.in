@@ -1,15 +1,15 @@
 # Refer to https://wiki.hyprland.org/Configuring/Variables/
 # R2-D2 companion theme: fixed dark base + wallpaper-driven accent
 
-$background = rgba(18, 18, 18, 1.0)
+$background = {{BACKGROUND_RGBA}}
 $shadow_color = rgba(00000055)
 $shadow_inactive = rgba(00000044)
-$active_border = rgb(46BEBE)
-$inactive_border = rgb(606060)
+$active_border = rgb({{ACCENT_RGB}})
+$inactive_border = rgb({{INACTIVE_RGB}})
 
-$group_border_active = rgba(70, 190, 190, 0.55) rgba(70, 190, 190, 0.22) 90deg
+$group_border_active = rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.55) rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.22) 90deg
 $group_border_inactive = rgba(3a3a3a55)
-$group_locked_active = rgba(70, 190, 190, 0.88) rgba(70, 190, 190, 0.22) 90deg
+$group_locked_active = rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.88) rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.22) 90deg
 $group_locked_inactive = rgba(3a3a3a77)
 
 general {

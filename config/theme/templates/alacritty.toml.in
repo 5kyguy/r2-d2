@@ -25,34 +25,34 @@ bindings = [
 
 [colors]
 [colors.primary]
-background = "#121212"
-foreground = "#D4D4D4"
-dim_foreground = "#8a8a8d"
+background = "{{BACKGROUND}}"
+foreground = "{{FOREGROUND}}"
+dim_foreground = "{{DIM_FOREGROUND}}"
 
 [colors.cursor]
-text = "#121212"
-cursor = "#46BEBE"
+text = "{{BACKGROUND}}"
+cursor = "{{ACCENT}}"
 
 [colors.selection]
 text = "CellForeground"
-background = "#348E8E"
+background = "{{ACCENT_DIM}}"
 
 [colors.normal]
 black = "#333333"
-red = "#862020"
-green = "#348E8E"
-yellow = "#46BEBE"
-blue = "#46BEBE"
-magenta = "#932A37"
-cyan = "#348E8E"
+red = "{{CRITICAL_DARK}}"
+green = "{{ACCENT_DIM}}"
+yellow = "{{ACCENT}}"
+blue = "{{ACCENT}}"
+magenta = "{{MAGENTA}}"
+cyan = "{{ACCENT_DIM}}"
 white = "#bebebe"
 
 [colors.bright]
-black = "#8a8a8d"
-red = "#C73838"
-green = "#46BEBE"
-yellow = "#E07924"
-blue = "#74CECE"
-magenta = "#C73838"
-cyan = "#46BEBE"
+black = "{{DIM_FOREGROUND}}"
+red = "{{CRITICAL}}"
+green = "{{ACCENT}}"
+yellow = "{{WARNING}}"
+blue = "{{ACCENT_BRIGHT}}"
+magenta = "{{CRITICAL}}"
+cyan = "{{ACCENT}}"
 white = "#eaeaea"

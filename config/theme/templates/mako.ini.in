@@ -1,6 +1,6 @@
-text-color=#D4D4D4
-border-color=#46BEBE
-background-color=#121212
+text-color={{FOREGROUND}}
+border-color={{ACCENT}}
+background-color={{BACKGROUND}}
 width=420
 height=110
 padding=10

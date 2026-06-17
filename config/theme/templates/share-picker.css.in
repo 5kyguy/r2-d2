@@ -1,13 +1,13 @@
 /* R2-D2 companion theme: dark base + wallpaper-driven accent */
-@define-color foreground #D4D4D4;
-@define-color background #121212;
-@define-color accent #46BEBE;
-@define-color muted #8a8a8d;
+@define-color foreground {{FOREGROUND}};
+@define-color background {{BACKGROUND}};
+@define-color accent {{ACCENT}};
+@define-color muted {{DIM_FOREGROUND}};
 @define-color card_bg #333333;
-@define-color text_dark #121212;
-@define-color accent_hover #74CECE;
-@define-color selected_tab #46BEBE;
-@define-color text #D4D4D4;
+@define-color text_dark {{BACKGROUND}};
+@define-color accent_hover {{ACCENT_BRIGHT}};
+@define-color selected_tab {{ACCENT}};
+@define-color text {{FOREGROUND}};
 
 * {
   all: unset;

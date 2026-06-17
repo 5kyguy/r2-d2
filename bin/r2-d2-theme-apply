@@ -1,0 +1,209 @@
+#!/bin/bash
+
+# Render theme templates into the R2-D2 repo only ($R2D2_PATH/config and default/config).
+# Live ~/.config/ is updated by r2-d2-update-sync-files, not by this script.
+
+set -euo pipefail
+
+R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+THEME_DIR="$R2D2_ROOT/config/theme"
+TEMPLATE_DIR="$THEME_DIR/templates"
+PALETTE="$THEME_DIR/palette.toml"
+STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+
+usage() {
+  echo "Usage: r2-d2-theme-apply [--accent #RRGGBB | --from-background | --from-state]" >&2
+  exit 1
+}
+
+read_palette() {
+  local key="$1"
+  grep -E "^${key}[[:space:]]*=" "$PALETTE" | head -1 | sed -E 's/^[^"]*"([^"]+)".*/\1/'
+}
+
+accent=""
+mode=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --accent)
+    [[ $# -ge 2 ]] || usage
+    accent="${2^^}"
+    shift 2
+    ;;
+  --from-background)
+    mode="background"
+    shift
+    ;;
+  --from-state)
+    mode="state"
+    shift
+    ;;
+  -h | --help) usage ;;
+  *) usage ;;
+  esac
+done
+
+if [[ -n $mode ]]; then
+  case "$mode" in
+  background) accent="$(r2-d2-theme-accent-from-bg)" ;;
+  state)
+    if [[ -f $STATE_FILE ]]; then
+      accent="$(tr -d '[:space:]' <"$STATE_FILE")"
+    else
+      accent="$(r2-d2-theme-accent-from-bg)"
+    fi
+    ;;
+  esac
+fi
+
+if [[ -z $accent ]]; then
+  if [[ -f $STATE_FILE ]]; then
+    accent="$(tr -d '[:space:]' <"$STATE_FILE")"
+  else
+    accent="$(read_palette fallback_accent)"
+  fi
+fi
+
+accent="${accent^^}"
+if [[ $accent != \#* ]]; then
+  accent="#$accent"
+fi
+
+eval "$(
+  python3 - "$accent" "$PALETTE" <<'PY'
+import re
+import sys
+
+accent = sys.argv[1].lstrip("#").upper()
+palette_path = sys.argv[2]
+
+values = {}
+for line in open(palette_path, encoding="utf-8"):
+    match = re.match(r'^([a-z_]+)\s*=\s*"([^"]+)"', line)
+    if match:
+        values[match.group(1)] = match.group(2)
+
+def rgb(hex_color: str):
+    hex_color = hex_color.lstrip("#")
+    return (
+        int(hex_color[0:2], 16),
+        int(hex_color[2:4], 16),
+        int(hex_color[4:6], 16),
+    )
+
+def hex_color(r, g, b):
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+def mix(r, g, b, factor, target=255):
+    return tuple(int(c + (target - c) * factor) for c in (r, g, b))
+
+def shade(r, g, b, factor):
+    return tuple(int(c * (1 - factor)) for c in (r, g, b))
+
+ar, ag, ab = rgb(accent)
+br, bg, bb = mix(ar, ag, ab, 0.25)
+dr, dg, db = shade(ar, ag, ab, 0.25)
+
+pairs = {
+    "ACCENT": hex_color(ar, ag, ab),
+    "ACCENT_RGB": f"{ar:02X}{ag:02X}{ab:02X}",
+    "ACCENT_R": str(ar),
+    "ACCENT_G": str(ag),
+    "ACCENT_B": str(ab),
+    "ACCENT_BRIGHT": hex_color(br, bg, bb),
+    "ACCENT_DIM": hex_color(dr, dg, db),
+    "BACKGROUND": values.get("background", "#121212"),
+    "FOREGROUND": values.get("foreground", "#D4D4D4"),
+    "INACTIVE": values.get("inactive", "#606060"),
+    "DIM_FOREGROUND": values.get("dim_foreground", "#8a8a8d"),
+    "CRITICAL": values.get("critical", "#C73838"),
+    "CRITICAL_DARK": values.get("critical_dark", "#862020"),
+    "WARNING": values.get("warning", "#E07924"),
+    "MAGENTA": values.get("magenta", "#932A37"),
+    "R2D2_BACKGROUND": "~/.local/share/r2-d2/backgrounds/@background",
+}
+
+bg = pairs["BACKGROUND"].lstrip("#")
+pairs["BACKGROUND_R"] = str(int(bg[0:2], 16))
+pairs["BACKGROUND_G"] = str(int(bg[2:4], 16))
+pairs["BACKGROUND_B"] = str(int(bg[4:6], 16))
+pairs["BACKGROUND_RGBA"] = f"rgba({pairs['BACKGROUND_R']}, {pairs['BACKGROUND_G']}, {pairs['BACKGROUND_B']}, 1.0)"
+pairs["BACKGROUND_HEX_ALPHA"] = pairs["BACKGROUND"]
+pairs["INACTIVE_RGB"] = pairs["INACTIVE"].lstrip("#").upper()
+
+for key, value in pairs.items():
+    safe = value.replace("'", "'\\''")
+    print(f"export {key}='{safe}'")
+PY
+)"
+
+render_template() {
+  local template="$1"
+  local output="$2"
+  local tmp
+  tmp="$(mktemp)"
+
+  sed \
+    -e "s|{{ACCENT}}|${ACCENT}|g" \
+    -e "s|{{ACCENT_RGB}}|${ACCENT_RGB}|g" \
+    -e "s|{{ACCENT_R}}|${ACCENT_R}|g" \
+    -e "s|{{ACCENT_G}}|${ACCENT_G}|g" \
+    -e "s|{{ACCENT_B}}|${ACCENT_B}|g" \
+    -e "s|{{ACCENT_BRIGHT}}|${ACCENT_BRIGHT}|g" \
+    -e "s|{{ACCENT_DIM}}|${ACCENT_DIM}|g" \
+    -e "s|{{BACKGROUND}}|${BACKGROUND}|g" \
+    -e "s|{{BACKGROUND_R}}|${BACKGROUND_R}|g" \
+    -e "s|{{BACKGROUND_G}}|${BACKGROUND_G}|g" \
+    -e "s|{{BACKGROUND_B}}|${BACKGROUND_B}|g" \
+    -e "s|{{BACKGROUND_RGBA}}|${BACKGROUND_RGBA}|g" \
+    -e "s|{{BACKGROUND_HEX_ALPHA}}|${BACKGROUND_HEX_ALPHA}|g" \
+    -e "s|{{FOREGROUND}}|${FOREGROUND}|g" \
+    -e "s|{{DIM_FOREGROUND}}|${DIM_FOREGROUND}|g" \
+    -e "s|{{INACTIVE}}|${INACTIVE}|g" \
+    -e "s|{{INACTIVE_RGB}}|${INACTIVE_RGB}|g" \
+    -e "s|{{CRITICAL}}|${CRITICAL}|g" \
+    -e "s|{{CRITICAL_DARK}}|${CRITICAL_DARK}|g" \
+    -e "s|{{WARNING}}|${WARNING}|g" \
+    -e "s|{{MAGENTA}}|${MAGENTA}|g" \
+    -e "s|{{R2D2_BACKGROUND}}|${R2D2_BACKGROUND}|g" \
+    "$template" >"$tmp"
+
+  mkdir -p "$(dirname "$output")"
+  mv "$tmp" "$output"
+}
+
+declare -a OUTPUTS=()
+
+apply_mapping() {
+  local template_name="$1"
+  local relative_output="$2"
+  local template="$TEMPLATE_DIR/$template_name"
+
+  [[ -f $template ]] || {
+    echo "Missing template: $template" >&2
+    exit 1
+  }
+
+  local repo_output="$R2D2_ROOT/$relative_output"
+  render_template "$template" "$repo_output"
+  OUTPUTS+=("$relative_output")
+}
+
+apply_mapping "hypr-looknfeel.conf.in" "config/hypr/looknfeel.conf"
+apply_mapping "hypr-hyprlock.conf.in" "config/hypr/hyprlock.conf"
+apply_mapping "waybar.css.in" "config/waybar/waybar.css"
+apply_mapping "waybar-style.css.in" "config/waybar/style.css"
+apply_mapping "gtk.css.in" "config/gtk-3.0/gtk.css"
+apply_mapping "alacritty.toml.in" "config/alacritty/alacritty.toml"
+apply_mapping "mako.ini.in" "config/mako/config"
+apply_mapping "swayosd.css.in" "config/swayosd/style.css"
+apply_mapping "btop.theme.in" "config/btop/themes/current.theme"
+apply_mapping "starship.toml.in" "config/starship.toml"
+apply_mapping "walker.css.in" "default/config/walker/themes/default/style.css"
+apply_mapping "share-picker.css.in" "default/config/hyprland-preview-share-picker/style.css"
+
+mkdir -p "$(dirname "$STATE_FILE")"
+echo "$ACCENT" >"$STATE_FILE"
+
+echo "Applied R2-D2 theme accent to repo: $ACCENT"

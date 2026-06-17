@@ -3,10 +3,10 @@
 @define-color bg            @waybarBg;
 @define-color fg            @foreground;
 @define-color fg-dim        alpha(@foreground, 0.8);
-@define-color accent-red    #C73838;
-@define-color accent-yellow #E07924;
-@define-color accent-green  #46BEBE;
-@define-color accent-blue   #46BEBE;
+@define-color accent-red    {{CRITICAL}};
+@define-color accent-yellow {{WARNING}};
+@define-color accent-green  {{ACCENT}};
+@define-color accent-blue   {{ACCENT}};
 
 * {
   border: none;
@@ -124,7 +124,7 @@ window#waybar {
 }
 
 tooltip {
-  background-color: alpha(#121212, 0.95);
+  background-color: alpha({{BACKGROUND}}, 0.95);
   border: 2px solid @fg-dim;
   border-radius: 8px;
   margin: 0;

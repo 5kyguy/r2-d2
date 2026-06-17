@@ -1,14 +1,14 @@
 /* R2-D2 companion theme: dark base + wallpaper-driven accent */
-@define-color background #121212;
-@define-color waybarBg rgba(18, 18, 18, 0.85);
-@define-color foreground #D4D4D4;
+@define-color background {{BACKGROUND}};
+@define-color waybarBg rgba({{BACKGROUND_R}}, {{BACKGROUND_G}}, {{BACKGROUND_B}}, 0.85);
+@define-color foreground {{FOREGROUND}};
 @define-color surface #636e72;
-@define-color inactive #606060;
+@define-color inactive {{INACTIVE}};
 
-@define-color accent_orange #E07924;
-@define-color accent_green #46BEBE;
-@define-color accent_blue #46BEBE;
-@define-color accent_critical #C73838;
+@define-color accent_orange {{WARNING}};
+@define-color accent_green {{ACCENT}};
+@define-color accent_blue {{ACCENT}};
+@define-color accent_critical {{CRITICAL}};
 
 #waybar {
   background-color: @waybarBg;

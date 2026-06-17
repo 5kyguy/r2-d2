@@ -1,8 +1,8 @@
-@define-color background-color #121212;
-@define-color border-color #46BEBE;
-@define-color label #8a8a8d;
-@define-color image #8a8a8d;
-@define-color progress #8a8a8d;
+@define-color background-color {{BACKGROUND}};
+@define-color border-color {{ACCENT}};
+@define-color label {{DIM_FOREGROUND}};
+@define-color image {{DIM_FOREGROUND}};
+@define-color progress {{DIM_FOREGROUND}};
 
 window {
     background-color: transparent;

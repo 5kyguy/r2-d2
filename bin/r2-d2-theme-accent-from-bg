@@ -1,0 +1,92 @@
+#!/bin/bash
+
+# Extract a saturated accent color from the active wallpaper.
+# Writes the result to ~/.local/state/r2-d2/theme-accent and prints it.
+
+set -euo pipefail
+
+R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+PALETTE="$R2D2_ROOT/config/theme/palette.toml"
+STATE_DIR="$HOME/.local/state/r2-d2"
+STATE_FILE="$STATE_DIR/theme-accent"
+BACKGROUND_LINK="$R2D2_ROOT/backgrounds/@background"
+
+read_palette() {
+  local key="$1"
+  grep -E "^${key}[[:space:]]*=" "$PALETTE" | head -1 | sed -E 's/^[^"]*"([^"]+)".*/\1/'
+}
+
+FALLBACK="$(read_palette fallback_accent)"
+
+write_accent() {
+  local accent="$1"
+  mkdir -p "$STATE_DIR"
+  echo "$accent" >"$STATE_FILE"
+  echo "$accent"
+}
+
+if [[ ! -e $BACKGROUND_LINK ]]; then
+  write_accent "$FALLBACK"
+  exit 0
+fi
+
+IMG="$(readlink -f "$BACKGROUND_LINK" 2>/dev/null || realpath "$BACKGROUND_LINK")"
+if [[ ! -f $IMG ]]; then
+  write_accent "$FALLBACK"
+  exit 0
+fi
+
+color_dump="$(mktemp)"
+trap 'rm -f "$color_dump"' EXIT
+
+magick "$IMG" -resize 48x48^ -gravity center -extent 48x48 -colors 16 -unique-colors -depth 8 txt:- >"$color_dump"
+
+accent="$(
+  python3 - "$FALLBACK" "$color_dump" <<'PY'
+import re
+import sys
+
+fallback = sys.argv[1].upper()
+if not fallback.startswith("#"):
+    fallback = "#" + fallback
+
+best = None
+best_score = -1.0
+
+with open(sys.argv[2], encoding="utf-8") as handle:
+    for line in handle:
+        match = re.search(r"#\s*([0-9A-Fa-f]+)", line)
+        if not match:
+            continue
+        value = match.group(1)
+        if len(value) == 8:
+            value = value[2:]
+        if len(value) != 6:
+            continue
+
+        r = int(value[0:2], 16)
+        g = int(value[2:4], 16)
+        b = int(value[4:6], 16)
+        mx = max(r, g, b)
+        mn = min(r, g, b)
+        if mx == 0:
+            continue
+
+        saturation = (mx - mn) / mx
+        if saturation < 0.12:
+            continue
+
+        luminance = 0.299 * r + 0.587 * g + 0.114 * b
+        if luminance < 40 or luminance > 220:
+            continue
+
+        score = saturation * (1.0 - abs(luminance - 140.0) / 140.0)
+        if score > best_score:
+            best_score = score
+            best = value.upper()
+
+print(f"#{best}" if best else fallback)
+PY
+)"
+
+write_accent "$accent"

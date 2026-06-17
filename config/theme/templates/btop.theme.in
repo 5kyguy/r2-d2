@@ -1,0 +1,78 @@
+# Main background, empty for terminal default, need to be empty if you want transparent background
+theme[main_bg]="{{BACKGROUND}}"
+
+# Main text color
+theme[main_fg]="#EAEAEA"
+
+# Title color for boxes
+theme[title]="{{ACCENT_DIM}}"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="{{ACCENT}}"
+
+# Background color of selected item in processes box
+theme[selected_bg]="{{ACCENT_DIM}}"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="#EAEAEA"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#333333"
+
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="{{DIM_FOREGROUND}}"
+
+# Cpu box outline color
+theme[cpu_box]="{{MAGENTA}}"
+
+# Memory/disks box outline color
+theme[mem_box]="{{MAGENTA}}"
+
+# Net up/down box outline color
+theme[net_box]="{{MAGENTA}}"
+
+# Processes box outline color
+theme[proc_box]="{{MAGENTA}}"
+
+# Box divider line and small boxes line color
+theme[div_line]="{{MAGENTA}}"
+
+# Temperature graph colors
+theme[temp_start]="{{ACCENT_DIM}}"
+theme[temp_mid]="{{ACCENT}}"
+theme[temp_end]="{{CRITICAL_DARK}}"
+
+# CPU graph colors
+theme[cpu_start]="{{ACCENT_DIM}}"
+theme[cpu_mid]="{{ACCENT}}"
+theme[cpu_end]="{{CRITICAL_DARK}}"
+
+# Mem/Disk free meter
+theme[free_start]="{{ACCENT_DIM}}"
+theme[free_mid]="{{ACCENT}}"
+theme[free_end]="{{CRITICAL_DARK}}"
+
+# Mem/Disk cached meter
+theme[cached_start]="{{ACCENT_DIM}}"
+theme[cached_mid]="{{ACCENT}}"
+theme[cached_end]="{{CRITICAL_DARK}}"
+
+# Mem/Disk available meter
+theme[available_start]="{{ACCENT_DIM}}"
+theme[available_mid]="{{ACCENT}}"
+theme[available_end]="{{CRITICAL_DARK}}"
+
+# Mem/Disk used meter
+theme[used_start]="{{ACCENT_DIM}}"
+theme[used_mid]="{{ACCENT}}"
+theme[used_end]="{{CRITICAL_DARK}}"
+
+# Download graph colors
+theme[download_start]="{{ACCENT_DIM}}"
+theme[download_mid]="{{ACCENT}}"
+theme[download_end]="{{CRITICAL_DARK}}"
+
+# Upload graph colors
+theme[upload_start]="{{ACCENT_DIM}}"
+theme[upload_mid]="{{ACCENT}}"
+theme[upload_end]="{{CRITICAL_DARK}}"

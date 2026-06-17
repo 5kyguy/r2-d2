@@ -1,0 +1,16 @@
+# R2-D2 companion theme: fixed base palette.
+# Accent is extracted from the active wallpaper at runtime (see bin/r2-d2-theme-apply).
+
+background = "#121212"
+foreground = "#D4D4D4"
+inactive = "#606060"
+dim_foreground = "#8a8a8d"
+
+# Used when the wallpaper has no saturated colors (e.g. light or grayscale images).
+fallback_accent = "#46BEBE"
+
+# Semantic colors — kept for critical/warning states only.
+critical = "#C73838"
+critical_dark = "#862020"
+warning = "#E07924"
+magenta = "#932A37"

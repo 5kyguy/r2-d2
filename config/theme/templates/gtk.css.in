@@ -1,21 +1,21 @@
 /* R2-D2 companion theme: dark base + wallpaper-driven accent */
-@define-color background     #121212;
-@define-color foreground     #D4D4D4;
-@define-color black          #121212;
-@define-color red            #C73838;
-@define-color green          #46BEBE;
-@define-color yellow         #E07924;
-@define-color blue           #46BEBE;
-@define-color magenta        #932A37;
-@define-color cyan           #46BEBE;
+@define-color background     {{BACKGROUND}};
+@define-color foreground     {{FOREGROUND}};
+@define-color black          {{BACKGROUND}};
+@define-color red            {{CRITICAL}};
+@define-color green          {{ACCENT}};
+@define-color yellow         {{WARNING}};
+@define-color blue           {{ACCENT}};
+@define-color magenta        {{MAGENTA}};
+@define-color cyan           {{ACCENT}};
 @define-color white          #eaeaea;
-@define-color bright_black   #606060;
-@define-color bright_red     #C73838;
-@define-color bright_green   #46BEBE;
-@define-color bright_yellow  #74CECE;
-@define-color bright_blue    #74CECE;
-@define-color bright_magenta #932A37;
-@define-color bright_cyan    #46BEBE;
+@define-color bright_black   {{INACTIVE}};
+@define-color bright_red     {{CRITICAL}};
+@define-color bright_green   {{ACCENT}};
+@define-color bright_yellow  {{ACCENT_BRIGHT}};
+@define-color bright_blue    {{ACCENT_BRIGHT}};
+@define-color bright_magenta {{MAGENTA}};
+@define-color bright_cyan    {{ACCENT}};
 @define-color bright_white   #eaeaea;
 
 @define-color accent_bg_color @blue;
