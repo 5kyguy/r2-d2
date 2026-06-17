@@ -46,7 +46,7 @@ Registered in OpenCode as `r2d2_*`:
 Example tasks in `config/k2so/bench-presets.json` for manual benchmarking:
 
 ```bash
-k2so ask "$(jq -r '.[0].instruction' ~/.config/k2so/bench-presets.json)"
+r2-d2-k2so-bench-preset lock_screen
 k2so bench
 ```
 
