@@ -104,7 +104,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **fonts.sh** — Copy R2-D2 font (r2-d2.ttf) to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
 - **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X) via Helium when available
-- **tuis.sh** — Add TUI shortcuts (Disk Usage, Docker)
+- **tuis.sh** — Optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`)
 
 **Phase 3 — Config** (`install/config/all.sh`)
 
@@ -117,7 +117,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
-- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin Nightly, Totem, nano); terminal order from `default/config/xdg-terminals.list`
+- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Totem, Nano); terminal order from `default/config/xdg-terminals.list`
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
 - **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
 - **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad

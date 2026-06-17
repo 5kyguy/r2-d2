@@ -25,7 +25,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 | **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
 | **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
-| **tuis.sh** | TUI shortcuts: **Disk Usage** (dust), **Docker** (lazydocker). |
+| **tuis.sh** | Reserved for optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`). |
 
 ### 1.4 Config – keyboard (keyd)
 
@@ -101,7 +101,7 @@ nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-load
 
 ### Browsers and default apps
 
-chromium (fallback). Default browser is **Brave Origin Nightly** (AUR); **Helium** is used for web apps when available.
+chromium (fallback). Default browser is **Brave Origin** (AUR package `brave-origin-nightly-bin`); **Helium** is used for web apps when available.
 
 ### Containers and Docker
 
@@ -154,7 +154,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
 | **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
-| **TUI** | `r2-d2-tui-install` — add a TUI shortcut. Default install adds Disk Usage and Docker. |
+| **TUI** | `r2-d2-tui-install` — add a TUI shortcut. |
 | **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
 | **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
@@ -170,7 +170,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 - **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
-- **Default TUI shortcuts:** 2 (Disk Usage, Docker).
+- **Default TUI shortcuts:** none (add via Install → TUI).
 - **Default editors:** Cursor (AUR), Opencode (curl installer).
 - **Menu-installable:** Package (any), AUR (any), Web App, TUI, Development runtimes, Editor (VS Code, T3 Code), Gaming (Steam, Xbox controllers).
 
