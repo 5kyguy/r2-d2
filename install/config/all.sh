@@ -16,6 +16,7 @@ run_logged $R2D2_INSTALL/config/mimetypes.sh
 run_logged $R2D2_INSTALL/config/walker-elephant.sh
 run_logged $R2D2_INSTALL/config/fast-shutdown.sh
 run_logged $R2D2_INSTALL/config/input-group.sh
+run_logged $R2D2_INSTALL/config/keyd.sh
 run_logged $R2D2_INSTALL/config/makima.sh
 run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
 run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
