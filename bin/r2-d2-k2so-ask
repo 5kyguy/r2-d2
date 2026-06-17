@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Prompt for a K-2SO instruction and submit it to the local daemon.
+
+if ! r2-d2-cmd-present k2so; then
+  notify-send "K-2SO" "k2so not found — run r2-d2-install-k2so first" -u critical -t 5000
+  exit 1
+fi
+
+instruction=$(gum input --prompt "K-2SO> " --placeholder "Ask K-2SO…")
+if [[ -z $instruction ]]; then
+  exit 0
+fi
+
+if k2so ask "$instruction"; then
+  notify-send "K-2SO" "Task queued" -t 3000
+else
+  notify-send "K-2SO" "Failed to queue task — is k2so serve running?" -u critical -t 5000
+  exit 1
+fi
