@@ -41,9 +41,9 @@ Use these instead of raw shell commands:
 # Repo vs live config
 
 - **Edit and commit in the repo** (`config/`, `default/config/`, `bin/`, etc.). Do not write to `~/.config/` while developing in this workspace.
-- **Live config is applied only through install/update flows** (`install/config/config.sh`, `r2-d2-update-sync-files`, migrations, or explicit `r2-d2-refresh-config`). The user chooses when the running session changes (Update menu → optional desktop reload prompt).
+- **Live config is applied through install/update flows** (`install/config/config.sh`, `r2-d2-update-sync-files`, migrations, explicit `r2-d2-refresh-config`, or wallpaper pick). The user chooses when the running session changes after update (Update menu → optional desktop reload prompt).
 - **Never** call `r2-d2-theme-reload`, `hyprctl reload`, or copy themed files into `~/.config/` from theme scripts during normal repo work. `r2-d2-theme-apply` writes to `$R2D2_PATH` only.
-- Wallpaper picker (`r2-d2-theme-bg-set`) updates the symlink and `swaybg` only — not theme colors.
+- Wallpaper picker (`r2-d2-theme-bg-set`) updates the symlink, `swaybg`, theme apply, live config sync, and reload.
 
 # Config Structure
 

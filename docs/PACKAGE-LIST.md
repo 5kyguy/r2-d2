@@ -160,7 +160,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
 | **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
 
-Background/wallpaper is set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
+Background/wallpaper and accent theme are set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
 
 ---
 

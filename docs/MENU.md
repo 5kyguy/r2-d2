@@ -48,7 +48,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 | **Dropbox** | Install Dropbox |
 | **Tailscale** | Install Tailscale |
 
-Change wallpaper via **Super + Ctrl + Space** (Walker background selector).
+Change wallpaper via **Super + Ctrl + Space** (Walker background selector). Accent colors update immediately from the selected image.
 
 ---
 
@@ -83,7 +83,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Alt + Space** | R2-D2 menu |
 | **Super + Escape** | System menu (lock, suspend, reboot, etc.) |
 | **XF86PowerOff** | System menu |
-| **Super + Ctrl + Space** | Background selector |
+| **Super + Ctrl + Space** | Background selector (wallpaper + accent theme) |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker (Walker symbols) |
 | **Super + Ctrl + V** | Clipboard manager |

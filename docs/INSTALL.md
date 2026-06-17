@@ -110,7 +110,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 - **config.sh** — Copy repo `config/*` user config to `~/.config/`, default bashrc to `~/.bashrc`
 - **default-config.sh** — Copy repo `default/config/*` support assets into their live `~/.config` locations
-- **theme.sh** — Wallpaper symlink, accent theme apply (`r2-d2-theme-apply`), copy themed config to `~/.config/`, Chromium policy dirs
+- **theme.sh** — Wallpaper symlink, accent theme apply (`r2-d2-theme-apply`), sync themed config to `~/.config/` (`r2-d2-theme-sync-live`), Chromium policy dirs
 - **keyd.sh** — Deploy Caps Lock ↔ Left Super swap via keyd (`default/keyd/default.conf` → `/etc/keyd/`)
 - **branding.sh** — Copy logo for fastfetch/screensaver
 - **git, gpg, timezones** — User/config defaults
@@ -140,8 +140,9 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 R2-D2 uses a dark companion palette with a **wallpaper-driven accent**. The base colors (background, text, inactive borders) stay fixed; the accent is extracted from the active wallpaper and applied across Hyprland, Waybar, GTK, the terminal, notifications, and other UI.
 
-- Change the wallpaper with the background selector (**Super + Ctrl + Space**). This updates the desktop image only.
-- Run **Update** (`r2-d2-update`) to regenerate themed config in the repo, copy it to `~/.config/`, and optionally reload desktop components when prompted.
+- Change the wallpaper with the background selector (**Super + Ctrl + Space**). `r2-d2-theme-bg-set` updates the desktop image, extracts an accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
+- Desaturated or grayscale wallpapers fall back to a white accent (`#EAEAEA` in `config/theme/palette.toml`).
+- Run **Update** (`r2-d2-update`) to refresh all repo-managed config and optionally reload desktop components when prompted.
 - Theme templates live in `config/theme/templates/`; `r2-d2-theme-apply` renders them into the repo only.
 
 ## Keyboard (Caps Lock ↔ Left Super)
