@@ -168,7 +168,6 @@ prioritize_entries() {
     line = $0
     prio = 50
     if (match(line, /Terminal/)) prio = 0
-    if (match(line, /Tmux/)) prio = 1
     if (match(line, /Browser/) && !match(line, /Browser[[:space:]]*\(/) && !match(line, /SUPER SHIFT.*\+.*B.*→.*Browser/)) prio = 2
     if (match(line, /File manager/) && !match(line, /File manager \(cwd\)/))  prio = 3
     if (match(line, /Launch apps/))  prio = 4
@@ -210,9 +209,10 @@ prioritize_entries() {
     if (match(line, /Toggle nightlight/))  prio = 41
     if (match(line, /Toggle locking/))  prio = 42
     if (match(line, /Show key bindings/))  prio = 43
-    if (match(line, /Toggle monitor scaling/))  prio = 44
-    if (match(line, /Apply monitor layout/))  prio = 45
-    if (match(line, /Toggle single-window square/))  prio = 46
+    if (match(line, /Toggle top bar/))  prio = 44
+    if (match(line, /Toggle monitor scaling/))  prio = 45
+    if (match(line, /Apply monitor layout/))  prio = 46
+    if (match(line, /Toggle single-window square/))  prio = 47
     if (match(line, /group/))  prio = 94
     if (match(line, /Scroll active workspace/))  prio = 95
     if (match(line, /Cycle to/))  prio = 96

@@ -150,7 +150,8 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver") in
+  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver") in
+  *"Top bar"*) r2-d2-toggle-waybar ;;
   *Display*) r2-d2-toggle-builtin-display ;;
   *Mirror*) r2-d2-toggle-display-mirror ;;
   *Notifications*) r2-d2-toggle-notification-silencing ;;
