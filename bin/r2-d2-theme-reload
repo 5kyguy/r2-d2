@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Reload desktop components after the user applies an update (optional desktop refresh prompt).
-# Do not call from theme-apply, migrations, or wallpaper changes.
+# Reload desktop components after themed config changes (update prompt or wallpaper pick).
 
 set -euo pipefail
 

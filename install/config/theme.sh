@@ -14,12 +14,7 @@ ln -nsf "$BACKGROUND_DIR/dark_limits.jpg" "$BACKGROUND_DIR/@background"
 
 r2-d2-theme-apply --from-background
 
-mkdir -p ~/.config
-cp -R "$R2D2_PATH/config/"* ~/.config/
-mkdir -p ~/.config/walker/themes/default
-cp "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
-mkdir -p ~/.config/hyprland-preview-share-picker
-cp "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+r2-d2-theme-sync-live
 
 rm -rf ~/.config/chromium/SingletonLock
 
