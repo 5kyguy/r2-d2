@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Push-to-talk style voice ingress for K-2SO via Voxtype.
+
+if ! r2-d2-cmd-present k2so; then
+  notify-send "K-2SO" "k2so not found — run r2-d2-install-k2so first" -u critical -t 5000
+  exit 1
+fi
+
+if r2-d2-cmd-missing voxtype; then
+  notify-send "K-2SO" "Voxtype not installed — run r2-d2-voxtype-install" -u critical -t 5000
+  exit 1
+fi
+
+if ! pgrep -x voxtype >/dev/null; then
+  notify-send "K-2SO" "Voxtype daemon is not running" -u critical -t 5000
+  exit 1
+fi
+
+clipboard_before=$(wl-paste 2>/dev/null || true)
+
+notify-send "K-2SO" "Listening…" -t 2000
+voxtype record start
+
+if ! gum confirm "Done speaking?"; then
+  voxtype record cancel
+  exit 0
+fi
+
+voxtype record stop
+sleep 1
+
+instruction=$(wl-paste 2>/dev/null || true)
+if [[ -z $instruction ]]; then
+  instruction=$(gum input --prompt "K-2SO> " --placeholder "Voice not captured — type instruction…")
+fi
+if [[ -z $instruction ]]; then
+  exit 0
+fi
+
+if [[ -n $clipboard_before ]]; then
+  printf '%s' "$clipboard_before" | wl-copy
+fi
+
+if k2so ask "$instruction"; then
+  notify-send "K-2SO" "Task queued from voice" -t 3000
+else
+  notify-send "K-2SO" "Failed to queue task — is k2so serve running?" -u critical -t 5000
+  exit 1
+fi
