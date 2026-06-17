@@ -1,4 +1,5 @@
 [Desktop Entry]
+Hidden=true
 Type=Application
 TryExec=nano
 Exec=xdg-terminal-exec -e nano %F

@@ -2,7 +2,7 @@
 
 echo "Simplify defaults: mime types, opencode PATH, remove Discord webapp, drop retired packages"
 
-# Refresh mime defaults (Brave Origin, Totem, nano, Pinta)
+# Refresh mime defaults (Brave Origin, Totem, Nano, Pinta)
 if [[ -f $R2D2_PATH/install/config/mimetypes.sh ]]; then
   bash "$R2D2_PATH/install/config/mimetypes.sh"
 fi

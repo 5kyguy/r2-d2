@@ -20,7 +20,7 @@ xdg-mime default com.github.PintaProject.Pinta.desktop image/x-xcf
 # Open PDFs with the Document Viewer
 xdg-mime default org.gnome.Evince.desktop application/pdf
 
-# Use Brave Origin Nightly as the default browser
+# Use Brave Origin as the default browser
 xdg-settings set default-web-browser brave-origin-nightly.desktop
 xdg-mime default brave-origin-nightly.desktop x-scheme-handler/http
 xdg-mime default brave-origin-nightly.desktop x-scheme-handler/https
@@ -43,20 +43,20 @@ xdg-mime default org.gnome.Totem.desktop video/x-theora+ogg
 xdg-mime default org.gnome.Totem.desktop application/ogg
 
 # Open text files with nano
-xdg-mime default nano.desktop text/plain
-xdg-mime default nano.desktop text/english
-xdg-mime default nano.desktop text/x-makefile
-xdg-mime default nano.desktop text/x-c++hdr
-xdg-mime default nano.desktop text/x-c++src
-xdg-mime default nano.desktop text/x-chdr
-xdg-mime default nano.desktop text/x-csrc
-xdg-mime default nano.desktop text/x-java
-xdg-mime default nano.desktop text/x-moc
-xdg-mime default nano.desktop text/x-pascal
-xdg-mime default nano.desktop text/x-tcl
-xdg-mime default nano.desktop text/x-tex
-xdg-mime default nano.desktop application/x-shellscript
-xdg-mime default nano.desktop text/x-c
-xdg-mime default nano.desktop text/x-c++
-xdg-mime default nano.desktop application/xml
-xdg-mime default nano.desktop text/xml
+xdg-mime default Nano.desktop text/plain
+xdg-mime default Nano.desktop text/english
+xdg-mime default Nano.desktop text/x-makefile
+xdg-mime default Nano.desktop text/x-c++hdr
+xdg-mime default Nano.desktop text/x-c++src
+xdg-mime default Nano.desktop text/x-chdr
+xdg-mime default Nano.desktop text/x-csrc
+xdg-mime default Nano.desktop text/x-java
+xdg-mime default Nano.desktop text/x-moc
+xdg-mime default Nano.desktop text/x-pascal
+xdg-mime default Nano.desktop text/x-tcl
+xdg-mime default Nano.desktop text/x-tex
+xdg-mime default Nano.desktop application/x-shellscript
+xdg-mime default Nano.desktop text/x-c
+xdg-mime default Nano.desktop text/x-c++
+xdg-mime default Nano.desktop application/xml
+xdg-mime default Nano.desktop text/xml
