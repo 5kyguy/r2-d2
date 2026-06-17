@@ -1,0 +1,14 @@
+[Unit]
+Description=K-2SO background agent
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/k2so serve
+Environment=K2SO_PROFILE=%h/.config/k2so/profile.toml
+EnvironmentFile=-%h/.config/r2-d2/k2so.env
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
