@@ -1,0 +1,35 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "zai-coding/glm-5.2",
+  "provider": {
+    "zai-coding": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Z.AI GLM Coding Plan",
+      "options": {
+        "baseURL": "https://api.z.ai/api/coding/paas/v4",
+        "apiKey": "{env:ZAI_API_KEY}"
+      },
+      "models": {
+        "glm-5.2": { "name": "GLM-5.2" },
+        "glm-4.5-air": { "name": "GLM-4.5-Air" }
+      }
+    }
+  },
+  "mcp": {
+    "r2d2": {
+      "type": "local",
+      "command": ["node", "{env:R2D2_PATH}/mcp/r2d2/dist/index.js"],
+      "enabled": true
+    }
+  },
+  "agent": {
+    "k2so": {
+      "mode": "primary",
+      "description": "R2-D2 desktop companion (brains)",
+      "prompt": "You are K-2SO, the reasoning companion on an R2-D2 desktop (Hyprland). R2-D2 is the tool layer — use r2d2_* MCP tools for system actions. For research, use web and file tools; write reports to the task workspace. Be direct. Never run destructive commands without explicit confirmation.",
+      "tools": {
+        "r2d2_*": true
+      }
+    }
+  }
+}
