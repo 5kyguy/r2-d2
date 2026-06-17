@@ -7,9 +7,9 @@ $shadow_inactive = rgba(00000044)
 $active_border = rgb({{ACCENT_RGB}})
 $inactive_border = rgb({{INACTIVE_RGB}})
 
-$group_border_active = rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.55) rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.22) 90deg
+$group_border_active = rgba({{ACCENT_RGBA_55}}) rgba({{ACCENT_RGBA_22}}) 90deg
 $group_border_inactive = rgba(3a3a3a55)
-$group_locked_active = rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.88) rgba({{ACCENT_R}}, {{ACCENT_G}}, {{ACCENT_B}}, 0.22) 90deg
+$group_locked_active = rgba({{ACCENT_RGBA_88}}) rgba({{ACCENT_RGBA_22}}) 90deg
 $group_locked_inactive = rgba(3a3a3a77)
 
 general {

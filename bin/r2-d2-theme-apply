@@ -95,6 +95,10 @@ def rgb(hex_color: str):
 def hex_color(r, g, b):
     return f"#{r:02X}{g:02X}{b:02X}"
 
+def rgba_hex(r, g, b, alpha):
+    a = int(round(alpha * 255))
+    return f"{r:02x}{g:02x}{b:02x}{a:02x}"
+
 def mix(r, g, b, factor, target=255):
     return tuple(int(c + (target - c) * factor) for c in (r, g, b))
 
@@ -108,6 +112,9 @@ dr, dg, db = shade(ar, ag, ab, 0.25)
 pairs = {
     "ACCENT": hex_color(ar, ag, ab),
     "ACCENT_RGB": f"{ar:02X}{ag:02X}{ab:02X}",
+    "ACCENT_RGBA_22": rgba_hex(ar, ag, ab, 0.22),
+    "ACCENT_RGBA_55": rgba_hex(ar, ag, ab, 0.55),
+    "ACCENT_RGBA_88": rgba_hex(ar, ag, ab, 0.88),
     "ACCENT_R": str(ar),
     "ACCENT_G": str(ag),
     "ACCENT_B": str(ab),
@@ -147,6 +154,9 @@ render_template() {
   sed \
     -e "s|{{ACCENT}}|${ACCENT}|g" \
     -e "s|{{ACCENT_RGB}}|${ACCENT_RGB}|g" \
+    -e "s|{{ACCENT_RGBA_22}}|${ACCENT_RGBA_22}|g" \
+    -e "s|{{ACCENT_RGBA_55}}|${ACCENT_RGBA_55}|g" \
+    -e "s|{{ACCENT_RGBA_88}}|${ACCENT_RGBA_88}|g" \
     -e "s|{{ACCENT_R}}|${ACCENT_R}|g" \
     -e "s|{{ACCENT_G}}|${ACCENT_G}|g" \
     -e "s|{{ACCENT_B}}|${ACCENT_B}|g" \
