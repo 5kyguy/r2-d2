@@ -25,7 +25,7 @@ All commands start with `r2-d2-`. Prefixes indicate purpose:
 - `install-` - install optional software
 - `setup-` - interactive setup wizards
 - `toggle-` - toggle features on/off
-- `theme-` - wallpaper
+- `theme-` - wallpaper and accent theme (repo-only apply)
 - `update-` - update components
 
 # Helper Commands
@@ -37,6 +37,13 @@ Use these instead of raw shell commands:
 - `r2-d2-pkg-add` - install packages from the official repos
 - `r2-d2-pkg-aur-add` - install packages from the AUR
 - `r2-d2-hw-*` - hardware detection commands (return exit codes for use in conditionals)
+
+# Repo vs live config
+
+- **Edit and commit in the repo** (`config/`, `default/config/`, `bin/`, etc.). Do not write to `~/.config/` while developing in this workspace.
+- **Live config is applied only through install/update flows** (`install/config/config.sh`, `r2-d2-update-sync-files`, migrations, or explicit `r2-d2-refresh-config`). The user chooses when the running session changes (Update menu → optional desktop reload prompt).
+- **Never** call `r2-d2-theme-reload`, `hyprctl reload`, or copy themed files into `~/.config/` from theme scripts during normal repo work. `r2-d2-theme-apply` writes to `$R2D2_PATH` only.
+- Wallpaper picker (`r2-d2-theme-bg-set`) updates the symlink and `swaybg` only — not theme colors.
 
 # Config Structure
 

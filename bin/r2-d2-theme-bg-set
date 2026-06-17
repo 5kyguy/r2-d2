@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Sets the specified image as the default background (single-theme setup).
-# Used by the menu background selector; cycles through backgrounds/.
+# Sets the specified image as the default background (symlink + swaybg only).
+# Theme colors are regenerated in the repo and applied to ~/.config on r2-d2-update.
 
 if [[ -z $1 ]]; then
   echo "Usage: r2-d2-theme-bg-set <path-to-image>" >&2
