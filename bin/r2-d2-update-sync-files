@@ -8,7 +8,7 @@ echo -e "\e[32m\nSync user config and applications\e[0m"
 
 r2-d2-theme-apply --from-background
 
-r2-d2-theme-sync-live
+r2-d2-config-sync-live
 cp ~/.config/bashrc ~/.bashrc
 
 r2-d2-refresh-applications

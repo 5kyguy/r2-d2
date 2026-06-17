@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Restore monitor layout after hyprctl reload (session tweaks live in keywords, not monitors.conf).
+
+set -euo pipefail
+
+BUILTIN_DISABLED="$HOME/.local/state/r2-d2/toggles/builtin-display-disabled"
+DISPLAY_MIRROR="$HOME/.local/state/r2-d2/toggles/display-mirror"
+
+apply_mirror() {
+  local monitors_json builtin external
+
+  monitors_json=$(hyprctl monitors -j 2>/dev/null) || return 0
+  builtin=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1)
+  external=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
+
+  if [[ -n $builtin && -n $external ]]; then
+    hyprctl keyword monitor "$external,preferred,0x0,1,mirror,$builtin"
+  fi
+}
+
+if [[ -f $BUILTIN_DISABLED ]]; then
+  hyprctl keyword monitor "$(cat "$BUILTIN_DISABLED"),disable"
+elif [[ -f $DISPLAY_MIRROR ]]; then
+  apply_mirror
+elif [[ ! -t 0 ]]; then
+  while read -r rule; do
+    [[ -n $rule ]] && hyprctl keyword monitor "$rule"
+  done
+fi

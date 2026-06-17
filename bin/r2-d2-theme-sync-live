@@ -1,13 +1,33 @@
 #!/bin/bash
 
-# Copy themed repo config into the live session (~/.config/).
+# Copy theme-rendered repo config into the live session (~/.config/).
+# Keep in sync with outputs from bin/r2-d2-theme-apply.
 
 set -euo pipefail
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
-mkdir -p ~/.config
-cp -R "$R2D2_PATH"/config/* ~/.config/
+declare -a THEME_PATHS=(
+  config/hypr/looknfeel.conf
+  config/hypr/hyprlock.conf
+  config/waybar/waybar.css
+  config/waybar/style.css
+  config/gtk-3.0/gtk.css
+  config/alacritty/alacritty.toml
+  config/mako/config
+  config/swayosd/style.css
+  config/btop/themes/current.theme
+  config/starship.toml
+)
+
+for relative_path in "${THEME_PATHS[@]}"; do
+  src="$R2D2_PATH/$relative_path"
+  dest="$HOME/.config/${relative_path#config/}"
+
+  [[ -f $src ]] || continue
+  mkdir -p "$(dirname "$dest")"
+  cp "$src" "$dest"
+done
 
 mkdir -p ~/.config/walker/themes/default
 cp "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css

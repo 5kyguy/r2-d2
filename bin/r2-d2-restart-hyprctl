@@ -2,4 +2,4 @@
 
 # Reload hyprland configuration.
 
-hyprctl reload >/dev/null
+r2-d2-hyprland-reload >/dev/null

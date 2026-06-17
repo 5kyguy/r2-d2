@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Reload Hyprland config without resetting session monitor layout.
+
+set -euo pipefail
+
+saved_monitors=$(
+  hyprctl monitors -j 2>/dev/null | jq -r '.[] | "\(.name),\(.width)x\(.height)@\(.refreshRate | floor),\(.x)x\(.y),\(.scale)"' || true
+)
+
+hyprctl reload >/dev/null 2>&1 || true
+r2-d2-hyprland-monitors-restore <<<"$saved_monitors"
