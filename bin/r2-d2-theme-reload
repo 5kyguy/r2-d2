@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Reload desktop components after themed config changes (update prompt or wallpaper pick).
+# Hyprland border colors are applied via r2-d2-theme-hyprland-apply (no full hyprctl reload).
 
 set -euo pipefail
 
 accent="${1:-}"
 
-r2-d2-hyprland-reload >/dev/null 2>&1 || true
+r2-d2-theme-hyprland-apply >/dev/null 2>&1 || true
 r2-d2-restart-waybar >/dev/null 2>&1 || true
 r2-d2-restart-mako >/dev/null 2>&1 || true
 r2-d2-restart-walker >/dev/null 2>&1 || true

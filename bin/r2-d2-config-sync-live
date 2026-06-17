@@ -1,13 +1,23 @@
 #!/bin/bash
 
 # Copy all repo user config into the live session (~/.config/).
+# Preserves user-edited editor settings (Cursor, VS Code).
 
 set -euo pipefail
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
 mkdir -p ~/.config
-cp -R "$R2D2_PATH"/config/* ~/.config/
+
+for item in "$R2D2_PATH"/config/*; do
+  name=$(basename "$item")
+
+  if [[ $name == Cursor || $name == Code ]]; then
+    continue
+  fi
+
+  cp -R "$item" ~/.config/
+done
 
 mkdir -p ~/.config/walker/themes/default
 cp "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css

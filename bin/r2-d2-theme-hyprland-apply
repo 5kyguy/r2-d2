@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Apply wallpaper-driven border colors from looknfeel.conf without hyprctl reload.
+
+set -euo pipefail
+
+LOOKNFEEL="${HOME}/.config/hypr/looknfeel.conf"
+
+if [[ ! -f $LOOKNFEEL ]]; then
+  exit 0
+fi
+
+looknfeel_var() {
+  local var_name="$1"
+  grep -E "^\\\$${var_name} = " "$LOOKNFEEL" | head -1 | sed -E "s/^\\\$${var_name} = //"
+}
+
+active_border=$(looknfeel_var active_border)
+inactive_border=$(looknfeel_var inactive_border)
+group_border_active=$(looknfeel_var group_border_active)
+group_border_inactive=$(looknfeel_var group_border_inactive)
+group_locked_active=$(looknfeel_var group_locked_active)
+group_locked_inactive=$(looknfeel_var group_locked_inactive)
+
+if [[ -n $active_border ]]; then
+  hyprctl keyword general:col.active_border "$active_border" >/dev/null 2>&1 || true
+fi
+
+if [[ -n $inactive_border ]]; then
+  hyprctl keyword general:col.inactive_border "$inactive_border" >/dev/null 2>&1 || true
+fi
+
+if [[ -n $group_border_active ]]; then
+  hyprctl keyword group:col.border_active "$group_border_active" >/dev/null 2>&1 || true
+fi
+
+if [[ -n $group_border_inactive ]]; then
+  hyprctl keyword group:col.border_inactive "$group_border_inactive" >/dev/null 2>&1 || true
+fi
+
+if [[ -n $group_locked_active ]]; then
+  hyprctl keyword group:col.border_locked_active "$group_locked_active" >/dev/null 2>&1 || true
+fi
+
+if [[ -n $group_locked_inactive ]]; then
+  hyprctl keyword group:col.border_locked_inactive "$group_locked_inactive" >/dev/null 2>&1 || true
+fi
