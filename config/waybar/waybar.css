@@ -6,8 +6,8 @@
 @define-color inactive #606060;
 
 @define-color accent_orange #E07924;
-@define-color accent_green #46BEBE;
-@define-color accent_blue #46BEBE;
+@define-color accent_green #EAEAEA;
+@define-color accent_blue #EAEAEA;
 @define-color accent_critical #C73838;
 
 #waybar {

@@ -31,28 +31,28 @@ dim_foreground = "#8a8a8d"
 
 [colors.cursor]
 text = "#121212"
-cursor = "#46BEBE"
+cursor = "#EAEAEA"
 
 [colors.selection]
 text = "CellForeground"
-background = "#348E8E"
+background = "#AFAFAF"
 
 [colors.normal]
 black = "#333333"
 red = "#862020"
-green = "#348E8E"
-yellow = "#46BEBE"
-blue = "#46BEBE"
+green = "#AFAFAF"
+yellow = "#EAEAEA"
+blue = "#EAEAEA"
 magenta = "#932A37"
-cyan = "#348E8E"
+cyan = "#AFAFAF"
 white = "#bebebe"
 
 [colors.bright]
 black = "#8a8a8d"
 red = "#C73838"
-green = "#46BEBE"
+green = "#EAEAEA"
 yellow = "#E07924"
-blue = "#74CECE"
+blue = "#EFEFEF"
 magenta = "#C73838"
-cyan = "#46BEBE"
+cyan = "#EAEAEA"
 white = "#eaeaea"

@@ -3,22 +3,22 @@ command_timeout = 200
 format = "[$directory$git_branch$git_status]($style)$character"
 
 [character]
-error_symbol = "[✗](bold #46BEBE)"
-success_symbol = "[❯](bold #46BEBE)"
+error_symbol = "[✗](bold #EAEAEA)"
+success_symbol = "[❯](bold #EAEAEA)"
 
 [directory]
 truncation_length = 2
 truncation_symbol = "…/"
-repo_root_style = "bold #46BEBE"
+repo_root_style = "bold #EAEAEA"
 repo_root_format = "[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) "
 
 [git_branch]
 format = "[$branch]($style) "
-style = "italic #46BEBE"
+style = "italic #EAEAEA"
 
 [git_status]
 format = '[$all_status]($style)'
-style = "#46BEBE"
+style = "#EAEAEA"
 ahead = "⇡${count} "
 diverged = "⇕⇡${ahead_count}⇣${behind_count} "
 behind = "⇣${count} "

@@ -7,7 +7,7 @@ inactive = "#606060"
 dim_foreground = "#8a8a8d"
 
 # Used when the wallpaper has no saturated colors (e.g. light or grayscale images).
-fallback_accent = "#46BEBE"
+fallback_accent = "#EAEAEA"
 
 # Semantic colors — kept for critical/warning states only.
 critical = "#C73838"
