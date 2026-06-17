@@ -25,7 +25,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 
 | Entry | Action |
 | ----- | ------ |
-| **Toggle** | Display, Mirror, Notifications, Idle, Layout, Gaps, Ratio, Scaling, Screensaver |
+| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Gaps, Ratio, Scaling, Screensaver |
 | **Screenshot** | `r2-d2-cmd-screenshot` |
 | **Screenrecord** | Screenrecord options (audio / webcam) |
 | **Share** | Clipboard, file, or folder |
@@ -73,6 +73,8 @@ Change wallpaper via **Super + Ctrl + Space** (Walker background selector).
 
 Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 
+**Caps Lock ↔ Left Super:** keyd swaps these keys system-wide (`default/keyd/default.conf`). Hyprland **Super** bindings use the **Caps Lock** key; the physical **Left Win** key acts as Caps Lock.
+
 ### Menus and Walker
 
 | Keybinding | Action |
@@ -81,7 +83,6 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Alt + Space** | R2-D2 menu |
 | **Super + Escape** | System menu (lock, suspend, reboot, etc.) |
 | **XF86PowerOff** | System menu |
-| **Super + Ctrl + S** | Share menu |
 | **Super + Ctrl + Space** | Background selector |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker (Walker symbols) |
@@ -92,7 +93,6 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | Keybinding | Action |
 | ---------- | ------ |
 | **Super + Enter** | Terminal |
-| **Super + Alt + Enter** | Tmux |
 | **Super + B** | Browser |
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | Cursor |
@@ -118,6 +118,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Shift + A** | Audio controls |
 | **Super + Shift + I** | Activity (btop) |
 | **Super + Shift + S** | Screenshot |
+| **Super + Shift + T** | Toggle top bar (Waybar) |
 | **Super + Shift + D** | Toggle device display |
 | **Super + Shift + M** | Toggle display mirror |
 | **Super + Shift + N** | Toggle notification silencing |
@@ -153,7 +154,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
 | **Super + XF86AudioMute** | Switch audio output |
 
-Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). Waybar, nightlight, dictation, zoom, per-window transparency, and Mako dismiss shortcuts were removed from the default binding set.
+Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Nightlight, dictation, zoom, per-window transparency, and Mako dismiss shortcuts were removed from the default binding set.
 
 ---
 

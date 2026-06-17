@@ -110,7 +110,8 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 - **config.sh** — Copy repo `config/*` user config to `~/.config/`, default bashrc to `~/.bashrc`
 - **default-config.sh** — Copy repo `default/config/*` support assets into their live `~/.config` locations
-- **theme.sh** — Theme/background setup, Chromium policy dirs
+- **theme.sh** — Wallpaper symlink, accent theme apply (`r2-d2-theme-apply`), copy themed config to `~/.config/`, Chromium policy dirs
+- **keyd.sh** — Deploy Caps Lock ↔ Left Super swap via keyd (`default/keyd/default.conf` → `/etc/keyd/`)
 - **branding.sh** — Copy logo for fastfetch/screensaver
 - **git, gpg, timezones** — User/config defaults
 - **increase-file-watchers** — Dev tooling (inotify limits)
@@ -137,7 +138,20 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 ## Themes
 
-Single theme only: colors and look are set once via config. To change the wallpaper, use the background selector (**Super + Ctrl + Space**).
+R2-D2 uses a dark companion palette with a **wallpaper-driven accent**. The base colors (background, text, inactive borders) stay fixed; the accent is extracted from the active wallpaper and applied across Hyprland, Waybar, GTK, the terminal, notifications, and other UI.
+
+- Change the wallpaper with the background selector (**Super + Ctrl + Space**). This updates the desktop image only.
+- Run **Update** (`r2-d2-update`) to regenerate themed config in the repo, copy it to `~/.config/`, and optionally reload desktop components when prompted.
+- Theme templates live in `config/theme/templates/`; `r2-d2-theme-apply` renders them into the repo only.
+
+## Keyboard (Caps Lock ↔ Left Super)
+
+R2-D2 swaps **Caps Lock** and **Left Super** system-wide via **keyd** (`default/keyd/default.conf`). After install or update:
+
+- Press **Caps Lock** for Hyprland **Super** bindings (launcher, tiling, workspaces, etc.)
+- Press **Left Win** for Caps Lock
+
+Hyprland `input.conf` does not set `compose:caps`; the swap is handled entirely by keyd.
 
 ## Install / Remove / Update
 

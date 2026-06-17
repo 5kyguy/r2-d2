@@ -27,19 +27,25 @@ This document lists what is installed during the R2-D2 install and what can be i
 | **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
 | **tuis.sh** | TUI shortcuts: **Disk Usage** (dust), **Docker** (lazydocker). |
 
-### 1.4 Config – conditional packages
+### 1.4 Config – keyboard (keyd)
+
+| Script | What |
+| ------ | ---- |
+| **keyd.sh** | Deploy `default/keyd/default.conf` to `/etc/keyd/`; enable **keyd** service. Swaps Caps Lock and Left Super so Hyprland Super bindings use the Caps key. |
+
+### 1.5 Config – conditional packages
 
 | Script | Condition | Packages |
 | ------ | --------- | -------- |
 | **config/hardware/vulkan.sh** | AMD GPU (lspci VGA/Display) | **vulkan-radeon** |
 
-### 1.5 Login
+### 1.6 Login
 
 | Script | What |
 | ------ | ---- |
 | **login/limine-snapper.sh** | If **limine** is present: **limine-snapper-sync**, **limine-mkinitcpio-hook** (and mkinitcpio/snapper config). |
 
-### 1.6 boot.sh (curl install)
+### 1.7 boot.sh (curl install)
 
 - Installs **git**, then clones the repo and runs `install.sh`. Used for install, update, and repair from a running Arch system (no ISO).
 
@@ -47,11 +53,11 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **161** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **162** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
-base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, omarchy-keyring
+base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd, omarchy-keyring
 
 ### Compositor and session
 
@@ -160,7 +166,7 @@ Background/wallpaper is set via the background selector (**Super + Ctrl + Space*
 
 ## 4. Summary
 
-- **Base pacman packages:** 161 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 162 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
