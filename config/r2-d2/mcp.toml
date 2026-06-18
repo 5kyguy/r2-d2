@@ -1,0 +1,18 @@
+[tools]
+lock_screen = true
+screenshot = true
+battery_remaining = true
+toggle_nightlight = true
+toggle_waybar = true
+toggle_notification_silencing = true
+notification_dismiss = true
+theme_set_background = true
+desktop_windows = true
+system_reboot = true
+system_shutdown = true
+open_application = true
+theme_set_accent = true
+volume_set = true
+volume_toggle_mute = true
+media_play_pause = true
+clipboard_set = true
