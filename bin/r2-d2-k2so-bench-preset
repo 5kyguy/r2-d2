@@ -11,10 +11,11 @@ fi
 
 presets="${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/k2so/bench-presets.json"
 instruction=$(jq -r --arg id "$1" '.[] | select(.id == $id) | .instruction' "$presets")
+task_type=$(jq -r --arg id "$1" '.[] | select(.id == $id) | .taskType // "background"' "$presets")
 
 if [[ -z $instruction || $instruction == null ]]; then
   echo "Unknown preset: $1" >&2
   exit 1
 fi
 
-k2so ask "$instruction"
+k2so ask --type "$task_type" "$instruction"
