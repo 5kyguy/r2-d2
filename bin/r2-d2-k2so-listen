@@ -22,10 +22,8 @@ clipboard_before=$(wl-paste 2>/dev/null || true)
 notify-send "K-2SO" "Listening…" -t 2000
 voxtype record start
 
-if ! gum confirm "Done speaking?"; then
-  voxtype record cancel
-  exit 0
-fi
+echo "Press any key to stop recording…" >&2
+read -rsn1 -s
 
 voxtype record stop
 sleep 1
