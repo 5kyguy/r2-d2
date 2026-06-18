@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Toggle media playback via playerctl.
+
+if r2-d2-cmd-missing playerctl; then
+  echo "playerctl not installed" >&2
+  exit 1
+fi
+
+playerctl play-pause

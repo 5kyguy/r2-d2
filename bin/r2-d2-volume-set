@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Set default audio sink volume. Usage: r2-d2-volume-set <percent>
+
+if (($# == 0)); then
+  echo "Usage: r2-d2-volume-set <percent>" >&2
+  exit 1
+fi
+
+percent="$1"
+if [[ $percent != *% ]]; then
+  percent="${percent}%"
+fi
+
+wpctl set-volume @DEFAULT_AUDIO_SINK@ "$percent"

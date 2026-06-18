@@ -1,94 +1,130 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { hyprctlJson, runR2d2Script } from "./exec.js";
+import { loadEnabledTools } from "./config.js";
 
 function textResult(text: string) {
   return { content: [{ type: "text" as const, text }] };
 }
 
-export function createR2d2Server(): McpServer {
+interface ToolDef {
+  description: string;
+  schema: Record<string, z.ZodTypeAny>;
+  handler: (args: Record<string, unknown>) => Promise<string>;
+}
+
+const TOOL_REGISTRY: Record<string, ToolDef> = {
+  lock_screen: {
+    description: "Lock the Hyprland session",
+    schema: {},
+    handler: async () => runR2d2Script("lock_screen"),
+  },
+  screenshot: {
+    description: "Capture a screenshot",
+    schema: {},
+    handler: async () => runR2d2Script("screenshot"),
+  },
+  battery_remaining: {
+    description: "Get battery percentage as an integer",
+    schema: {},
+    handler: async () => runR2d2Script("battery_remaining"),
+  },
+  toggle_nightlight: {
+    description: "Toggle night light filter",
+    schema: {},
+    handler: async () => runR2d2Script("toggle_nightlight"),
+  },
+  toggle_waybar: {
+    description: "Toggle the top bar visibility",
+    schema: {},
+    handler: async () => runR2d2Script("toggle_waybar"),
+  },
+  toggle_notification_silencing: {
+    description: "Toggle do-not-disturb / notification silencing",
+    schema: {},
+    handler: async () => runR2d2Script("toggle_notification_silencing"),
+  },
+  notification_dismiss: {
+    description: "Dismiss all notifications",
+    schema: {},
+    handler: async () => runR2d2Script("notification_dismiss"),
+  },
+  theme_set_background: {
+    description: "Set desktop wallpaper from an image path",
+    schema: { path: z.string().describe("Absolute path to wallpaper image") },
+    handler: async ({ path }) => runR2d2Script("theme_bg_set", [String(path)]),
+  },
+  desktop_windows: {
+    description: "List open Hyprland windows as JSON",
+    schema: {},
+    handler: async () => hyprctlJson(["clients", "-j"]),
+  },
+  system_reboot: {
+    description: "Reboot the system (requires confirm: true)",
+    schema: { confirm: z.boolean().describe("Must be true to proceed") },
+    handler: async ({ confirm }) => runR2d2Script("system_reboot", [], Boolean(confirm)),
+  },
+  system_shutdown: {
+    description: "Shut down the system (requires confirm: true)",
+    schema: { confirm: z.boolean().describe("Must be true to proceed") },
+    handler: async ({ confirm }) => runR2d2Script("system_shutdown", [], Boolean(confirm)),
+  },
+  open_application: {
+    description: "Launch or focus an application by window pattern",
+    schema: {
+      window_pattern: z.string().describe("Window class or title pattern"),
+      launch_command: z.string().optional().describe("Optional launch command override"),
+    },
+    handler: async ({ window_pattern, launch_command }) => {
+      const args = [String(window_pattern)];
+      if (launch_command) {
+        args.push(String(launch_command));
+      }
+      return runR2d2Script("launch_or_focus", args);
+    },
+  },
+  theme_set_accent: {
+    description: "Extract and apply accent color from the current wallpaper",
+    schema: {},
+    handler: async () => runR2d2Script("theme_accent_from_bg"),
+  },
+  volume_set: {
+    description: "Set default audio sink volume (0-100 or percent string)",
+    schema: { percent: z.number().describe("Volume percent (0-100)") },
+    handler: async ({ percent }) => runR2d2Script("volume_set", [String(percent)]),
+  },
+  volume_toggle_mute: {
+    description: "Toggle mute on the default audio sink",
+    schema: {},
+    handler: async () => runR2d2Script("volume_toggle_mute"),
+  },
+  media_play_pause: {
+    description: "Toggle media playback via playerctl",
+    schema: {},
+    handler: async () => runR2d2Script("media_play_pause"),
+  },
+  clipboard_set: {
+    description: "Copy text to the clipboard",
+    schema: { text: z.string().describe("Text to copy") },
+    handler: async ({ text }) => runR2d2Script("clipboard_set", [String(text)]),
+  },
+};
+
+export async function createR2d2Server(): Promise<McpServer> {
   const server = new McpServer({
     name: "r2d2",
-    version: "0.1.0",
+    version: "0.2.0",
   });
 
-  server.tool(
-    "lock_screen",
-    "Lock the Hyprland session",
-    {},
-    async () => textResult(await runR2d2Script("lock_screen")),
-  );
+  const enabled = await loadEnabledTools(Object.keys(TOOL_REGISTRY));
 
-  server.tool(
-    "screenshot",
-    "Capture a screenshot",
-    {},
-    async () => textResult(await runR2d2Script("screenshot")),
-  );
+  for (const [name, tool] of Object.entries(TOOL_REGISTRY)) {
+    if (!enabled.has(name)) {
+      continue;
+    }
 
-  server.tool(
-    "battery_remaining",
-    "Get battery percentage as an integer",
-    {},
-    async () => textResult(await runR2d2Script("battery_remaining")),
-  );
-
-  server.tool(
-    "toggle_nightlight",
-    "Toggle night light filter",
-    {},
-    async () => textResult(await runR2d2Script("toggle_nightlight")),
-  );
-
-  server.tool(
-    "toggle_waybar",
-    "Toggle the top bar visibility",
-    {},
-    async () => textResult(await runR2d2Script("toggle_waybar")),
-  );
-
-  server.tool(
-    "toggle_notification_silencing",
-    "Toggle do-not-disturb / notification silencing",
-    {},
-    async () => textResult(await runR2d2Script("toggle_notification_silencing")),
-  );
-
-  server.tool(
-    "notification_dismiss",
-    "Dismiss all notifications",
-    {},
-    async () => textResult(await runR2d2Script("notification_dismiss")),
-  );
-
-  server.tool(
-    "theme_set_background",
-    "Set desktop wallpaper from an image path",
-    { path: z.string().describe("Absolute path to wallpaper image") },
-    async ({ path }) => textResult(await runR2d2Script("theme_bg_set", [path])),
-  );
-
-  server.tool(
-    "desktop_windows",
-    "List open Hyprland windows as JSON",
-    {},
-    async () => textResult(await hyprctlJson(["clients", "-j"])),
-  );
-
-  server.tool(
-    "system_reboot",
-    "Reboot the system (requires confirm: true)",
-    { confirm: z.boolean().describe("Must be true to proceed") },
-    async ({ confirm }) => textResult(await runR2d2Script("system_reboot", [], confirm)),
-  );
-
-  server.tool(
-    "system_shutdown",
-    "Shut down the system (requires confirm: true)",
-    { confirm: z.boolean().describe("Must be true to proceed") },
-    async ({ confirm }) => textResult(await runR2d2Script("system_shutdown", [], confirm)),
-  );
+    server.tool(name, tool.description, tool.schema, async (args) => textResult(await tool.handler(args)));
+  }
 
   return server;
 }

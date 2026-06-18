@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Toggle mute on the default audio sink.
+
+wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
