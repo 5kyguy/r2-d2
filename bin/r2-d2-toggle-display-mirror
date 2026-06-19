@@ -1,22 +1,25 @@
 #!/bin/bash
 
 # Toggle between mirror and extend display mode when an external monitor is connected.
+# Mirrored outputs are hidden from `hyprctl monitors -j`, so mirror state is tracked
+# by a state file and external output is read from `hyprctl monitors all -j`.
 
 set -e
 
 STATE_DIR="$HOME/.local/state/r2-d2/toggles"
 STATE_FILE="$STATE_DIR/display-mirror"
 
-MONITORS_JSON=$(hyprctl monitors -j 2>/dev/null)
-COUNT=$(echo "$MONITORS_JSON" | jq 'length')
+# monitors -j hides mirrored outputs; monitors all -j includes them.
+ALL_MONITORS_JSON=$(hyprctl monitors all -j 2>/dev/null)
+COUNT=$(echo "$ALL_MONITORS_JSON" | jq '[.[] | select(.disabled | not)] | length')
 
 if ((COUNT < 2)); then
   notify-send "Display mirror" "Connect an external monitor first"
   exit 0
 fi
 
-BUILTIN=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1)
-EXTERNAL=$(echo "$MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
+BUILTIN=$(echo "$ALL_MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1)
+EXTERNAL=$(echo "$ALL_MONITORS_JSON" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
 
 if [[ -z $BUILTIN ]] || [[ -z $EXTERNAL ]]; then
   notify-send "Display mirror" "Could not identify built-in and external monitors"
