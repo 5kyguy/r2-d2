@@ -12,9 +12,22 @@ set -euo pipefail
 
 # ── Checks ───────────────────────────────────────────────────────────────
 
-if ls /dev/video* >/dev/null 2>&1; then
-  echo "Webcam already working — no fix needed."
-  notify-send "📷  Webcam already working" 2>/dev/null || true
+# Only count the webcam as working if the ISP4 capture module is loaded and has
+# bound the platform device. Other V4L2 devices (e.g. an external USB webcam via
+# uvcvideo) also create /dev/video* and must NOT short-circuit the fix.
+#
+# The module is named `amd_capture` but registers its platform driver as
+# `amd_isp_capture` and binds the `amd_isp_capture.*.auto` device, so check the
+# sysfs bind rather than the module's refcount (which stays 0 until an app
+# actually streams).
+webcam_is_working() {
+  lsmod | grep -q '^amd_capture ' && \
+    ls /sys/bus/platform/drivers/amd_isp_capture/amd_isp_capture.*.auto >/dev/null 2>&1
+}
+
+if webcam_is_working; then
+  echo "AMD ISP4 webcam already working — no fix needed."
+  notify-send "📷  AMD ISP4 webcam already working" 2>/dev/null || true
   exit 0
 fi
 
@@ -227,9 +240,9 @@ sudo modprobe amd_capture 2>/dev/null || sudo insmod "/usr/lib/modules/$KVER/ext
 
 sleep 2
 
-if ls /dev/video* >/dev/null 2>&1; then
-  echo "SUCCESS: Webcam is now working!"
-  notify-send "📷  Webcam fixed — working!" 2>/dev/null || true
+if webcam_is_working; then
+  echo "SUCCESS: AMD ISP4 webcam is now working!"
+  notify-send "📷  AMD ISP4 webcam fixed — working!" 2>/dev/null || true
 else
   echo "Drivers installed and loaded. You may need to reboot for the webcam to appear."
   notify-send "📷  Drivers installed — reboot may be needed" 2>/dev/null || true
