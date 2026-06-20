@@ -38,6 +38,11 @@ ensure_k2so_source() {
 
 ensure_k2so_source
 
+if ! command -v opencode &>/dev/null; then
+  echo "Installing OpenCode…"
+  bash "$R2D2_PATH/install/packaging/opencode.sh"
+fi
+
 echo "Building k-2so…"
 (cd "$K2SO_DIR" && npm ci && npm run build)
 
@@ -52,7 +57,7 @@ chmod +x "$HOME/.local/bin/k2so"
 echo "Building r2d2-mcp…"
 (cd "$R2D2_PATH/mcp/r2d2" && npm ci && npm run build)
 
-mkdir -p "$HOME/.config/r2-d2"
+mkdir -p "$HOME/.config/r2-d2" "$HOME/.config/k2so" "$HOME/.config/opencode"
 if [[ ! -f $HOME/.config/r2-d2/k2so.env ]]; then
   cp "$R2D2_PATH/config/r2-d2/k2so.env.example" "$HOME/.config/r2-d2/k2so.env"
   echo "Created ~/.config/r2-d2/k2so.env — add your ZAI_API_KEY"
