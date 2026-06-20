@@ -158,6 +158,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
 | **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
 | **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
+| **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
 | **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
 
 Background/wallpaper and accent theme are set via the background selector (**Super + Ctrl + Space**), not via the Install menu.

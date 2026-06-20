@@ -252,7 +252,7 @@ show_restart_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n  Dictation (Voxtype)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n  Dictation (Voxtype)\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
   *Package*) terminal r2-d2-pkg-install ;;
   *AUR*) terminal r2-d2-pkg-aur-install ;;
   *Web*) present_terminal r2-d2-webapp-install ;;
@@ -261,6 +261,7 @@ show_install_menu() {
   *Development*) show_install_development_menu ;;
   *Editor*) show_install_editor_menu ;;
   *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;
+  *"K-2SO (companion)"*) present_terminal r2-d2-install-k2so ;;
   *Gaming*) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
   *Dropbox*) present_terminal r2-d2-install-dropbox ;;
   *Tailscale*) present_terminal r2-d2-install-tailscale ;;

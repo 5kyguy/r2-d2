@@ -44,6 +44,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 | **Development** | Docker DB, Node.js, Go, Python, Rust |
 | **Editor** | VS Code, T3 Code (`r2-d2-install-editor`) |
 | **Dictation (Voxtype)** | Install Voxtype + model + systemd service |
+| **K-2SO (companion)** | Install K-2SO background agent + `r2d2-mcp` (`r2-d2-install-k2so`) |
 | **Gaming** | Steam and Xbox controllers |
 | **Dropbox** | Install Dropbox |
 | **Tailscale** | Install Tailscale |

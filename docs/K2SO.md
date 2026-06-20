@@ -8,7 +8,7 @@ K-2SO is the **brains** (background agent). R2-D2 is the **body** (`r2d2-mcp` to
 r2-d2-install-k2so
 ```
 
-Requires the [k-2so](https://github.com/5kyguy/k-2so) repo at `$R2D2_PATH/k-2so` (nested clone or set `K2SO_DIR`).
+Clones [k-2so](https://github.com/5kyguy/k-2so) into `$R2D2_PATH/k-2so` when missing (override with `K2SO_DIR` / `K2SO_REPO` / `K2SO_BRANCH`).
 
 1. Builds `k2so` and links `~/.local/bin/k2so`
 2. Builds `mcp/r2d2`
@@ -26,7 +26,7 @@ Set `ZAI_API_KEY` for the Z.AI GLM Coding Plan (used by OpenCode).
 ## Usage
 
 | Input | Action |
-|-------|--------|
+| ----- | ------ |
 | **Super + A** | Text prompt → `k2so ask` |
 | **Super + Shift + A** | Voice via Voxtype → `k2so ask` |
 | `k2so open` | Dashboard via on-demand HTTP bridge (Unix socket daemon) |
