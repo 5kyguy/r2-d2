@@ -12,7 +12,7 @@ mkdir -p ~/.config
 for item in "$R2D2_PATH"/config/*; do
   name=$(basename "$item")
 
-  if [[ $name == Cursor || $name == Code ]]; then
+  if [[ $name == Cursor || $name == Code || $name == opencode ]]; then
     continue
   fi
 

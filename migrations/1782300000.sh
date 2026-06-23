@@ -7,7 +7,8 @@ if ! systemctl --user is-enabled k2so.service &>/dev/null; then
 fi
 
 r2-d2-refresh-config k2so/profile.toml
-r2-d2-refresh-config opencode/opencode.json
+r2-d2-ensure-k2so-secrets
+r2-d2-merge-k2so-opencode
 
 mkdir -p "$HOME/.config/systemd/user"
 cp "$R2D2_PATH/default/config/systemd/user/k2so.service" "$HOME/.config/systemd/user/"

@@ -8,7 +8,6 @@ ExecStart=%h/.local/bin/k2so serve
 Environment=K2SO_PROFILE=%h/.config/k2so/profile.toml
 Environment=R2D2_PATH=%h/.local/share/r2-d2
 Environment=PATH=%h/.opencode/bin:%h/.local/share/r2-d2/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
-EnvironmentFile=-%h/.config/r2-d2/k2so.env
 Restart=on-failure
 RestartSec=5
 

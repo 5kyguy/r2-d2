@@ -4,5 +4,5 @@
 
 if gum confirm "Install K-2SO background agent (Node.js, builds from k-2so repo)?"; then
   bash "${R2D2_PATH:-$HOME/.local/share/r2-d2}/install/packaging/k2so.sh"
-  notify-send "K-2SO" "Installed. Super+A to ask, Super+Shift+A for voice.\nSet ZAI_API_KEY in ~/.config/r2-d2/k2so.env" -t 12000
+  notify-send "K-2SO" "Installed. Super+A to ask, Super+Shift+A for voice.\nAdd your Z.AI key to ~/.config/r2-d2/zai-api-key" -t 12000
 fi

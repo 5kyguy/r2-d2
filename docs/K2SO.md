@@ -12,16 +12,20 @@ Clones [k-2so](https://github.com/5kyguy/k-2so) into `$R2D2_PATH/k-2so` when mis
 
 1. Builds `k2so` and links `~/.local/bin/k2so`
 2. Builds `mcp/r2d2`
-3. Syncs `~/.config/k2so/profile.toml` and `~/.config/opencode/opencode.json`
-4. Enables `k2so.service` (user systemd)
+3. Merges K-2SO blocks into `~/.config/opencode/opencode.json` (does not replace an existing OpenCode setup)
+4. Writes `~/.config/k2so/profile.toml` when absent
+5. Enables `k2so.service` (user systemd)
 
 ## API key
 
 ```bash
-$EDITOR ~/.config/r2-d2/k2so.env
+$EDITOR ~/.config/r2-d2/zai-api-key
+chmod 600 ~/.config/r2-d2/zai-api-key
 ```
 
-Set `ZAI_API_KEY` for the Z.AI GLM Coding Plan (used by OpenCode).
+Add your Z.AI API key as a single raw line (no `KEY=` prefix). OpenCode reads it via `{file:...}` so standalone `opencode` and the K-2SO daemon both work without exporting shell variables.
+
+If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensure-k2so-secrets` migrates `ZAI_API_KEY` into `zai-api-key` on the next install or migration.
 
 ## Usage
 

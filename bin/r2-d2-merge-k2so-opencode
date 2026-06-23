@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Install or merge R2-D2 K-2SO blocks into ~/.config/opencode/opencode.json.
+# Never replaces an existing provider/model setup — only adds r2d2 MCP + k2so agent.
+# Fresh installs get the full repo template.
+
+set -euo pipefail
+
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+user_config="${HOME}/.config/opencode/opencode.json"
+repo_config="${R2D2_PATH}/config/opencode/opencode.json"
+zai_key_file="${HOME}/.config/r2-d2/zai-api-key"
+
+if ! command -v jq &>/dev/null; then
+  echo "r2-d2-merge-k2so-opencode: jq is required" >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$user_config")"
+
+if [[ ! -f $user_config ]]; then
+  cp "$repo_config" "$user_config"
+  echo "Installed default OpenCode config -> $user_config"
+  exit 0
+fi
+
+tmp="${user_config}.tmp.$$"
+jq -s --arg key_file "$zai_key_file" '
+  .[0] as $user |
+  .[1] as $repo |
+  $user |
+  .mcp = (($user.mcp // {}) + { r2d2: $repo.mcp.r2d2 }) |
+  .agent = (($user.agent // {}) + { k2so: $repo.agent.k2so }) |
+  if (.provider["zai-coding"].options.apiKey? == "{env:ZAI_API_KEY}") then
+    .provider["zai-coding"].options.apiKey = "{file:\($key_file)}"
+  else . end
+' "$user_config" "$repo_config" >"$tmp"
+mv "$tmp" "$user_config"
+echo "Merged K-2SO OpenCode blocks into $user_config (provider/model unchanged)"

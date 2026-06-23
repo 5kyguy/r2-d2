@@ -50,21 +50,23 @@ mkdir -p "$HOME/.local/bin"
 rm -f "$HOME/.local/bin/k2so"
 cat >"$HOME/.local/bin/k2so" <<EOF
 #!/bin/bash
-exec node "$K2SO_DIR/dist/cli.js" "\$@"
+exec node "$K2SO_DIR/dist/cli.js" "\"
 EOF
 chmod +x "$HOME/.local/bin/k2so"
 
 echo "Building r2d2-mcp…"
 (cd "$R2D2_PATH/mcp/r2d2" && npm ci && npm run build)
 
-mkdir -p "$HOME/.config/r2-d2" "$HOME/.config/k2so" "$HOME/.config/opencode"
-if [[ ! -f $HOME/.config/r2-d2/k2so.env ]]; then
-  cp "$R2D2_PATH/config/r2-d2/k2so.env.example" "$HOME/.config/r2-d2/k2so.env"
-  echo "Created ~/.config/r2-d2/k2so.env — add your ZAI_API_KEY"
-fi
+mkdir -p "$HOME/.config/k2so" "$HOME/.config/opencode"
 
-r2-d2-refresh-config k2so/profile.toml
-r2-d2-refresh-config opencode/opencode.json
+r2-d2-ensure-k2so-secrets
+r2-d2-merge-k2so-opencode
+
+if [[ ! -f $HOME/.config/k2so/profile.toml ]]; then
+  cp "$R2D2_PATH/config/k2so/profile.toml" "$HOME/.config/k2so/profile.toml"
+else
+  echo "Existing K-2SO profile found at ~/.config/k2so/profile.toml (untouched)"
+fi
 
 mkdir -p "$HOME/.config/systemd/user"
 cp "$R2D2_PATH/default/config/systemd/user/k2so.service" "$HOME/.config/systemd/user/"

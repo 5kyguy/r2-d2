@@ -7,7 +7,7 @@
       "name": "Z.AI GLM Coding Plan",
       "options": {
         "baseURL": "https://api.z.ai/api/coding/paas/v4",
-        "apiKey": "{env:ZAI_API_KEY}"
+        "apiKey": "{file:~/.config/r2-d2/zai-api-key}"
       },
       "models": {
         "glm-5.2": { "name": "GLM-5.2" },
