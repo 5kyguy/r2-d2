@@ -4,7 +4,7 @@ if command -v limine &>/dev/null; then
   sudo pacman -S --noconfirm --needed limine-snapper-sync limine-mkinitcpio-hook
 
   sudo tee /etc/mkinitcpio.conf.d/r2-d2_hooks.conf <<EOF >/dev/null
-HOOKS=(base udev plymouth keyboard autodetect microcode modconf kms keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+HOOKS=(base udev plymouth keyboard autodetect microcode modconf keymap consolefont block encrypt kms filesystems fsck btrfs-overlayfs)
 EOF
   sudo tee /etc/mkinitcpio.conf.d/thunderbolt_module.conf <<EOF >/dev/null
 MODULES+=(thunderbolt)
@@ -33,6 +33,9 @@ EOF
 
   sudo cp $R2D2_PATH/default/limine/default.conf /etc/default/limine
   sudo sed -i "s|@@CMDLINE@@|$CMDLINE|g" /etc/default/limine
+
+  sudo mkdir -p /etc/limine-entry-tool.d
+  sudo cp $R2D2_PATH/default/limine/rootdelay.conf /etc/limine-entry-tool.d/rootdelay.conf
 
   # Append any drop-in kernel cmdline configs (from hardware fix scripts, etc.)
   for dropin in /etc/limine-entry-tool.d/*.conf; do
