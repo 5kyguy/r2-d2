@@ -7,5 +7,5 @@ ModuleName=script
 ImageDir=/usr/share/plymouth/themes/r2-d2
 ScriptFile=/usr/share/plymouth/themes/r2-d2/r2-d2.script
 ConsoleLogBackgroundColor=0x000000
-MonospaceFont=Cantarell 11
-Font=Cantarell 11
+MonospaceFont=Plymouth Monospace 11
+Font=Plymouth 11
