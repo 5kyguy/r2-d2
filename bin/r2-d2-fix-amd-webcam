@@ -21,7 +21,7 @@ set -euo pipefail
 # sysfs bind rather than the module's refcount (which stays 0 until an app
 # actually streams).
 webcam_is_working() {
-  lsmod | grep -q '^amd_capture ' && \
+  lsmod | grep -q '^amd_capture ' &&
     ls /sys/bus/platform/drivers/amd_isp_capture/amd_isp_capture.*.auto >/dev/null 2>&1
 }
 

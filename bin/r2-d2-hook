@@ -19,5 +19,5 @@ hooks_dir="$R2D2_PATH/hooks/$hook_name"
 
 for f in "$hooks_dir"/*; do
   [[ -x $f && -f $f ]] || continue
-  "$f" "$@" || true
+  "$f" "" || true
 done

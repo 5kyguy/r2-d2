@@ -46,7 +46,7 @@ menu() {
 }
 
 terminal() {
-  xdg-terminal-exec --app-id=org.r2d2.terminal "$@"
+  xdg-terminal-exec --app-id=org.r2d2.terminal ""
 }
 
 present_terminal() {

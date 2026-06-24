@@ -27,7 +27,7 @@ if (($# == 0)); then
   fi
 else
   # Use array to preserve spaces in app names
-  APP_NAMES=("$@")
+  APP_NAMES=("")
 fi
 
 if ((${#APP_NAMES[@]} == 0)); then

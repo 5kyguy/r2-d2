@@ -7,9 +7,9 @@ r2-d2-cmd-present "$EDITOR" || EDITOR=nano
 
 case "$EDITOR" in
 nano)
-  exec r2-d2-launch-tui "$EDITOR" "$@"
+  exec r2-d2-launch-tui "$EDITOR" ""
   ;;
 *)
-  exec setsid uwsm-app -- "$EDITOR" "$@"
+  exec setsid uwsm-app -- "$EDITOR" ""
   ;;
 esac
