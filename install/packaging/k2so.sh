@@ -62,8 +62,11 @@ mkdir -p "$HOME/.config/k2so" "$HOME/.config/opencode"
 r2-d2-ensure-k2so-secrets
 r2-d2-merge-k2so-opencode
 
+# shellcheck source=../helpers/profile.sh
+source "$R2D2_PATH/install/helpers/profile.sh"
+
 if [[ ! -f $HOME/.config/k2so/profile.toml ]]; then
-  cp "$R2D2_PATH/config/k2so/profile.toml" "$HOME/.config/k2so/profile.toml"
+  cp "$(r2d2_config_dir)/k2so/profile.toml" "$HOME/.config/k2so/profile.toml"
 else
   echo "Existing K-2SO profile found at ~/.config/k2so/profile.toml (untouched)"
 fi

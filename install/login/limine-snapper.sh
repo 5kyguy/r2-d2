@@ -3,9 +3,15 @@
 if command -v limine &>/dev/null; then
   sudo pacman -S --noconfirm --needed limine-snapper-sync limine-mkinitcpio-hook
 
-  sudo tee /etc/mkinitcpio.conf.d/r2-d2_hooks.conf <<EOF >/dev/null
+  if r2d2_is_server; then
+    sudo tee /etc/mkinitcpio.conf.d/r2-d2_hooks.conf <<EOF >/dev/null
+HOOKS=(base udev keyboard autodetect microcode modconf keymap consolefont block encrypt filesystems fsck btrfs-overlayfs)
+EOF
+  else
+    sudo tee /etc/mkinitcpio.conf.d/r2-d2_hooks.conf <<EOF >/dev/null
 HOOKS=(base udev plymouth keyboard autodetect microcode modconf keymap consolefont block encrypt kms filesystems fsck btrfs-overlayfs)
 EOF
+  fi
   sudo tee /etc/mkinitcpio.conf.d/thunderbolt_module.conf <<EOF >/dev/null
 MODULES+=(thunderbolt)
 EOF

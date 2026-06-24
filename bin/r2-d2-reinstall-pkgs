@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+# shellcheck source=../install/helpers/profile.sh
+source "$R2D2_PATH/install/helpers/profile.sh"
+
 # Reinstall all default R2-D2 packages from the stable channel and downgrade any packages that are too new.
 
 # Set the package repository to the stable mirrors
@@ -10,5 +14,10 @@ r2-d2-refresh-pacman
 sudo pacman -Suu --noconfirm
 
 # Ensure all packages are installed
-mapfile -t packages < <(grep -v '^#' "$R2D2_PATH/install/r2-d2-base.packages" | grep -v '^$')
+mapfile -t packages < <(r2d2_all_packages)
 sudo pacman -Syu --noconfirm --needed "${packages[@]}"
+
+mapfile -t aur_packages < <(r2d2_aur_packages)
+if ((${#aur_packages[@]} > 0)) && r2d2-pkg-aur-accessible; then
+  r2-d2-pkg-aur-add "${aur_packages[@]}"
+fi

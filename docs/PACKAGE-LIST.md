@@ -6,173 +6,143 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 1. Install process – what gets installed
 
-### 1.1 Preflight (`install/preflight/`)
+### 1.1 Profile and package lists
+
+`boot.sh` writes the install profile to `~/.config/r2-d2/profile` (`desktop` or `server`).
+
+| List | Desktop | Server |
+| ---- | ------- | ------ |
+| **`install/r2-d2-core.packages`** | yes | yes |
+| **`install/r2-d2-desktop.packages`** | yes | no |
+| **`install/r2-d2-desktop.aur.packages`** | yes | no |
+
+Server is a strict subset of desktop: desktop installs **core + desktop**; server installs **core only**.
+
+### 1.2 Preflight (`install/preflight/`)
 
 - **pacman.sh** — Installs **base-devel**; copies pacman.conf and mirrorlist; imports Omarchy key and installs **omarchy-keyring**; full sync and upgrade (`pacman -Syyuu`).
-- All desktop and app packages are in **`install/r2-d2-base.packages`** (single pacman list).
 
-### 1.2 Packaging – base packages (`install/packaging/base.sh`)
+### 1.3 Packaging (`install/packaging/base.sh`)
 
-- **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (brave-origin-nightly-bin, cursor-bin, helium-browser-bin).
-- **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
+- **Pacman:** Profile-aware install from the lists above.
+- **AUR (desktop only):** `brave-origin-nightly-bin`, `cursor-bin`, `helium-browser-bin` via yay.
+- **Server extras:** `k2so.sh` runs automatically on server profile (desktop: optional via menu).
+- **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`).
 
-### 1.3 Packaging – other steps
+### 1.4 Packaging – other steps
+
+| Script | Desktop | Server |
+| ------ | ------- | ------ |
+| **opencode.sh** | yes | yes |
+| **fonts.sh** | yes | no |
+| **icons.sh** | yes | no |
+| **webapps.sh** | yes | no |
+| **tuis.sh** | yes | no |
+| **k2so.sh** | menu only | yes |
+
+### 1.5 Config – keyboard (keyd, desktop only)
 
 | Script | What |
 | ------ | ---- |
-| **opencode.sh** | **Opencode** via the official curl installer (`~/.opencode/bin`). |
-| **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
-| **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
-| **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
-| **tuis.sh** | Reserved for optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`). |
+| **keyd.sh** | Deploy `default/keyd/default.conf` to `/etc/keyd/`; enable **keyd** service. |
 
-### 1.4 Config – keyboard (keyd)
-
-| Script | What |
-| ------ | ---- |
-| **keyd.sh** | Deploy `default/keyd/default.conf` to `/etc/keyd/`; enable **keyd** service. Swaps Caps Lock and Left Super so Hyprland Super bindings use the Caps key. |
-
-### 1.5 Config – conditional packages
+### 1.6 Config – conditional packages (desktop only)
 
 | Script | Condition | Packages |
 | ------ | --------- | -------- |
 | **config/hardware/vulkan.sh** | AMD GPU (lspci VGA/Display) | **vulkan-radeon** |
 
-### 1.6 Login
+### 1.7 Login
 
-| Script | What |
-| ------ | ---- |
-| **login/limine-snapper.sh** | If **limine** is present: **limine-snapper-sync**, **limine-mkinitcpio-hook** (and mkinitcpio/snapper config). |
-
-### 1.7 boot.sh (curl install)
-
-- Installs **git**, then clones the repo and runs `install.sh`. Used for install, update, and repair from a running Arch system (no ISO).
+| Profile | What |
+| ------- | ---- |
+| **desktop** | plymouth, SDDM, default keyring, limine-snapper |
+| **server** | `multi-user.target`, `sshd`, limine-snapper (headless hooks) |
 
 ---
 
-## 2. Base packages by purpose (`install/r2-d2-base.packages`)
+## 2. Core packages (`install/r2-d2-core.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **162** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+Installed on **every** profile. **85** pacman packages.
 
-### System and base
+### System and boot
 
-base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd, omarchy-keyring
+base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, omarchy-keyring, yay, yay-debug
 
-### Compositor and session
+### Server / remote / security
 
-hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, hyprland-preview-share-picker, swaybg, swayosd, waybar, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
+openssh, polkit, logrotate, ufw, ufw-docker
+
+### Containers (CLI)
+
+docker, docker-buildx, docker-compose
 
 ### Shell and CLI
 
-bash-completion, bat, eza, fd, fzf, less, ripgrep, starship, tmux, zoxide, tldr, gum, expac, man-db, wget, nano
+bash-completion, bat, eza, fd, fzf, less, ripgrep, starship, tmux, zoxide, tldr, gum, expac, man-db, wget, nano, tree, jq, just, dust, usage, btop, inxi, fastfetch
 
-### Terminal
+### Development (no clang/llvm)
 
-alacritty. Alacritty is the default terminal (`default/config/xdg-terminals.list`; terminal `.desktop` files come from `applications/` via `r2-d2-refresh-applications` in `mimetypes.sh`).
+git, github-cli, python-pip, python-poetry-core, python-gobject, python-terminaltexteffects, luarocks, pnpm, yarn, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, plocate, impala
 
-### Audio
+### Network
 
-pipewire, pipewire-alsa, pipewire-jack, pipewire-pulse, wireplumber, pamixer, wiremix, libpulse, gst-plugin-pipewire, alsa-utils, playerctl
+iwd, avahi, nss-mdns, inetutils, net-tools, wireless-regdb
 
-### Network and discovery
+### Secrets
 
-iwd, avahi, nss-mdns, inetutils, net-tools
+gnome-keyring, libsecret, keychain
 
-### Fonts and icons
+### Power (laptop)
 
-fontconfig, noto-fonts, noto-fonts-emoji, ttf-cascadia-mono-nerd, woff2-font-awesome, yaru-icon-theme
+power-profiles-daemon, bolt
 
-### Secrets and session
+### Fonts (CLI)
 
-gnome-keyring, polkit-gnome, libsecret
-
-### Portals and XDG
-
-xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland, xdg-terminal-exec
-
-### Screenshot, capture, sharing
-
-grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, localsend, ffmpegthumbnailer
-
-### File manager and GVfs
-
-nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader
-
-### Browsers and default apps
-
-chromium (fallback). Default browser is **Brave Origin** (AUR package `brave-origin-nightly-bin`); **Helium** is used for web apps when available.
-
-### Containers and Docker
-
-docker, docker-buildx, docker-compose, lazydocker
-
-### Development and runtimes (base list)
-
-git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, python-terminaltexteffects, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
-
-### System info and monitoring
-
-btop, inxi, fastfetch, dust, usage, brightnessctl
-
-### Printing
-
-cups, cups-browsed, cups-filters, cups-pdf, system-config-printer
-
-### Power and hardware
-
-power-profiles-daemon, bolt, wireless-regdb
-
-### Notifications and OSD
-
-mako, swayosd
-
-### Apps and tools (user-facing)
-
-gnome-calculator, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kdenlive, obs-studio, steam
-
-### Firewall and security
-
-ufw, ufw-docker
-
-### App launcher and helpers
-
-omarchy-walker, flatpak
+fontconfig, noto-fonts, ttf-cascadia-mono-nerd, ttf-jetbrains-mono-nerd
 
 ### Misc
 
-plocate, whois, tzupdate, unzip, exfatprogs, impala, bluetui, wtype
+whois, tzupdate, unzip, exfatprogs, fuse2
 
 ---
 
-## 3. Install menu – what can be installed from the menu
+## 3. Desktop-only packages (`install/r2-d2-desktop.packages`)
 
-Everything below is **optional** from the menu (Install → …). No pacman package is added unless the user picks an option.
+**78** additional pacman packages on desktop profile only.
+
+Includes: Hyprland stack, SDDM, Plymouth, Flatpak, Elephant/Walker, browsers (`chromium`), audio/pipewire UI, capture tools, file managers, media apps, printing, `keyd`, `makima-bin`, **lazygit**, **lazydocker**, and related desktop dependencies.
+
+### Desktop AUR (`install/r2-d2-desktop.aur.packages`)
+
+brave-origin-nightly-bin, cursor-bin, helium-browser-bin
+
+---
+
+## 4. Install menu – optionals
+
+Everything below is **optional** from the menu unless noted. Server profile skips most GUI-oriented entries.
 
 | Menu entry | What |
 | ---------- | ---- |
-| **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
-| **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
-| **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
-| **TUI** | `r2-d2-tui-install` — add a TUI shortcut. |
-| **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
-| **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
-| **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
-| **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
-| **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
-
-Background/wallpaper and accent theme are set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
+| **Package** | `r2-d2-pkg-install` — any official repo package. |
+| **AUR** | `r2-d2-pkg-aur-install` — any AUR package. |
+| **Web App** | Desktop only — web app shortcuts. |
+| **TUI** | Desktop only — TUI shortcuts. |
+| **Development** | Docker DB, Node.js, Go, Python, Rust. |
+| **Editor** | Desktop — VS Code, T3 Code. Cursor is desktop default (AUR). |
+| **Dictation (Voxtype)** | Optional on either profile. |
+| **K-2SO (companion)** | Auto on server install; menu on desktop. |
+| **Gaming** | Desktop — Steam, Xbox controllers. |
 
 ---
 
-## 4. Summary
+## 5. Summary
 
-- **Base pacman packages:** 162 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
-- **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
-- **Default web apps:** 3 (WhatsApp, YouTube, X).
-- **Default TUI shortcuts:** none (add via Install → TUI).
-- **Default editors:** Cursor (AUR), Opencode (curl installer).
-- **Menu-installable:** Package (any), AUR (any), Web App, TUI, Development runtimes, Editor (VS Code, T3 Code), Gaming (Steam, Xbox controllers).
+- **Core pacman packages:** 85 (`install/r2-d2-core.packages`) — server + desktop.
+- **Desktop-only pacman packages:** 78 (`install/r2-d2-desktop.packages`).
+- **Desktop AUR:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
+- **Removed from all lists:** clang, llvm (editor build tooling no longer needed).
+- **Desktop-only dev TUIs:** lazygit, lazydocker (server keeps docker CLI only).
 
-Use this list to adjust `install/r2-d2-base.packages` and menu entries when moving items between defaults and optionals.
+Use the core/desktop split when moving packages between server and workstation defaults.

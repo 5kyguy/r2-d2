@@ -13,6 +13,33 @@ ansi_art='     ▄▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄▄        ▄�
 clear
 echo -e "\n$ansi_art\n"
 
+r2d2_choose_profile() {
+  local profile_file="$HOME/.config/r2-d2/profile"
+  mkdir -p "$(dirname "$profile_file")"
+
+  if [[ -f $profile_file ]]; then
+    echo "Existing install profile: $(<"$profile_file")"
+    read -r -p "Keep it? [Y/n] " keep
+    if [[ ${keep,,} != n ]]; then
+      return
+    fi
+  fi
+
+  echo
+  echo "Install profile:"
+  echo "  1) desktop  — Hyprland workstation (default)"
+  echo "  2) server   — headless (SSH, Docker, K-2SO, no GUI stack)"
+  read -r -p "Choice [1]: " choice
+  case "${choice:-1}" in
+    2 | server) echo server >"$profile_file" ;;
+    *) echo desktop >"$profile_file" ;;
+  esac
+  echo "Profile set to: $(<"$profile_file")"
+  echo
+}
+
+r2d2_choose_profile
+
 # Always use stable mirror first; on failure refresh mirrorlist (fallback to Arch mirrors) and retry
 set_stable_mirror() {
   echo 'Server = https://stable-mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null

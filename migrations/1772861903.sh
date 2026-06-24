@@ -1,5 +1,11 @@
 #!/bin/bash
 
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+# shellcheck source=../install/helpers/profile.sh
+source "$R2D2_PATH/install/helpers/profile.sh"
+r2d2_skip_if_server
+
+
 echo "Move repo-managed support assets from config/ to default/config"
 
 bash "$R2D2_PATH/install/config/default-config.sh"
