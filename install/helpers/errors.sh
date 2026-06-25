@@ -10,11 +10,15 @@ show_cursor() {
 
 # Display truncated log lines from the install log
 show_log_tail() {
-  if [[ -f $R2D2_INSTALL_LOG_FILE ]]; then
-    local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 8))
-    local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
+  if [[ ! -f ${R2D2_INSTALL_LOG_FILE:-} ]]; then
+    return 0
+  fi
 
-    tail -n $log_lines "$R2D2_INSTALL_LOG_FILE" | while IFS= read -r line; do
+  local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 8))
+  ((log_lines < 1)) && log_lines=20
+  local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
+
+  tail -n "$log_lines" "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | while IFS= read -r line; do
       if ((${#line} > max_line_width)); then
         local truncated_line="${line:0:max_line_width}..."
       else
@@ -22,10 +26,9 @@ show_log_tail() {
       fi
 
       gum style "$truncated_line"
-    done
+    done || true
 
-    echo
-  fi
+  echo
 }
 
 # Display the failed command or script name
@@ -69,6 +72,9 @@ catch_errors() {
 
   # Store exit code immediately before it gets overwritten
   local exit_code=$?
+
+  set +e
+  set +o pipefail
 
   stop_log_output
   restore_outputs
