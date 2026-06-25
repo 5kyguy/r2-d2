@@ -120,11 +120,19 @@ stop_install_log() {
   fi
 }
 
+ensure_install_log() {
+  if [[ ! -f $R2D2_INSTALL_LOG_FILE ]]; then
+    sudo touch "$R2D2_INSTALL_LOG_FILE"
+    sudo chmod 666 "$R2D2_INSTALL_LOG_FILE"
+  fi
+}
+
 run_logged() {
   local script="$1"
 
   export CURRENT_SCRIPT="$script"
 
+  ensure_install_log
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$R2D2_INSTALL_LOG_FILE"
 
   # Use bash -c to create a clean subshell

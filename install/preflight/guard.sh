@@ -1,9 +1,16 @@
 #!/bin/bash
 
 abort() {
-  echo -e "\e[31mR2-D2 install requires: $1\e[0m"
-  echo
-  gum confirm "Proceed anyway on your own accord and without assistance?" || exit 1
+  local tty=/dev/tty
+  if [[ ! -e $tty ]]; then
+    echo -e "\e[31mR2-D2 install requires: $1\e[0m" >&2
+    exit 1
+  fi
+
+  echo -e "\e[31mR2-D2 install requires: $1\e[0m" >"$tty"
+  echo >"$tty"
+  read -r -p "Proceed anyway on your own accord and without assistance? [y/N] " answer <"$tty"
+  [[ ${answer,,} == y ]] || exit 1
 }
 
 # Must be an Arch distro
