@@ -21,8 +21,11 @@ sudo systemctl restart systemd-resolved
 # Start Docker on-demand
 sudo systemctl enable docker.socket
 
-# Give this user privileged Docker access
-sudo usermod -aG docker ${USER}
+# Give this user privileged Docker access (group is created by the docker package)
+r2-d2-pkg-add docker
+if getent group docker >/dev/null; then
+  sudo usermod -aG docker "$USER"
+fi
 
 # Prevent Docker from preventing boot for network-online.target
 sudo mkdir -p /etc/systemd/system/docker.service.d

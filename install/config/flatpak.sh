@@ -1,5 +1,5 @@
 #!/bin/bash
 
 # Add Flathub remote so Flatpak apps can be installed
-# (flatpak is in r2-d2-desktop.packages; xdg-desktop-portal-* already configured)
+r2-d2-pkg-add flatpak
 flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
