@@ -135,8 +135,14 @@ run_logged() {
   ensure_install_log
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$R2D2_INSTALL_LOG_FILE"
 
-  # Use bash -c to create a clean subshell; keep a sane PATH when the parent had none.
-  bash -c "export PATH=\"$R2D2_PATH/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\${PATH}\"; source '$script'" </dev/null >>"$R2D2_INSTALL_LOG_FILE" 2>&1
+  bash -c "
+    export PATH=\"$R2D2_PATH/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\${PATH}\"
+    export R2D2_PATH=\"$R2D2_PATH\"
+    export R2D2_INSTALL=\"$R2D2_INSTALL\"
+    export R2D2_INSTALL_LOG_FILE=\"$R2D2_INSTALL_LOG_FILE\"
+    source '$R2D2_INSTALL/helpers/profile.sh'
+    source '$script'
+  " </dev/null >>"$R2D2_INSTALL_LOG_FILE" 2>&1
 
   local exit_code=$?
 
