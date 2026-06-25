@@ -13,13 +13,22 @@ ansi_art='     ▄▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄▄        ▄�
 clear
 echo -e "\n$ansi_art\n"
 
+r2d2_read_tty() {
+  # curl | bash leaves stdin as the pipe; read prompts need the real terminal.
+  if [[ -e /dev/tty ]]; then
+    read -r "$@" </dev/tty
+  else
+    read -r "$@"
+  fi
+}
+
 r2d2_choose_profile() {
   local profile_file="$HOME/.config/r2-d2/profile"
   mkdir -p "$(dirname "$profile_file")"
 
   if [[ -f $profile_file ]]; then
     echo "Existing install profile: $(<"$profile_file")"
-    read -r -p "Keep it? [Y/n] " keep
+    r2d2_read_tty -p "Keep it? [Y/n] " keep
     if [[ ${keep,,} != n ]]; then
       return
     fi
@@ -29,7 +38,7 @@ r2d2_choose_profile() {
   echo "Install profile:"
   echo "  1) desktop  — Hyprland workstation (default)"
   echo "  2) server   — headless (SSH, Docker, K-2SO, no GUI stack)"
-  read -r -p "Choice [1]: " choice
+  r2d2_read_tty -p "Choice [1]: " choice
   case "${choice:-1}" in
     2 | server) echo server >"$profile_file" ;;
     *) echo desktop >"$profile_file" ;;
