@@ -141,6 +141,7 @@ run_logged() {
     export R2D2_INSTALL=\"$R2D2_INSTALL\"
     export R2D2_INSTALL_LOG_FILE=\"$R2D2_INSTALL_LOG_FILE\"
     source '$R2D2_INSTALL/helpers/profile.sh'
+    source '$R2D2_INSTALL/helpers/chroot.sh'
     source '$script'
   " </dev/null >>"$R2D2_INSTALL_LOG_FILE" 2>&1
 

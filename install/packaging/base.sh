@@ -16,6 +16,8 @@ echo "All profile package lists are installed."
 
 mapfile -t aur_packages < <(r2d2_aur_packages)
 if ((${#aur_packages[@]} > 0)); then
+  r2-d2-pkg-ensure-yay || exit 1
+
   while r2d2-pkg-missing "${aur_packages[@]}"; do
     echo "Installing AUR packages (retrying until all are installed)..."
     r2d2-pkg-aur-add "${aur_packages[@]}" || true

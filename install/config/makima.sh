@@ -3,6 +3,8 @@
 # Remap Copilot key (Super+Shift+F23) to Super+Alt+Space (R2-D2 menu) using makima
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
+r2-d2-pkg-aur-add makima-bin
+
 mkdir -p "$HOME/.config/makima"
 cp "$R2D2_PATH/default/makima/AT Translated Set 2 Keyboard.toml" "$HOME/.config/makima/"
 
@@ -15,4 +17,4 @@ Environment="MAKIMA_CONFIG=/home/$USER/.config/makima"
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl enable --now makima 2>/dev/null || true
+chrootable_systemctl_enable makima.service

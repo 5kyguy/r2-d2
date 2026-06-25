@@ -1,5 +1,7 @@
 #!/bin/bash
 
+r2-d2-pkg-add ufw ufw-docker
+
 # Allow nothing in, everything out
 sudo ufw default deny incoming
 sudo ufw default allow outgoing

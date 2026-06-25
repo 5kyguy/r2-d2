@@ -2,6 +2,8 @@
 
 # Add the named packages to the system from the AUR if they're missing. Returns false if it couldn't be done.
 
+r2-d2-pkg-ensure-yay || exit 1
+
 if r2-d2-pkg-missing "$@"; then
   yay -S --noconfirm --needed "$@" || exit 1
 fi

@@ -19,10 +19,10 @@ echo -e '[Resolve]\nDNSStubListenerExtra=172.17.0.1' | sudo tee /etc/systemd/res
 sudo systemctl restart systemd-resolved
 
 # Start Docker on-demand
-sudo systemctl enable docker.socket
+r2-d2-pkg-add docker
+chrootable_systemctl_enable docker.socket docker
 
 # Give this user privileged Docker access (group is created by the docker package)
-r2-d2-pkg-add docker
 if getent group docker >/dev/null; then
   sudo usermod -aG docker "$USER"
 fi

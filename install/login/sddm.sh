@@ -21,5 +21,6 @@ fi
 sudo sed -i '/-auth.*pam_gnome_keyring\.so/d' /etc/pam.d/sddm
 sudo sed -i '/-password.*pam_gnome_keyring\.so/d' /etc/pam.d/sddm
 
-# Don't use chrootable here as --now will cause issues for manual installs
+# Don't use --now here; it can cause issues for manual installs
+r2-d2-pkg-add sddm
 sudo systemctl enable sddm.service

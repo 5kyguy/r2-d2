@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Ensure yay exists before any AUR install (omarchy repo or AUR bootstrap).
+
+if r2-d2-cmd-present yay; then
+  exit 0
+fi
+
+echo "Installing yay..."
+
+if r2-d2-pkg-missing yay; then
+  r2-d2-pkg-add yay || true
+fi
+
+if r2-d2-cmd-present yay; then
+  exit 0
+fi
+
+echo "Bootstrapping yay from AUR source..."
+
+r2-d2-pkg-add base-devel git
+
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+if ! git clone https://aur.archlinux.org/yay.git "$tmp/yay"; then
+  echo "Failed to clone yay from AUR" >&2
+  exit 1
+fi
+
+if ! (cd "$tmp/yay" && makepkg -si --noconfirm); then
+  echo "Failed to build yay from AUR" >&2
+  exit 1
+fi
+
+r2-d2-cmd-present yay
