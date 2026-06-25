@@ -1,14 +1,33 @@
 #!/bin/bash
 
+# Install is done — cosmetic effects must not trip the error handler.
+set +e
+set +o pipefail
+
 stop_install_log
 
+LOGO_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}/assets/logo.txt"
+
 echo_in_style() {
-  echo "$1" | tte --canvas-width 0 --anchor-text c --frame-rate 640 print
+  local msg=$1
+  if command -v tte &>/dev/null; then
+    echo "$msg" | tte --canvas-width 0 --anchor-text c --frame-rate 640 print 2>/dev/null || echo "$msg"
+  else
+    echo "$msg"
+  fi
+}
+
+show_finish_logo() {
+  if command -v tte &>/dev/null && [[ -f $LOGO_PATH ]]; then
+    tte -i "$LOGO_PATH" --canvas-width 0 --anchor-text c --frame-rate 920 laseretch 2>/dev/null || cat "$LOGO_PATH"
+  elif [[ -f $LOGO_PATH ]]; then
+    cat "$LOGO_PATH"
+  fi
 }
 
 clear
 echo
-tte -i ~/.local/share/r2-d2/assets/logo.txt --canvas-width 0 --anchor-text c --frame-rate 920 laseretch
+show_finish_logo
 echo
 
 # Display installation time (from log or persisted file) and persist for later
@@ -28,15 +47,18 @@ else
   echo_in_style "Finished installing"
 fi
 
-# Remove passwordless-reboot sudoers file created by allow-reboot.sh
-if sudo test -f /etc/sudoers.d/99-r2-d2-installer-reboot; then
-  sudo rm -f /etc/sudoers.d/99-r2-d2-installer-reboot &>/dev/null
-fi
-
 # Exit gracefully if user chooses not to reboot
 if gum confirm --padding "0 0 0 $((PADDING_LEFT))" --show-help=false --default --affirmative "Reboot Now" --negative "" ""; then
-  # Clear screen to hide any shutdown messages
-  clear
+  # Remove passwordless-reboot sudoers only when actually rebooting
+  if sudo test -f /etc/sudoers.d/99-r2-d2-installer-reboot; then
+    sudo rm -f /etc/sudoers.d/99-r2-d2-installer-reboot &>/dev/null
+  fi
 
+  clear
   sudo reboot 2>/dev/null
+fi
+
+# Clean up passwordless-reboot sudoers if the user declined
+if sudo test -f /etc/sudoers.d/99-r2-d2-installer-reboot; then
+  sudo rm -f /etc/sudoers.d/99-r2-d2-installer-reboot &>/dev/null
 fi
