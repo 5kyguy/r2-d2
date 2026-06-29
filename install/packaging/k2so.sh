@@ -1,58 +1,27 @@
 #!/bin/bash
 
-# Build and install K-2SO from the nested k-2so repo and wire r2d2-mcp.
+# Install K-2SO (npm) and wire r2d2-mcp. K-2SO registers via k2so init.
 
 set -euo pipefail
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-K2SO_DIR="${K2SO_DIR:-$R2D2_PATH/k-2so}"
-K2SO_REPO="${K2SO_REPO:-https://github.com/5kyguy/k-2so.git}"
-K2SO_BRANCH="${K2SO_BRANCH:-main}"
+K2SO_DIR="${K2SO_DIR:-}"
 
 r2-d2-pkg-add nodejs npm git
 
-ensure_k2so_source() {
-  if [[ -f $K2SO_DIR/package.json ]]; then
-    return 0
-  fi
-
-  if [[ -d $K2SO_DIR/.git ]]; then
-    echo "Updating k-2so at $K2SO_DIR…"
-    git -C "$K2SO_DIR" fetch --depth 1 origin "$K2SO_BRANCH"
-    git -C "$K2SO_DIR" checkout "$K2SO_BRANCH"
-    git -C "$K2SO_DIR" pull --ff-only origin "$K2SO_BRANCH"
-  elif [[ -e $K2SO_DIR ]]; then
-    echo "k-2so path exists but is not a git checkout: $K2SO_DIR" >&2
-    exit 1
-  else
-    echo "Cloning k-2so into $K2SO_DIR…"
-    mkdir -p "$(dirname "$K2SO_DIR")"
-    git clone --depth 1 --branch "$K2SO_BRANCH" "$K2SO_REPO" "$K2SO_DIR"
-  fi
-
-  if [[ ! -f $K2SO_DIR/package.json ]]; then
-    echo "k-2so clone at $K2SO_DIR is missing package.json" >&2
-    exit 1
-  fi
-}
-
-ensure_k2so_source
+if [[ -n $K2SO_DIR && -f $K2SO_DIR/package.json ]]; then
+  echo "Building k2so from $K2SO_DIR…"
+  (cd "$K2SO_DIR" && npm ci && npm run build)
+  npm install -g "$K2SO_DIR"
+else
+  echo "Installing k2so from npm…"
+  npm install -g k2so
+fi
 
 if ! command -v opencode &>/dev/null; then
   echo "Installing OpenCode…"
   bash "$R2D2_PATH/install/packaging/opencode.sh"
 fi
-
-echo "Building k-2so…"
-(cd "$K2SO_DIR" && npm ci && npm run build)
-
-mkdir -p "$HOME/.local/bin"
-rm -f "$HOME/.local/bin/k2so"
-cat >"$HOME/.local/bin/k2so" <<EOF
-#!/bin/bash
-exec node "$K2SO_DIR/dist/cli.js" "\"
-EOF
-chmod +x "$HOME/.local/bin/k2so"
 
 echo "Building r2d2-mcp…"
 (cd "$R2D2_PATH/mcp/r2d2" && npm ci && npm run build)
@@ -62,13 +31,10 @@ mkdir -p "$HOME/.config/k2so" "$HOME/.config/opencode"
 r2-d2-ensure-k2so-secrets
 r2-d2-merge-k2so-opencode
 
-# shellcheck source=../helpers/profile.sh
-source "$R2D2_PATH/install/helpers/profile.sh"
-
-if [[ ! -f $HOME/.config/k2so/profile.toml ]]; then
-  cp "$(r2d2_config_dir)/k2so/profile.toml" "$HOME/.config/k2so/profile.toml"
+if command -v k2so &>/dev/null; then
+  k2so init
 else
-  echo "Existing K-2SO profile found at ~/.config/k2so/profile.toml (untouched)"
+  echo "k2so not on PATH after install — run k2so init manually" >&2
 fi
 
 mkdir -p "$HOME/.config/systemd/user"
