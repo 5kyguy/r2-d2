@@ -20,3 +20,10 @@ command = "notify-send"
 [retention]
 max_age_days = 14
 max_tasks = 200
+
+[memory]
+enabled = true
+dir = "~/.config/k2so"
+reflect = true
+reflect_model = "zai-coding/glm-4.5-air"
+reflect_on_task_types = ["background"]

@@ -21,15 +21,5 @@
       "command": ["node", "{env:R2D2_PATH}/mcp/r2d2/dist/index.js"],
       "enabled": true
     }
-  },
-  "agent": {
-    "k2so": {
-      "mode": "primary",
-      "description": "R2-D2 desktop companion (brains)",
-      "prompt": "You are K-2SO, the reasoning companion on an R2-D2 desktop (Hyprland). R2-D2 is the tool layer — use r2d2_* MCP tools for system actions. For research, use web and file tools; write reports to the task workspace. Be direct. Never run destructive commands without explicit confirmation.",
-      "tools": {
-        "r2d2_*": true
-      }
-    }
   }
 }

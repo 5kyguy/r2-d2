@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Install or merge R2-D2 K-2SO blocks into ~/.config/opencode/opencode.json.
-# Never replaces an existing provider/model setup — only adds r2d2 MCP + k2so agent.
-# Fresh installs get the full repo template.
+# Merge R2-D2's r2d2 MCP block into ~/.config/opencode/opencode.json.
+# Never replaces an existing provider/model setup — only adds mcp.r2d2.
+# K-2SO agent registration is owned by k2so init (~/.config/opencode/agents/k2so.md).
 
 set -euo pipefail
 
@@ -30,10 +30,9 @@ jq -s --arg key_file "$zai_key_file" '
   .[1] as $repo |
   $user |
   .mcp = (($user.mcp // {}) + { r2d2: $repo.mcp.r2d2 }) |
-  .agent = (($user.agent // {}) + { k2so: $repo.agent.k2so }) |
   if (.provider["zai-coding"].options.apiKey? == "{env:ZAI_API_KEY}") then
     .provider["zai-coding"].options.apiKey = "{file:\($key_file)}"
   else . end
 ' "$user_config" "$repo_config" >"$tmp"
 mv "$tmp" "$user_config"
-echo "Merged K-2SO OpenCode blocks into $user_config (provider/model unchanged)"
+echo "Merged r2d2 MCP block into $user_config (provider/model unchanged)"
