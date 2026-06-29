@@ -8,13 +8,12 @@ K-2SO is the **brains** (background agent). R2-D2 is the **body** (`r2d2-mcp` to
 r2-d2-install-k2so
 ```
 
-Clones [k-2so](https://github.com/5kyguy/k-2so) into `$R2D2_PATH/k-2so` when missing (override with `K2SO_DIR` / `K2SO_REPO` / `K2SO_BRANCH`).
-
-1. Builds `k2so` and links `~/.local/bin/k2so`
+1. Installs `k2so` from npm (or builds from `K2SO_DIR` when set for local dev)
 2. Builds `mcp/r2d2`
-3. Merges K-2SO blocks into `~/.config/opencode/opencode.json` (does not replace an existing OpenCode setup)
-4. Writes `~/.config/k2so/profile.toml` when absent
-5. Enables `k2so.service` (user systemd)
+3. Merges only the `mcp.r2d2` block into `~/.config/opencode/opencode.json` (does not replace an existing OpenCode setup)
+4. Runs `k2so init` to register the markdown agent at `~/.config/opencode/agents/k2so.md` — **K-2SO never writes the full `opencode.json`**
+5. Writes `~/.config/k2so/profile.toml` when absent
+6. Enables `k2so.service` (user systemd)
 
 ## API key
 
@@ -38,18 +37,22 @@ If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensur
 | `k2so abort <id>` | Abort a queued or running task |
 | `k2so open-task <id>` | Open task workspace folder |
 | `k2so prune` | Remove old task workspaces |
+| `k2so doctor` | Health check (agent file, profile, memory seeds) |
+| `k2so init` | Re-run registration (idempotent) |
 
 The daemon listens on a Unix socket (`~/.local/state/k2so/k2so.sock`) — only local processes running as your user can submit tasks. There is no long-lived TCP listener.
 
 ## MCP tools
 
-Registered in OpenCode as `r2d2_*`. Enabled tools are controlled by `config/r2-d2/mcp.toml`:
+**R2-D2** tools are registered in OpenCode as `r2d2_*` via the `mcp.r2d2` block in your `opencode.json`. Enabled tools are controlled by `config/r2-d2/mcp.toml`:
 
 - `lock_screen`, `screenshot`, `battery_remaining`
 - `toggle_nightlight`, `toggle_waybar`, `toggle_notification_silencing`
 - `theme_set_background`, `theme_set_accent`, `desktop_windows`
 - `open_application`, `volume_set`, `volume_toggle_mute`, `media_play_pause`, `clipboard_set`
 - `system_reboot`, `system_shutdown` (require `confirm: true`)
+
+**K-2SO memory** tools (`k2so-memory_*`) are injected when `k2so serve` spawns OpenCode — not written into your config file.
 
 ## Bench presets
 
