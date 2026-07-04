@@ -15,7 +15,7 @@ if [[ -n $K2SO_DIR && -f $K2SO_DIR/package.json ]]; then
   npm install -g "$K2SO_DIR"
 else
   echo "Installing k2so from npm…"
-  npm install -g k2so
+  npm install -g @5kyguy/k2so
 fi
 
 if ! command -v opencode &>/dev/null; then

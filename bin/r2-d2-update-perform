@@ -3,17 +3,15 @@
 set -e
 
 BIN="$(dirname "$0")"
-R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-# shellcheck source=../install/helpers/profile.sh
-source "$R2D2_PATH/install/helpers/profile.sh"
 
-if ! r2d2_is_server; then
-  hyprctl dispatch tagwindow +noidle &>/dev/null || true
-fi
+# Ensure screensaver/sleep doesn't set in during updates
+hyprctl dispatch tagwindow +noidle &>/dev/null || true
 
+# Capture update logs
 export CLICOLOR_FORCE=1
 exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 
+# Perform all update steps (invoke by path so this works when run from menu without bin in PATH)
 [[ -n $R2D2_UPDATE_SKIP_TIME ]] || "$BIN/r2-d2-update-time"
 [[ -n $R2D2_UPDATE_SKIP_KEYRING ]] || "$BIN/r2-d2-update-keyring"
 [[ -n $R2D2_UPDATE_SKIP_AVAILABLE_RESET ]] || "$BIN/r2-d2-update-available-reset"
@@ -28,6 +26,5 @@ exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 "$BIN/r2-d2-update-analyze-logs"
 "$BIN/r2-d2-update-restart"
 
-if ! r2d2_is_server; then
-  hyprctl dispatch tagwindow -- -noidle &>/dev/null || true
-fi
+# Re-enable screensaver/sleep after updates
+hyprctl dispatch tagwindow -- -noidle &>/dev/null || true

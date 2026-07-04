@@ -1,51 +1,33 @@
 #!/bin/bash
 
 run_logged $R2D2_INSTALL/config/config.sh
-
-if r2d2_is_server; then
-  run_logged $R2D2_INSTALL/config/branding.sh
-  run_logged $R2D2_INSTALL/config/git.sh
-  run_logged $R2D2_INSTALL/config/gpg.sh
-  run_logged $R2D2_INSTALL/config/timezones.sh
-  run_logged $R2D2_INSTALL/config/increase-file-watchers.sh
-  run_logged $R2D2_INSTALL/config/docker.sh
-  run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
-  run_logged $R2D2_INSTALL/config/plocate-ac-only.sh
-  run_logged $R2D2_INSTALL/config/hardware/network.sh
-  run_logged $R2D2_INSTALL/config/hardware/set-wireless-regdom.sh
-  run_logged $R2D2_INSTALL/config/hardware/usb-autosuspend.sh
-  run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
-  run_logged $R2D2_INSTALL/config/wifi-powersave-rules.sh
-  run_logged $R2D2_INSTALL/config/server/laptop-power.sh
-else
-  run_logged $R2D2_INSTALL/config/default-config.sh
-  run_logged $R2D2_INSTALL/config/theme.sh
-  run_logged $R2D2_INSTALL/config/branding.sh
-  run_logged $R2D2_INSTALL/config/git.sh
-  run_logged $R2D2_INSTALL/config/gpg.sh
-  run_logged $R2D2_INSTALL/config/timezones.sh
-  run_logged $R2D2_INSTALL/config/increase-file-watchers.sh
-  run_logged $R2D2_INSTALL/config/detect-keyboard-layout.sh
-  run_logged $R2D2_INSTALL/config/xcompose.sh
-  run_logged $R2D2_INSTALL/config/docker.sh
-  run_logged $R2D2_INSTALL/config/flatpak.sh
-  run_logged $R2D2_INSTALL/config/mimetypes.sh
-  run_logged $R2D2_INSTALL/config/walker-elephant.sh
-  run_logged $R2D2_INSTALL/config/fast-shutdown.sh
-  run_logged $R2D2_INSTALL/config/input-group.sh
-  run_logged $R2D2_INSTALL/config/keyd.sh
-  run_logged $R2D2_INSTALL/config/makima.sh
-  run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
-  run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
-  run_logged $R2D2_INSTALL/config/wifi-powersave-rules.sh
-  run_logged $R2D2_INSTALL/config/plocate-ac-only.sh
-  run_logged $R2D2_INSTALL/config/hardware/network.sh
-  run_logged $R2D2_INSTALL/config/hardware/set-wireless-regdom.sh
-  run_logged $R2D2_INSTALL/config/hardware/bluetooth.sh
-  run_logged $R2D2_INSTALL/config/hardware/printer.sh
-  run_logged $R2D2_INSTALL/config/hardware/usb-autosuspend.sh
-  run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
-  run_logged $R2D2_INSTALL/config/hardware/vulkan.sh
-  run_logged $R2D2_INSTALL/config/hardware/fix-synaptic-touchpad.sh
-  run_logged $R2D2_INSTALL/config/hardware/amd-isp-webcam.sh
-fi
+run_logged $R2D2_INSTALL/config/default-config.sh
+run_logged $R2D2_INSTALL/config/theme.sh
+run_logged $R2D2_INSTALL/config/branding.sh
+run_logged $R2D2_INSTALL/config/git.sh
+run_logged $R2D2_INSTALL/config/gpg.sh
+run_logged $R2D2_INSTALL/config/timezones.sh
+run_logged $R2D2_INSTALL/config/increase-file-watchers.sh
+run_logged $R2D2_INSTALL/config/detect-keyboard-layout.sh
+run_logged $R2D2_INSTALL/config/xcompose.sh
+run_logged $R2D2_INSTALL/config/docker.sh
+run_logged $R2D2_INSTALL/config/flatpak.sh
+run_logged $R2D2_INSTALL/config/mimetypes.sh
+run_logged $R2D2_INSTALL/config/walker-elephant.sh
+run_logged $R2D2_INSTALL/config/fast-shutdown.sh
+run_logged $R2D2_INSTALL/config/input-group.sh
+run_logged $R2D2_INSTALL/config/keyd.sh
+run_logged $R2D2_INSTALL/config/makima.sh
+run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
+run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
+run_logged $R2D2_INSTALL/config/wifi-powersave-rules.sh
+run_logged $R2D2_INSTALL/config/plocate-ac-only.sh
+run_logged $R2D2_INSTALL/config/hardware/network.sh
+run_logged $R2D2_INSTALL/config/hardware/set-wireless-regdom.sh
+run_logged $R2D2_INSTALL/config/hardware/bluetooth.sh
+run_logged $R2D2_INSTALL/config/hardware/printer.sh
+run_logged $R2D2_INSTALL/config/hardware/usb-autosuspend.sh
+run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
+run_logged $R2D2_INSTALL/config/hardware/vulkan.sh
+run_logged $R2D2_INSTALL/config/hardware/fix-synaptic-touchpad.sh
+run_logged $R2D2_INSTALL/config/hardware/amd-isp-webcam.sh

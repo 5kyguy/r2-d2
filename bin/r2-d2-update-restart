@@ -1,9 +1,5 @@
 #!/bin/bash
 
-R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-# shellcheck source=../install/helpers/profile.sh
-source "$R2D2_PATH/install/helpers/profile.sh"
-
 echo
 
 if [[ ! -d /usr/lib/modules/$(uname -r) ]]; then
@@ -12,7 +8,7 @@ elif [[ -f $HOME/.local/state/r2-d2/reboot-required ]]; then
   gum confirm "Updates require reboot. Ready?" && r2-d2-system-reboot
 fi
 
-if ! r2d2_is_server && [[ -f $HOME/.local/state/r2-d2/desktop-refresh-required ]]; then
+if [[ -f $HOME/.local/state/r2-d2/desktop-refresh-required ]]; then
   r2-d2-state clear desktop-refresh-required
 
   if gum confirm "Repo-managed files were refreshed. Reload desktop components now?"; then
@@ -26,11 +22,9 @@ if ! r2d2_is_server && [[ -f $HOME/.local/state/r2-d2/desktop-refresh-required ]
   fi
 fi
 
-if ! r2d2_is_server; then
-  running_hyprland=$(readlink /proc/$(pgrep -x Hyprland)/exe 2>/dev/null)
-  if [[ $running_hyprland == *"(deleted)"* ]]; then
-    gum confirm "Hyprland has been updated. Reboot?" && r2-d2-system-reboot
-  fi
+running_hyprland=$(readlink /proc/$(pgrep -x Hyprland)/exe 2>/dev/null)
+if [[ $running_hyprland == *"(deleted)"* ]]; then
+  gum confirm "Hyprland has been updated. Reboot?" && r2-d2-system-reboot
 fi
 
 for file in "$HOME"/.local/state/r2-d2/restart-*-required; do
@@ -43,7 +37,7 @@ for file in "$HOME"/.local/state/r2-d2/restart-*-required; do
   fi
 done
 
-if ! r2d2_is_server && [[ -f $HOME/.local/state/r2-d2/relogin-required ]]; then
+if [[ -f $HOME/.local/state/r2-d2/relogin-required ]]; then
   r2-d2-state clear relogin-required
 
   if gum confirm "Repo-managed files were refreshed. Log out now to fully apply all changes?"; then

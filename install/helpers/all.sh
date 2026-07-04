@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source $R2D2_INSTALL/helpers/profile.sh
 source $R2D2_INSTALL/helpers/chroot.sh
 source $R2D2_INSTALL/helpers/presentation.sh
 source $R2D2_INSTALL/helpers/errors.sh

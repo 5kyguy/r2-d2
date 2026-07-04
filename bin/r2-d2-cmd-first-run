@@ -4,25 +4,17 @@
 
 set -e
 
-R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-# shellcheck source=../install/helpers/profile.sh
-source "$R2D2_PATH/install/helpers/profile.sh"
-
 FIRST_RUN_MODE=~/.local/state/r2-d2/first-run.mode
 
 if [[ -f $FIRST_RUN_MODE ]]; then
   rm -f "$FIRST_RUN_MODE"
 
-  if r2d2_is_server; then
-    bash "$R2D2_PATH/install/first-run/server.sh"
-  else
-    bash "$R2D2_PATH/install/first-run/battery-monitor.sh"
-    bash "$R2D2_PATH/install/first-run/cleanup-reboot-sudoers.sh"
-    bash "$R2D2_PATH/install/first-run/firewall.sh"
-    bash "$R2D2_PATH/install/first-run/dns-resolver.sh"
-    bash "$R2D2_PATH/install/first-run/gnome-theme.sh"
-    bash "$R2D2_PATH/install/first-run/elephant.sh"
-  fi
+  bash "$R2D2_PATH/install/first-run/battery-monitor.sh"
+  bash "$R2D2_PATH/install/first-run/cleanup-reboot-sudoers.sh"
+  bash "$R2D2_PATH/install/first-run/firewall.sh"
+  bash "$R2D2_PATH/install/first-run/dns-resolver.sh"
+  bash "$R2D2_PATH/install/first-run/gnome-theme.sh"
+  bash "$R2D2_PATH/install/first-run/elephant.sh"
 
   sudo rm -f /etc/sudoers.d/first-run
 fi

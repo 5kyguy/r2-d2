@@ -4,8 +4,6 @@ R2-D2 is 5kyguy’s own config and setup on top of **Arch Linux** — a modern, 
 
 **Target hardware:** AMD CPU + GPU, HP/Dell laptops. English only.
 
-**Install profiles:** `boot.sh` prompts for **desktop** (default) or **server** (headless) and saves the choice to `~/.config/r2-d2/profile`. The installer and `r2-d2-update` read that file for the rest of the system's life.
-
 ## Prerequisites
 
 Install Arch Linux using archinstall, with the following options:
@@ -27,8 +25,8 @@ curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot
 
 This will:
 
-1. **Bootstrap (boot.sh)** — Prompt for install profile (desktop or server), set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
-2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install), gated by `~/.config/r2-d2/profile`
+1. **Bootstrap (boot.sh)** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
+2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install)
 
 The installer does **not** verify prerequisites (Arch Linux, x86_64, Btrfs root, Limine, Secure Boot off, no GNOME/KDE). Ensure they are met before running.
 
@@ -101,7 +99,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 **Phase 2 — Packaging** (`install/packaging/all.sh`)
 
-- **base.sh** — Install packages from `install/r2-d2-core.packages` on every profile; desktop also installs `install/r2-d2-desktop.packages` and `install/r2-d2-desktop.aur.packages`. See `docs/PACKAGE-LIST.md`.
+- **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
 - **opencode.sh** — Opencode via the official curl installer
 - **fonts.sh** — Copy R2-D2 font (r2-d2.ttf) to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
@@ -137,19 +135,6 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **r2-d2-migrate** — Run pending migrations (idempotent; safe on first install and re-run)
 - **allow-reboot.sh** — Sudoers for reboot
 - **finished.sh** — Stop log, show logo and install time, remove reboot sudoers, prompt to reboot now
-
-### Server profile differences
-
-When `~/.config/r2-d2/profile` is `server`:
-
-| Phase | Behavior |
-| ----- | -------- |
-| **Packaging** | Core packages only; auto-installs K-2SO (`k2so.sh`). Skips fonts, icons, webapps, TUIs. |
-| **Config** | Copies `config-server/` (not `config/`). Skips theme, flatpak, Walker/Elephant, keyd, mimetypes, desktop hardware scripts. |
-| **Login** | `multi-user.target`, `sshd`, limine-snapper with headless mkinitcpio hooks (no Plymouth/KMS). |
-| **Post-install** | Skips hibernation setup; runs `install/first-run/server.sh` inline (firewall, DNS, battery, linger). |
-
-Manage the profile later with `r2-d2-profile get` or `r2-d2-profile set server|desktop`.
 
 ## Themes
 

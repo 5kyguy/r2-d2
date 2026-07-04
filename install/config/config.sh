@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Copy over user-editable R2-D2 configs
-CONFIG_DIR=$(r2d2_config_dir)
+CONFIG_DIR="$HOME/.local/share/r2-d2/config"
 
 if [[ -z $CONFIG_DIR || ! -d $CONFIG_DIR ]]; then
   echo "Config directory missing: ${CONFIG_DIR:-<empty>}" >&2
