@@ -3,15 +3,20 @@
 # Take a screenshot of the whole screen, a specific window, or a user-drawn region.
 # Saves to ~/Pictures by default, but that can be changed via R2D2_SCREENSHOT_DIR or XDG_PICTURES_DIR ENVs.
 # Editor defaults to Satty but can be changed via --editor=<name> or R2D2_SCREENSHOT_EDITOR env
+#
+# Usage: r2-d2-cmd-screenshot [mode] [processing]
+#   mode:        smart (default) | region | windows | fullscreen
+#   processing:  slurp (default, save + clipboard + edit-on-click) | copy (clipboard only) | save (file only)
+#
+# The `save` mode is built for agents: writes the PNG and echoes the path to
+# stdout without touching the clipboard or firing interactive notifications.
+# In `slurp` mode the path is also echoed so the MCP screenshot tool can read it.
 
 # shellcheck source=/dev/null
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${R2D2_SCREENSHOT_DIR:-${XDG_PICTURES_DIR:-$HOME/Pictures}}"
 
-if [[ ! -d $OUTPUT_DIR ]]; then
-  notify-send "Screenshot directory does not exist: $OUTPUT_DIR" -u critical -t 3000
-  exit 1
-fi
+mkdir -p "$OUTPUT_DIR"
 
 pkill slurp && exit 0
 
@@ -124,12 +129,17 @@ FILEPATH="$OUTPUT_DIR/$FILENAME"
 
 if [[ $PROCESSING == "slurp" ]]; then
   grim -g "$SELECTION" "$FILEPATH" || exit 1
-  wl-copy <"$FILEPATH"
+  echo "$FILEPATH"
+  wl-copy --type image/png <"$FILEPATH"
 
   (
     ACTION=$(notify-send "Screenshot saved to clipboard and file" "Edit with Super + Alt + , (or click this)" -t 10000 -i "$FILEPATH" -A "default=edit")
     [[ $ACTION == "default" ]] && open_editor "$FILEPATH"
   ) &
+elif [[ $PROCESSING == "save" ]]; then
+  # Agent-friendly: file only, no clipboard, no interactive notification.
+  grim -g "$SELECTION" "$FILEPATH" || exit 1
+  echo "$FILEPATH"
 else
-  grim -g "$SELECTION" - | wl-copy
+  grim -g "$SELECTION" - | wl-copy --type image/png
 fi

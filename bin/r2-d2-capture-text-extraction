@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# Extract text from the screen via OCR.
+#
+# Usage:
+#   r2-d2-capture-text-extraction             interactive region pick (human use)
+#   r2-d2-capture-text-extraction --file PATH OCR a pre-captured PNG (agent use)
+#
+# Agent path: feed a screenshot captured by `r2-d2-cmd-screenshot fullscreen save`
+# so K-2SO can read dialogs, URLs, code, or settings on screen. The recognized
+# text is written to stdout (and copied to the clipboard for interactive use).
+#
+# Port of omarchy 75eec087 + ba1d699c (OMARCHY_OCR_LANGS -> R2D2_OCR_LANGS).
+
+set -euo pipefail
+
+file_path=""
+
+while (($# > 0)); do
+  case "$1" in
+  --file)
+    file_path=$2
+    shift 2
+    ;;
+  *)
+    shift
+    ;;
+  esac
+done
+
+if [[ -n $file_path ]]; then
+  # Non-interactive agent path: OCR a pre-captured PNG.
+  [[ -f $file_path ]] || {
+    echo "OCR input file not found: $file_path" >&2
+    exit 1
+  }
+  tesseract "$file_path" stdout --oem 1 --psm 6 -l "${R2D2_OCR_LANGS:-eng}" --dpi 300 -c preserve_interword_spaces=1 2>/dev/null
+  exit 0
+fi
+
+# Interactive path: freeze screen, pick a region, OCR it, copy to clipboard.
+cleanup_freeze() {
+  [[ -n ${PID:-} ]] && kill "$PID" 2>/dev/null || true
+}
+trap cleanup_freeze EXIT
+
+hyprpicker -r -z >/dev/null 2>&1 &
+PID=$!
+sleep .1
+SELECTION=$(slurp 2>/dev/null)
+
+[[ -z $SELECTION ]] && exit 0
+
+TEXT=$(grim -g "$SELECTION" - | tesseract stdin stdout --oem 1 --psm 6 -l "${R2D2_OCR_LANGS:-eng}" --dpi 300 -c preserve_interword_spaces=1 2>/dev/null) || exit 1
+
+[[ -z $TEXT ]] && exit 1
+
+printf "%s" "$TEXT" | wl-copy
+r2-d2-notification-send -g 󰴑 "Copied text from selection to clipboard"

@@ -27,6 +27,7 @@ export const COMMANDS = {
   volume_toggle_mute: "r2-d2-volume-toggle-mute",
   media_play_pause: "r2-d2-media-play-pause",
   clipboard_set: "r2-d2-clipboard-set",
+  ocr: "r2-d2-capture-text-extraction",
 } as const;
 
 export type R2d2Command = keyof typeof COMMANDS;

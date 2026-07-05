@@ -20,9 +20,14 @@ const TOOL_REGISTRY: Record<string, ToolDef> = {
     handler: async () => runR2d2Script("lock_screen"),
   },
   screenshot: {
-    description: "Capture a screenshot",
-    schema: {},
-    handler: async () => runR2d2Script("screenshot"),
+    description: "Capture a screenshot and return the saved file path",
+    schema: {
+      mode: z
+        .enum(["smart", "region", "windows", "fullscreen"])
+        .optional()
+        .describe("Capture mode (default: fullscreen for non-interactive agent use)"),
+    },
+    handler: async ({ mode }) => runR2d2Script("screenshot", [String(mode ?? "fullscreen"), "save"]),
   },
   battery_remaining: {
     description: "Get battery percentage as an integer",
@@ -107,6 +112,24 @@ const TOOL_REGISTRY: Record<string, ToolDef> = {
     description: "Copy text to the clipboard",
     schema: { text: z.string().describe("Text to copy") },
     handler: async ({ text }) => runR2d2Script("clipboard_set", [String(text)]),
+  },
+  ocr: {
+    description:
+      "Run OCR on a screenshot file to read on-screen text (dialogs, URLs, code). Returns the recognized text.",
+    schema: {
+      image_path: z
+        .string()
+        .optional()
+        .describe("Absolute path to a PNG to OCR. If omitted, captures a fresh fullscreen screenshot first."),
+    },
+    handler: async ({ image_path }) => {
+      let path = String(image_path ?? "");
+      if (!path) {
+        // Capture a fresh fullscreen screenshot in agent-friendly save mode.
+        path = await runR2d2Script("screenshot", ["fullscreen", "save"]);
+      }
+      return runR2d2Script("ocr", ["--file", path]);
+    },
   },
 };
 

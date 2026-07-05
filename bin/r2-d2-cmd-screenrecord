@@ -20,6 +20,7 @@ WEBCAM="false"
 WEBCAM_DEVICE=""
 RESOLUTION=""
 STOP_RECORDING="false"
+FULLSCREEN="false"
 RECORDING_FILE="/tmp/r2-d2-screenrecord-filename"
 
 for arg in "$@"; do
@@ -30,6 +31,7 @@ for arg in "$@"; do
   --webcam-device=*) WEBCAM_DEVICE="${arg#*=}" ;;
   --stop-recording) STOP_RECORDING="true" ;;
   --resolution=*) RESOLUTION="${arg#*=}" ;;
+  --fullscreen) FULLSCREEN="true" ;;
   esac
 done
 
@@ -108,7 +110,15 @@ start_screenrecording() {
 
   local resolution="${RESOLUTION:-$(default_resolution)}"
 
-  gpu-screen-recorder -w portal -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+  # --fullscreen targets the focused monitor directly, skipping the interactive
+  # portal picker. Used by the agent, which cannot drive a region picker.
+  if [[ $FULLSCREEN == "true" ]]; then
+    local focused_monitor
+    focused_monitor=$(r2-d2-hyprland-monitor-focused)
+    gpu-screen-recorder -w "$focused_monitor" -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+  else
+    gpu-screen-recorder -w portal -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+  fi
 
   # Wait for the output file (appears after portal selection). Do not rely on the
   # background PID: gpu-screen-recorder may fork and the parent exits while recording
@@ -154,6 +164,9 @@ stop_screenrecording() {
     local filename
     filename=$(cat "$RECORDING_FILE" 2>/dev/null)
     local preview="${filename%.mp4}-preview.png"
+
+    # Echo the saved path so the agent (and the MCP screenrecord tool) can find it.
+    [[ -n $filename ]] && echo "$filename"
 
     # Generate a preview thumbnail from the first frame
     ffmpeg -y -i "$filename" -ss 00:00:00.1 -vframes 1 -q:v 2 "$preview" -loglevel quiet 2>/dev/null
