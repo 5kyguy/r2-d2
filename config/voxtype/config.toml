@@ -25,6 +25,10 @@ sample_rate = 16000
 # Maximum recording duration in seconds (safety limit)
 max_duration_secs = 60
 
+# Pause MPRIS media playback while recording so music doesn't bleed into the
+# transcript the agent receives. Port of omarchy b317bd53.
+pause_media = true
+
 # [audio.feedback]
 # Enable audio feedback sounds (beeps when recording starts/stops)
 # enabled = true

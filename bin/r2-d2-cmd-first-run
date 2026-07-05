@@ -15,6 +15,7 @@ if [[ -f $FIRST_RUN_MODE ]]; then
   bash "$R2D2_PATH/install/first-run/dns-resolver.sh"
   bash "$R2D2_PATH/install/first-run/gnome-theme.sh"
   bash "$R2D2_PATH/install/first-run/elephant.sh"
+  bash "$R2D2_PATH/install/first-run/powerprofilesctl-rules.sh"
 
   sudo rm -f /etc/sudoers.d/first-run
 fi

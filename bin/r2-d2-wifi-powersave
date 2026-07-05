@@ -1,5 +1,35 @@
 #!/bin/bash
+
+# Toggle wifi power_save on every wireless interface based on power state.
+# Usage:
+#   r2-d2-wifi-powersave <on|off>   — explicit
+#   r2-d2-wifi-powersave            — autodetect (AC → off, battery → on)
+#
+# Autodetect scans /sys/class/power_supply for any Mains or USB device with
+# online=1 (handles USB-C-only laptops). Mirrors r2-d2-powerprofiles-set.
+#
+# nullglob ensures machines with no wireless interface exit cleanly instead
+# of feeding the literal glob to iw (port of omarchy 080c8ba3).
+
+state="$1"
+
+if [[ -z $state ]]; then
+  # Same settle + autodetect logic as r2-d2-powerprofiles-set
+  sleep 0.3
+  state=on
+  for ps in /sys/class/power_supply/*; do
+    [[ -r $ps/online && -r $ps/type ]] || continue
+    type=$(cat "$ps/type")
+    [[ $type == "Mains" || $type == "USB" ]] || continue
+    if [[ $(cat "$ps/online") == "1" ]]; then
+      state=off
+      break
+    fi
+  done
+fi
+
+shopt -s nullglob
 for iface in /sys/class/net/*/wireless; do
   iface="$(basename "$(dirname "$iface")")"
-  iw dev "$iface" set power_save "$1" 2>/dev/null
+  iw dev "$iface" set power_save "$state" 2>/dev/null
 done

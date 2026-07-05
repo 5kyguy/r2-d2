@@ -16,3 +16,4 @@ volume_set = true
 volume_toggle_mute = true
 media_play_pause = true
 clipboard_set = true
+ocr = true

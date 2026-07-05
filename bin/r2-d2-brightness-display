@@ -2,8 +2,16 @@
 
 # Adjust brightness on the most likely display device.
 # Usage: r2-d2-brightness-display <step>
+# step accepts: +5%, 5%-, or an explicit percentage like 50%.
 
 step="${1:-+5%}"
+
+# Guard against overlapping invocations from hardware key auto-repeat.
+# Without this, holding a brightness key spawns several concurrent OSD
+# renders that glitch. The flock is non-blocking: later invocations exit.
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+exec 9>"$runtime_dir/r2-d2-brightness-display.lock"
+flock -n 9 || exit 0
 
 # Start with the first possible output, then refine to the most likely given an order heuristic.
 device="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
@@ -13,6 +21,23 @@ for candidate in amdgpu_bl* acpi_video*; do
     break
   fi
 done
+
+# Non-uniform brightness stepping (port of omarchy c078d7ad).
+# Raw +5%/5%- steps feel jerky at the low end on amdgpu_bl's wide range, and
+# can turn the screen off entirely on some models. Below 5% we step by 1%,
+# with a floor of 1% so the panel never goes black.
+case "$step" in
+  +5%)
+    current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
+    if ((current < 5)); then target=$((current + 1)); else target=$((current + 5)); fi
+    ((target > 100)) && target=100
+    step="$target%" ;;
+  5%-)
+    current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
+    if ((current <= 5)); then target=$((current - 1)); else target=$((current - 5)); fi
+    ((target < 1)) && target=1
+    step="$target%" ;;
+esac
 
 # Set the actual brightness of the display device.
 brightnessctl -d "$device" set "$step" >/dev/null
