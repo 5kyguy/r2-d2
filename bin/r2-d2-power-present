@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Returns true if external power is connected.
+# Scans /sys/class/power_supply for any Mains OR USB device reporting
+# online=1. Handles USB-C-only laptops (like the HP ZBook Ultra G1a) that
+# have no legacy AC/ADP* device.
+
+power_supply_path="${R2D2_POWER_SUPPLY_PATH:-/sys/class/power_supply}"
+
+for supply in "$power_supply_path"/*; do
+  [[ -r $supply/online && -r $supply/type ]] || continue
+  type=$(<"$supply/type")
+  [[ $type == "Mains" || $type == "USB" ]] || continue
+  [[ $(<"$supply/online") == "1" ]] && exit 0
+done
+
+exit 1
