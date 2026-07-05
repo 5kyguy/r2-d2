@@ -14,6 +14,14 @@ if gum confirm "Install Voxtype + AI model (~150MB) to enable dictation?"; then
   fi
 
   voxtype setup --download --no-post-install
+
+  # Enable GPU acceleration when Vulkan is available — GPU-accelerated
+  # dictation is dramatically lower latency, which matters for the
+  # Super+Shift+A → k2so voice path. Port of omarchy 64ef8044.
+  if r2-d2-hw-vulkan; then
+    voxtype setup gpu --enable || true
+  fi
+
   voxtype setup systemd
 
   r2-d2-restart-waybar

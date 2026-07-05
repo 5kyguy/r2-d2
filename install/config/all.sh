@@ -19,7 +19,6 @@ run_logged $R2D2_INSTALL/config/input-group.sh
 run_logged $R2D2_INSTALL/config/keyd.sh
 run_logged $R2D2_INSTALL/config/makima.sh
 run_logged $R2D2_INSTALL/config/kernel-modules-hook.sh
-run_logged $R2D2_INSTALL/config/powerprofilesctl-rules.sh
 run_logged $R2D2_INSTALL/config/wifi-powersave-rules.sh
 run_logged $R2D2_INSTALL/config/plocate-ac-only.sh
 run_logged $R2D2_INSTALL/config/hardware/network.sh
@@ -31,3 +30,4 @@ run_logged $R2D2_INSTALL/config/hardware/ignore-power-button.sh
 run_logged $R2D2_INSTALL/config/hardware/vulkan.sh
 run_logged $R2D2_INSTALL/config/hardware/fix-synaptic-touchpad.sh
 run_logged $R2D2_INSTALL/config/hardware/amd-isp-webcam.sh
+run_logged $R2D2_INSTALL/config/unmount-fuse.sh

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Set the correct power profile on boot based on current AC/battery state.
+# The udev rules only fire on state *changes*, so without this, booting on AC
+# leaves you stuck in the default balanced mode instead of performance.
+# Port of omarchy a7675733.
+
+if r2-d2-battery-present && ! r2-d2-power-present; then
+  r2-d2-powerprofiles-set battery
+else
+  r2-d2-powerprofiles-set ac
+fi

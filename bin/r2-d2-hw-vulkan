@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Detect whether Vulkan is available (any ICD file installed).
+# Used to decide whether to enable GPU acceleration in tools like voxtype.
+
+[[ -d /usr/share/vulkan/icd.d ]] &&
+  find /usr/share/vulkan/icd.d -maxdepth 1 -name "*.json" -print -quit | grep -q .

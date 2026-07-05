@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Set the power profile to the requested level, falling back to balanced.
+# Usage: r2-d2-powerprofiles-set [autodetect|ac|battery]
+#
+# With no argument (or "autodetect"), scan /sys/class/power_supply for any
+# Mains OR USB device reporting online=1 and treat that as "on AC". This
+# handles USB-C-only laptops (like the HP ZBook Ultra G1a) where the legacy
+# AC device may not exist or may not fire udev events on plug/unplug.
+# Port of omarchy 62f69808 (autodetect) + ed93a047 (race settle).
+
+action="${1-}"
+
+if [[ -z $action || $action == "autodetect" ]]; then
+  # On plug/unplug, udev fires the rule before sysfs `online` is updated on
+  # some laptops. A short settle delay lets the kernel update before we read.
+  sleep 0.3
+
+  action=battery
+  for ps in /sys/class/power_supply/*; do
+    [[ -r $ps/online && -r $ps/type ]] || continue
+    type=$(cat "$ps/type")
+    [[ $type == "Mains" || $type == "USB" ]] || continue
+    if [[ $(cat "$ps/online") == "1" ]]; then
+      action=ac
+      break
+    fi
+  done
+fi
+
+# Delegate profile selection so the menu and the rule share one source.
+mapfile -t profiles < <(r2-d2-powerprofiles-list)
+
+case "$action" in
+  ac)
+    # Prefer performance (3 profiles) or fall back to balanced (2 profiles)
+    if [[ " ${profiles[*]} " == *" performance "* ]]; then
+      powerprofilesctl set performance
+    else
+      powerprofilesctl set balanced
+    fi
+    ;;
+  battery)
+    powerprofilesctl set balanced
+    ;;
+esac
