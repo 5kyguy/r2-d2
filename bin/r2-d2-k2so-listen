@@ -19,7 +19,7 @@ fi
 
 clipboard_before=$(wl-paste 2>/dev/null || true)
 
-notify-send "K-2SO" "Listening…" -t 2000
+r2-d2-notification-send -g 󰫋 "K-2SO" "Listening…" -t 2000
 voxtype record start
 
 echo "Press any key to stop recording…" >&2
@@ -41,8 +41,8 @@ if [[ -n $clipboard_before ]]; then
 fi
 
 if k2so ask "$instruction"; then
-  notify-send "K-2SO" "Task queued from voice" -t 3000
+  r2-d2-notification-send -g 󰚩 "K-2SO" "Task queued from voice" -t 3000
 else
-  notify-send "K-2SO" "Failed to queue task — is k2so serve running?" -u critical -t 5000
+  r2-d2-notification-send -g 󰚩 --urgency critical "K-2SO" "Failed to queue task — is k2so serve running?" -t 5000
   exit 1
 fi

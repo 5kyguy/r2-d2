@@ -40,6 +40,7 @@ alias ....='cd ../../..'
 # Tools
 alias c='opencode'
 alias cx='printf "\033[2J\033[3J\033[H" && claude --allow-dangerously-skip-permissions'
+alias cy='codex -s danger-full-access -a never'
 alias d='docker'
 alias t='tmux attach || tmux new -s Work'
 
