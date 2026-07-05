@@ -133,7 +133,7 @@ if [[ $PROCESSING == "slurp" ]]; then
   wl-copy --type image/png <"$FILEPATH"
 
   (
-    ACTION=$(notify-send "Screenshot saved to clipboard and file" "Edit with Super + Alt + , (or click this)" -t 10000 -i "$FILEPATH" -A "default=edit")
+    ACTION=$(r2-d2-notification-send -a --urgency normal --image "$FILEPATH" "Screenshot saved to clipboard and file" "Edit with Super + Alt + , (or click this)" -t 10000)
     [[ $ACTION == "default" ]] && open_editor "$FILEPATH"
   ) &
 elif [[ $PROCESSING == "save" ]]; then

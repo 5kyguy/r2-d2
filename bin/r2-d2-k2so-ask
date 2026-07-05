@@ -13,8 +13,8 @@ if [[ -z $instruction ]]; then
 fi
 
 if k2so ask "$instruction"; then
-  notify-send "K-2SO" "Task queued" -t 3000
+  r2-d2-notification-send -g 󰚩 "K-2SO" "Task queued" -t 3000
 else
-  notify-send "K-2SO" "Failed to queue task — is k2so serve running?" -u critical -t 5000
+  r2-d2-notification-send -g 󰚩 --urgency critical "K-2SO" "Failed to queue task — is k2so serve running?" -t 5000
   exit 1
 fi
