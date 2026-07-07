@@ -8,13 +8,13 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ### 1.1 Preflight (`install/preflight/`)
 
-- **pacman.sh** — Installs **base-devel**; copies pacman.conf and mirrorlist; imports Omarchy key and installs **omarchy-keyring**; full sync and upgrade (`pacman -Syyuu`).
+- **pacman.sh** — Installs **base-devel**; copies pacman.conf and mirrorlist; full sync and upgrade (`pacman -Syyuu`).
 - All desktop and app packages are in **`install/r2-d2-base.packages`** (single pacman list).
 
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (brave-origin-nightly-bin, cursor-bin, helium-browser-bin).
+- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker).
 - **SSH:** `openssh` is installed so the SSH server is available, but `sshd` is **not** enabled by default. Enable it manually when needed (`sudo systemctl enable --now sshd`).
 - **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
 
@@ -54,11 +54,11 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **164** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **162** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
-base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd, omarchy-keyring
+base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd
 
 ### Compositor and session
 
@@ -142,7 +142,7 @@ bluez, bluetui
 
 ### App launcher and helpers
 
-omarchy-walker, flatpak
+flatpak
 
 ### Misc
 
@@ -172,8 +172,8 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 164 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin.
+- **Base pacman packages:** 162 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
 - **Default web apps:** 3 (WhatsApp, YouTube, X).

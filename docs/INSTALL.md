@@ -25,7 +25,7 @@ curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot
 
 This will:
 
-1. **Bootstrap (boot.sh)** — Set the stable mirror (`stable-mirror.omarchy.org`), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
+1. **Bootstrap (boot.sh)** — Set a working mirror (`geo.mirror.pkgbuild.com`, Arch's official geoIP mirror), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
 2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install)
 
 The installer does **not** verify prerequisites (Arch Linux, x86_64, Btrfs root, Limine, Secure Boot off, no GNOME/KDE). Ensure they are met before running.
@@ -92,7 +92,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 **Phase 1 — Preflight** (`install/preflight/all.sh`)
 
 - **begin.sh** — Clear screen, show “Installing…”, start install log
-- **pacman.sh** — Install base-devel; copy pacman.conf and mirrorlist; import Omarchy key, install omarchy-keyring; full sync and upgrade (`pacman -Syyuu`)
+- **pacman.sh** — Install base-devel; copy pacman.conf and mirrorlist; full sync and upgrade (`pacman -Syyuu`)
 - **migrations.sh** — Prepare migration state directory; migrations run at end of install (r2-d2-migrate)
 - **first-run-mode.sh** — Create first-run marker and sudoers entries for post-login cleanup
 - **disable-mkinitcpio.sh** — Temporarily disable mkinitcpio hooks during package install
