@@ -3,6 +3,6 @@ set -e
 
 # Reinstall the R2-D2 configuration directory from the git source.
 
-git clone "https://github.com/basecamp/r2-d2.git" ~/.local/share/r2-d2-new >/dev/null
+git clone "https://github.com/5kyguy/r2-d2.git" ~/.local/share/r2-d2-new >/dev/null
 mv $R2D2_PATH ~/.local/share/r2-d2-old
 mv ~/.local/share/r2-d2-new $R2D2_PATH
