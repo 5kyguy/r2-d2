@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Ensure yay exists before any AUR install (omarchy repo or AUR bootstrap).
+# Ensure yay exists before any AUR install (official repos or AUR bootstrap).
 
 if r2-d2-cmd-present yay; then
   exit 0

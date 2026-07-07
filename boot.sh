@@ -13,13 +13,14 @@ ansi_art='     ▄▄▄▄▄▄▄▄    ▄▄▄▄▄▄▄▄        ▄�
 clear
 echo -e "\n$ansi_art\n"
 
-# Always use stable mirror first; on failure refresh mirrorlist (fallback to Arch mirrors) and retry
-set_stable_mirror() {
-  echo 'Server = https://stable-mirror.omarchy.org/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
+# Seed a working mirrorlist up front; on failure refresh from Arch's mirror status API and retry.
+set_initial_mirror() {
+  # Arch's official geoIP CDN mirror — reliable single-line default.
+  echo 'Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch' | sudo tee /etc/pacman.d/mirrorlist >/dev/null
 }
 
 refresh_mirrorlist_fallback() {
-  echo "Stable mirror failed. Refreshing mirrorlist from Arch Linux mirrors..."
+  echo "Initial mirror failed. Refreshing mirrorlist from Arch Linux mirrors..."
   if curl -fsSL 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' |
     sed 's/^#Server/Server/' | sudo tee /etc/pacman.d/mirrorlist >/dev/null; then
     echo "Mirrorlist updated. Retrying..."
@@ -29,7 +30,7 @@ refresh_mirrorlist_fallback() {
   return 1
 }
 
-set_stable_mirror
+set_initial_mirror
 max_attempts=2
 attempt=1
 while ! sudo pacman -Syu --noconfirm --needed git; do
