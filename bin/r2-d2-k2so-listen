@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # Push-to-talk style voice ingress for K-2SO via Voxtype.
+# Interactive stop (read) needs a TTY — re-open in a floating terminal when
+# launched from a Hyprland keybind.
+
+if [[ ! -t 0 ]]; then
+  exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.r2d2.terminal --title=K-2SO -e r2-d2-k2so-listen
+fi
 
 if ! r2-d2-cmd-present k2so; then
   notify-send "K-2SO" "k2so not found — run r2-d2-install-k2so first" -u critical -t 5000

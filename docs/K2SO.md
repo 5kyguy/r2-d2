@@ -30,8 +30,8 @@ If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensur
 
 | Input | Action |
 | ----- | ------ |
-| **Super + A** | Text prompt → `k2so ask` |
-| **Super + Shift + A** | Voice via Voxtype → `k2so ask` |
+| **Super + A** | Text prompt (Walker) → `k2so ask` |
+| **Super + Alt + A** | Voice via Voxtype → `k2so ask` |
 | `k2so open` | Dashboard via on-demand HTTP bridge (Unix socket daemon) |
 | `k2so status` | List tasks in terminal |
 | `k2so abort <id>` | Abort a queued or running task |
