@@ -1,0 +1,16 @@
+[Unit]
+Description=K-2SO dashboard (HTTP bridge)
+After=k2so.service
+Requires=k2so.service
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/k2so dashboard
+Environment=K2SO_PROFILE=%h/.config/k2so/profile.toml
+Environment=R2D2_PATH=%h/.local/share/r2-d2
+Environment=PATH=%h/.opencode/bin:%h/.local/share/r2-d2/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

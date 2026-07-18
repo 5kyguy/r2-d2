@@ -39,8 +39,10 @@ fi
 
 mkdir -p "$HOME/.config/systemd/user"
 cp "$R2D2_PATH/default/config/systemd/user/k2so.service" "$HOME/.config/systemd/user/"
+cp "$R2D2_PATH/default/config/systemd/user/k2so-dashboard.service" "$HOME/.config/systemd/user/"
 
 systemctl --user daemon-reload
 systemctl --user enable --now k2so.service
+systemctl --user enable --now k2so-dashboard.service
 
 echo "K-2SO installed. Hotkeys: Super+A (ask), Super+Shift+A (voice)"

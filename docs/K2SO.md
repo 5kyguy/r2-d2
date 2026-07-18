@@ -13,7 +13,7 @@ r2-d2-install-k2so
 3. Merges only the `mcp.r2d2` block into `~/.config/opencode/opencode.json` (does not replace an existing OpenCode setup)
 4. Runs `k2so init` to register the markdown agent at `~/.config/opencode/agents/k2so.md` — **K-2SO never writes the full `opencode.json`**
 5. Writes `~/.config/k2so/profile.toml` when absent
-6. Enables `k2so.service` (user systemd)
+6. Enables `k2so.service` (daemon) and `k2so-dashboard.service` (persistent HTTP dashboard at `127.0.0.1:7780`)
 
 ## API key
 
@@ -32,7 +32,7 @@ If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensur
 | ----- | ------ |
 | **Super + A** | Text prompt (Walker) → `k2so ask` |
 | **Super + Alt + A** | Voice via Voxtype → `k2so ask` |
-| `k2so open` | Dashboard via on-demand HTTP bridge (Unix socket daemon) |
+| `k2so open` | Open dashboard in browser (persistent service at `127.0.0.1:7780`) |
 | `k2so status` | List tasks in terminal |
 | `k2so abort <id>` | Abort a queued or running task |
 | `k2so open-task <id>` | Open task workspace folder |
@@ -40,7 +40,7 @@ If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensur
 | `k2so doctor` | Health check (agent file, profile, memory seeds) |
 | `k2so init` | Re-run registration (idempotent) |
 
-The daemon listens on a Unix socket (`~/.local/state/k2so/k2so.sock`) — only local processes running as your user can submit tasks. There is no long-lived TCP listener.
+The daemon listens on a Unix socket (`~/.local/state/k2so/k2so.sock`) — only local processes running as your user can submit tasks. The dashboard companion (`k2so-dashboard.service`) is the only TCP listener, bound to loopback (`127.0.0.1:7780`) for browser access; disable it via `[dashboard].enabled = false` in `~/.config/k2so/profile.toml`.
 
 ## MCP tools
 
