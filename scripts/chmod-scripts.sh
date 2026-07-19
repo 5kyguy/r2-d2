@@ -1,14 +1,34 @@
 #!/bin/bash
 
+# Make repo shell entrypoints executable. Scoped to known script dirs only —
+# never a blanket find from cwd (that can chmod unrelated trees if run from
+# the wrong place, and must never touch ~/.config or applications/*.desktop).
+
 set -euo pipefail
 
-echo "Making all .sh files executable..."
-if command -v find >/dev/null 2>&1; then
-  find . -type f -name '*.sh' -print0 | xargs -0 chmod +x
-else
-  echo "find command not available; skipping .sh files" >&2
-fi
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
 
-if [[ -d "bin" ]]; then
-  chmod +x bin/*
-fi
+chmod_tree() {
+  local dir=$1
+  [[ -d $dir ]] || return 0
+  find "$dir" -type f \( -name '*.sh' -o -path '*/bin/*' \) -print0 |
+    xargs -0 -r chmod a+x
+}
+
+echo "Making R2-D2 script entrypoints executable under $ROOT"
+
+# Top-level installers
+[[ -f boot.sh ]] && chmod a+x boot.sh
+[[ -f install.sh ]] && chmod a+x install.sh
+
+# Commands on PATH after install
+chmod_tree bin
+
+# Install / migration / helper scripts
+chmod_tree install
+chmod_tree migrations
+chmod_tree scripts
+chmod_tree hooks
+
+echo "Done."

@@ -16,9 +16,11 @@ exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 [[ -n $R2D2_UPDATE_SKIP_KEYRING ]] || "$BIN/r2-d2-update-keyring"
 [[ -n $R2D2_UPDATE_SKIP_AVAILABLE_RESET ]] || "$BIN/r2-d2-update-available-reset"
 [[ -n $R2D2_UPDATE_SKIP_SYNC_FILES ]] || "$BIN/r2-d2-update-sync-files"
+# Migrations before package upgrades so pacman.conf / repo changes (e.g. drop
+# [omarchy]) take effect before pacman -Syu pulls from stale remotes.
+[[ -n $R2D2_UPDATE_SKIP_MIGRATE ]] || "$BIN/r2-d2-migrate"
 [[ -n $R2D2_UPDATE_SKIP_SYSTEM_PKGS ]] || "$BIN/r2-d2-update-system-pkgs"
 [[ -n $R2D2_UPDATE_SKIP_SYNC_PKGS ]] || "$BIN/r2-d2-update-sync-pkgs"
-[[ -n $R2D2_UPDATE_SKIP_MIGRATE ]] || "$BIN/r2-d2-migrate"
 [[ -n $R2D2_UPDATE_SKIP_AUR_PKGS ]] || "$BIN/r2-d2-update-aur-pkgs"
 [[ -n $R2D2_UPDATE_SKIP_ORPHAN_PKGS ]] || "$BIN/r2-d2-update-orphan-pkgs"
 [[ -n $R2D2_UPDATE_SKIP_HOOK ]] || "$BIN/r2-d2-hook" post-update
