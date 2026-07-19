@@ -19,3 +19,10 @@ invisible=true
 
 [mode=do-not-disturb app-name=notify-send]
 invisible=false
+
+[mode=do-not-disturb app-name=k2so]
+invisible=false
+
+[app-name=k2so]
+default-timeout=12000
+height=140

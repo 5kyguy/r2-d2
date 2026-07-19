@@ -33,12 +33,16 @@ If you still have `~/.config/r2-d2/k2so.env` from an older install, `r2-d2-ensur
 | **Super + A** | Text prompt (Walker) → `k2so ask` |
 | **Super + Alt + A** | Voice via Voxtype → `k2so ask` |
 | `k2so open` | Open dashboard in browser (persistent service at `127.0.0.1:7780`) |
+| `k2so open ?task=<id>` / `k2so open <id>` | Open dashboard focused on a task (Result panel) |
 | `k2so status` | List tasks in terminal |
+| `k2so show <id>` | Print task status and response (fetches OpenCode if not stored yet) |
 | `k2so abort <id>` | Abort a queued or running task |
-| `k2so open-task <id>` | Open task workspace folder |
+| `k2so open-task <id>` | Open task workspace folder (`instruction.txt`, `response.md`) |
 | `k2so prune` | Remove old task workspaces |
 | `k2so doctor` | Health check (agent file, profile, memory seeds) |
 | `k2so init` | Re-run registration (idempotent) |
+
+When a background task completes, K-2SO captures the final assistant text onto the task record, writes `~/.local/share/k2so/workspace/<id>/response.md`, and (when notify is enabled) sends a desktop notification with a short preview plus a dashboard deep link (`http://127.0.0.1:7780/?task=<id>`).
 
 The daemon listens on a Unix socket (`~/.local/state/k2so/k2so.sock`) — only local processes running as your user can submit tasks. The dashboard companion (`k2so-dashboard.service`) is the only TCP listener, bound to loopback (`127.0.0.1:7780`) for browser access; disable it via `[dashboard].enabled = false` in `~/.config/k2so/profile.toml`.
 
@@ -100,7 +104,16 @@ ExecStart=%h/.local/bin/k2so prune
 
 ## Notifications
 
-Task completion uses `notify-send` with the workspace path. mako action buttons (e.g. "Open report") are a possible follow-up.
+Task completion uses `notify-send` (when `[notify].enabled = true` in `profile.toml`).
+
+Done tasks include mako action buttons:
+
+| Action | What it runs |
+| ------ | ------------ |
+| **Open result** | `k2so open <task-id>` — dashboard Result panel |
+| **Open folder** | `k2so open-task <task-id>` — workspace (`response.md`) |
+
+Notifications use app-name `k2so` (see mako `[app-name=k2so]` and a do-not-disturb exception in `config/mako/`).
 
 ## Service
 
