@@ -4,3 +4,17 @@ cursor-bin
 helium-browser-bin
 walker
 z-code-bin
+
+# Elephant providers (walker data sources). Version must match the elephant package.
+elephant-desktopapplications
+elephant-websearch
+elephant-menus
+elephant-symbols
+elephant-clipboard
+elephant-calc
+elephant-providerlist
+elephant-files
+elephant-runner
+elephant-bluetooth
+elephant-todo
+elephant-unicode
