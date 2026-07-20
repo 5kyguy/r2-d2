@@ -12,6 +12,8 @@
   border: none;
   border-radius: 0;
   min-height: 0;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 12px;
 }
 
 window#waybar {
@@ -51,6 +53,7 @@ window#waybar {
 
 #custom-r2-d2 {
   padding-right: 12px;
+  font-weight: 400; /* pixel logo font has no bold; faux-bold smears it */
 }
 
 #bluetooth,
