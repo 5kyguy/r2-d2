@@ -8,7 +8,7 @@ set -euo pipefail
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
 declare -a THEME_PATHS=(
-  config/hypr/looknfeel.conf
+  config/hypr/looknfeel.lua
   config/hypr/hyprlock.conf
   config/waybar/waybar.css
   config/waybar/style.css

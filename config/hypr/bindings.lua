@@ -1,0 +1,7 @@
+-- Override or add keybindings here. Bindings live in bindings/*.lua (apps,
+-- clipboard, media, tiling-v2, utilities). This file is required last so you
+-- can unbind and rebind as needed.
+--
+-- Examples:
+-- hl.unbind("SUPER + B")
+-- hl.bind("SUPER + B", hl.dsp.exec_cmd("r2-d2-launch-browser"), { description = "Browser" })

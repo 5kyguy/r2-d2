@@ -200,7 +200,7 @@ apply_mapping() {
   OUTPUTS+=("$relative_output")
 }
 
-apply_mapping "hypr-looknfeel.conf.in" "config/hypr/looknfeel.conf"
+apply_mapping "hypr-looknfeel.lua.in" "config/hypr/looknfeel.lua"
 apply_mapping "hypr-hyprlock.conf.in" "config/hypr/hyprlock.conf"
 apply_mapping "waybar.css.in" "config/waybar/waybar.css"
 apply_mapping "waybar-style.css.in" "config/waybar/style.css"

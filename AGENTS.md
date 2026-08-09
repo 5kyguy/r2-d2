@@ -16,15 +16,18 @@ on this R2-D2 installation. Read this before making changes.
 
 ## Hyprland config edits — ALWAYS validate
 
-After ANY Hyprland config change:
+After ANY Hyprland compositor config change under `config/hypr/*.lua`:
 
-1. Run `hyprctl reload`.
+1. Run `hyprctl reload` (only works if the session already started with `hyprland.lua`).
 2. Run `hyprctl configerrors`.
 3. If `hyprctl configerrors` reports errors, address them and rerun validation
    until clean, or until a real blocker is identified.
 
 Do not leave the compositor in a broken state. The user may be working in
 another session and will not see warnings you ignore.
+
+First-time cutover from hyprlang `.conf` to Lua requires a **Hyprland restart**
+(log out / reboot); `hyprctl reload` alone will not switch entrypoints.
 
 ## Use the wrappers, not raw commands
 
@@ -63,8 +66,10 @@ K-2SO task-completion notifications should always use it.
   hooks) applied via migrations or install scripts — NOT overwritten on every update.
 - Repo `default/config/` holds `~/.config` support assets applied at install
   and via migrations only.
-- Hyprland bindings live under `config/hypr/bindings/*.conf` (R2-D2 uses
-  `.conf`, not `.lua`).
+- Hyprland compositor config is Lua (`config/hypr/hyprland.lua` + modules).
+  Bindings live under `config/hypr/bindings/*.lua`. hyprlock/hypridle/hyprsunset/xdph
+  remain `.conf`. If switching from hyprlang `.conf` to Lua for the first time,
+  a full Hyprland restart is required (not only `hyprctl reload`).
 
 ## Migrations
 

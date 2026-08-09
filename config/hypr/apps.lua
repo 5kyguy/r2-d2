@@ -1,0 +1,10 @@
+-- App-specific tweaks
+require("apps.browser")
+require("apps.hyprshot")
+require("apps.localsend")
+require("apps.pip")
+require("apps.steam")
+require("apps.system")
+require("apps.terminals")
+require("apps.walker")
+require("apps.webcam-overlay")

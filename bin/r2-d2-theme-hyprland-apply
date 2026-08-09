@@ -1,47 +1,68 @@
 #!/bin/bash
 
-# Apply wallpaper-driven border colors from looknfeel.conf without hyprctl reload.
+# Apply wallpaper-driven border colors from theme-accent state without hyprctl reload.
+# Derives colors the same way as r2-d2-theme-apply (no parsing of looknfeel.lua).
 
 set -euo pipefail
 
-LOOKNFEEL="${HOME}/.config/hypr/looknfeel.conf"
+R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+PALETTE="$R2D2_ROOT/config/theme/palette.toml"
+STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
 
-if [[ ! -f $LOOKNFEEL ]]; then
+if [[ ! -f $PALETTE ]]; then
   exit 0
 fi
 
-looknfeel_var() {
-  local var_name="$1"
-  grep -E "^\\\$${var_name} = " "$LOOKNFEEL" | head -1 | sed -E "s/^\\\$${var_name} = //"
-}
-
-active_border=$(looknfeel_var active_border)
-inactive_border=$(looknfeel_var inactive_border)
-group_border_active=$(looknfeel_var group_border_active)
-group_border_inactive=$(looknfeel_var group_border_inactive)
-group_locked_active=$(looknfeel_var group_locked_active)
-group_locked_inactive=$(looknfeel_var group_locked_inactive)
-
-if [[ -n $active_border ]]; then
-  hyprctl keyword general:col.active_border "$active_border" >/dev/null 2>&1 || true
+accent=""
+if [[ -f $STATE_FILE ]]; then
+  accent="$(tr -d '[:space:]' <"$STATE_FILE")"
+fi
+if [[ -z $accent ]]; then
+  accent="$(grep -E '^fallback_accent[[:space:]]*=' "$PALETTE" | head -1 | sed -E 's/^[^"]*"([^"]+)".*/\1/')"
 fi
 
-if [[ -n $inactive_border ]]; then
-  hyprctl keyword general:col.inactive_border "$inactive_border" >/dev/null 2>&1 || true
+accent="${accent^^}"
+if [[ $accent != \#* ]]; then
+  accent="#$accent"
 fi
 
-if [[ -n $group_border_active ]]; then
-  hyprctl keyword group:col.border_active "$group_border_active" >/dev/null 2>&1 || true
-fi
+eval "$(
+  python3 - "$accent" "$PALETTE" <<'PY'
+import re
+import sys
 
-if [[ -n $group_border_inactive ]]; then
-  hyprctl keyword group:col.border_inactive "$group_border_inactive" >/dev/null 2>&1 || true
-fi
+accent = sys.argv[1].lstrip("#").upper()
+palette_path = sys.argv[2]
 
-if [[ -n $group_locked_active ]]; then
-  hyprctl keyword group:col.border_locked_active "$group_locked_active" >/dev/null 2>&1 || true
-fi
+values = {}
+for line in open(palette_path, encoding="utf-8"):
+    match = re.match(r'^([a-z_]+)\s*=\s*"([^"]+)"', line)
+    if match:
+        values[match.group(1)] = match.group(2)
 
-if [[ -n $group_locked_inactive ]]; then
-  hyprctl keyword group:col.border_locked_inactive "$group_locked_inactive" >/dev/null 2>&1 || true
-fi
+def rgb(hex_color: str):
+    hex_color = hex_color.lstrip("#")
+    return int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+
+def rgba_hex(r, g, b, alpha):
+    a = int(round(alpha * 255))
+    return f"{r:02x}{g:02x}{b:02x}{a:02x}"
+
+ar, ag, ab = rgb(accent)
+ir, ig, ib = rgb(values.get("inactive", "#606060"))
+
+print(f'active_border="rgb({ar:02X}{ag:02X}{ab:02X})"')
+print(f'inactive_border="rgb({ir:02X}{ig:02X}{ib:02X})"')
+print(f'group_border_active="rgba({rgba_hex(ar, ag, ab, 0.55)}) rgba({rgba_hex(ar, ag, ab, 0.22)}) 90deg"')
+print('group_border_inactive="rgba(3a3a3a55)"')
+print(f'group_locked_active="rgba({rgba_hex(ar, ag, ab, 0.88)}) rgba({rgba_hex(ar, ag, ab, 0.22)}) 90deg"')
+print('group_locked_inactive="rgba(3a3a3a77)"')
+PY
+)"
+
+hyprctl keyword general:col.active_border "$active_border" >/dev/null 2>&1 || true
+hyprctl keyword general:col.inactive_border "$inactive_border" >/dev/null 2>&1 || true
+hyprctl keyword group:col.border_active "$group_border_active" >/dev/null 2>&1 || true
+hyprctl keyword group:col.border_inactive "$group_border_inactive" >/dev/null 2>&1 || true
+hyprctl keyword group:col.border_locked_active "$group_locked_active" >/dev/null 2>&1 || true
+hyprctl keyword group:col.border_locked_inactive "$group_locked_inactive" >/dev/null 2>&1 || true

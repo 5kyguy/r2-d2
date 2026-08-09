@@ -1,0 +1,11 @@
+-- Application launchers. Override in bindings.lua if needed.
+hl.bind("SUPER + RETURN", hl.dsp.exec_cmd('uwsm-app -- xdg-terminal-exec --dir="$(r2-d2-cmd-terminal-cwd)"'), { description = "Terminal" })
+hl.bind("SUPER + B", hl.dsp.exec_cmd("r2-d2-launch-browser"), { description = "Browser" })
+hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("r2-d2-launch-browser --private"), { description = "Browser (private)" })
+hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm-app -- cursor"), { description = "Cursor" })
+hl.bind("SUPER + H", hl.dsp.exec_cmd("uwsm-app -- helium-browser"), { description = "Helium" })
+hl.bind("SUPER + Y", hl.dsp.exec_cmd("r2-d2-launch-or-focus YouTube gtk-launch YouTube"), { description = "YouTube" })
+hl.bind("SUPER + CTRL + N", hl.dsp.exec_cmd("uwsm-app -- nautilus --new-window"), { description = "Nautilus" })
+hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd("r2-d2-launch-or-focus WhatsApp gtk-launch WhatsApp"), { description = "WhatsApp" })
+hl.bind("SUPER + CTRL + X", hl.dsp.exec_cmd("r2-d2-launch-or-focus X gtk-launch X"), { description = "X" })
+hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd("r2-d2-launch-or-focus steam gtk-launch steam"), { description = "Steam" })
