@@ -5,11 +5,13 @@
 # (don't mess with these directly, just overwrite them here!)
 source ~/.config/bash/rc
 
-# Load SSH keys into agent (keychain)
+# Load SSH keys into agent (keychain 3.x).
+# --immediate skips the "Press Enter to initialize keys" gate that otherwise
+# blocks Cursor/IDE terminals until you type something (stderr was also being
+# discarded, so the prompt was invisible). One call loads all present keys.
 if command -v keychain &>/dev/null; then
-  eval $(keychain --eval --agents ssh id_git_ssh 2>/dev/null)
-  eval $(keychain --eval --agents ssh id_rsa_ssh_login 2>/dev/null)
-  eval $(keychain --eval --agents ssh id_ssh_login 2>/dev/null)
+  eval "$(keychain add --eval --immediate --ignore-missing --quiet \
+    id_git_ssh id_rsa_ssh_login id_ssh_login)"
 fi
 
 # Add your own exports, aliases, and functions here.
