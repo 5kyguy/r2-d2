@@ -74,7 +74,7 @@ Change wallpaper via **Super + Ctrl + Space** (Walker background selector). Acce
 
 Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 
-**Caps Lock ↔ Left Super:** keyd swaps these keys system-wide (`default/keyd/default.conf`). Hyprland **Super** bindings use the **Caps Lock** key; the physical **Left Win** key acts as Caps Lock.
+**Caps Lock → Super:** keyd maps Caps Lock to Super system-wide (`default/keyd/default.conf`). Hyprland **Super** bindings use the **Caps Lock** key (Left Win is also Super). Caps Lock lock state is disabled — use Shift for capitals.
 
 ### Menus and Walker
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Swap Caps Lock and Left Super via keyd (see default/keyd/default.conf).
+# Map Caps Lock → Left Super via keyd; Caps Lock lock state disabled (see default/keyd/default.conf).
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 

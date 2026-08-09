@@ -32,7 +32,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 | Script | What |
 | ------ | ---- |
-| **keyd.sh** | Deploy `default/keyd/default.conf` to `/etc/keyd/`; enable **keyd** service. Swaps Caps Lock and Left Super so Hyprland Super bindings use the Caps key. |
+| **keyd.sh** | Deploy `default/keyd/default.conf` to `/etc/keyd/`; enable **keyd** service. Maps Caps Lock → Super (Caps Lock disabled) so Hyprland Super bindings use the Caps key. |
 
 ### 1.5 Config – conditional packages
 
