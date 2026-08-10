@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if command -v limine &>/dev/null; then
-  sudo pacman -S --noconfirm --needed limine-snapper-sync limine-mkinitcpio-hook
+  r2-d2-pkg-aur-add limine-snapper-sync limine-mkinitcpio-hook
 
   sudo tee /etc/mkinitcpio.conf.d/r2-d2_hooks.conf <<EOF >/dev/null
 HOOKS=(base udev plymouth keyboard autodetect microcode modconf keymap consolefont block encrypt kms filesystems fsck btrfs-overlayfs)

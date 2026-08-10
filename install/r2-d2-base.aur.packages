@@ -1,8 +1,20 @@
 # AUR packages for base install (installed via r2-d2-pkg-aur-add in install/packaging/base.sh)
 brave-origin-nightly-bin
 cursor-bin
+elephant
 helium-browser-bin
+hyprland-preview-share-picker-git
+limine-mkinitcpio-hook
+limine-snapper-sync
+localsend
+makima-bin
+python-terminaltexteffects
+tzupdate
+ufw-docker
 walker
+xdg-terminal-exec
+yaru-icon-theme
+yay
 z-code-bin
 
 # Elephant providers (walker data sources). Version must match the elephant package.

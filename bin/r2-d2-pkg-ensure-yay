@@ -8,14 +8,7 @@ fi
 
 echo "Installing yay..."
 
-if r2-d2-pkg-missing yay; then
-  r2-d2-pkg-add yay || true
-fi
-
-if r2-d2-cmd-present yay; then
-  exit 0
-fi
-
+# yay is AUR-only; never pass it to pacman (r2-d2-pkg-add).
 echo "Bootstrapping yay from AUR source..."
 
 r2-d2-pkg-add base-devel git

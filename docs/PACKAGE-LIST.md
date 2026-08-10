@@ -9,12 +9,12 @@ This document lists what is installed during the R2-D2 install and what can be i
 ### 1.1 Preflight (`install/preflight/`)
 
 - **pacman.sh** — Installs **base-devel**; copies pacman.conf and mirrorlist; full sync and upgrade (`pacman -Syyuu`).
-- All desktop and app packages are in **`install/r2-d2-base.packages`** (single pacman list).
+- All desktop and app packages are in **`install/r2-d2-base.packages`** (pacman) and **`install/r2-d2-base.aur.packages`** (AUR).
 
 ### 1.2 Packaging – base packages (`install/packaging/base.sh`)
 
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
-- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant-* providers).
+- **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (browsers, walker/elephant, limine helpers, localsend, xdg-terminal-exec, and other AUR-only deps).
 - **SSH:** `openssh` is installed so the SSH server is available, but `sshd` is **not** enabled by default. Enable it manually when needed (`sudo systemctl enable --now sshd`).
 - **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
 
@@ -54,15 +54,15 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **162** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
-base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, limine-mkinitcpio-hook, limine-snapper-sync, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd
+base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, limine, dkms, kernel-modules-hook, amd-ucode, zram-generator, keychain, keyd
 
 ### Compositor and session
 
-hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, hyprland-preview-share-picker, swaybg, swayosd, waybar, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
+hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, swayosd, waybar, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
 
 ### Shell and CLI
 
@@ -82,7 +82,7 @@ iwd, avahi, nss-mdns, inetutils, net-tools
 
 ### Fonts and icons
 
-fontconfig, noto-fonts, noto-fonts-emoji, ttf-cascadia-mono-nerd, woff2-font-awesome, yaru-icon-theme
+fontconfig, noto-fonts, noto-fonts-emoji, ttf-cascadia-mono-nerd, woff2-font-awesome
 
 ### Secrets and session
 
@@ -90,11 +90,11 @@ gnome-keyring, polkit-gnome, libsecret
 
 ### Portals and XDG
 
-xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland, xdg-terminal-exec
+xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland
 
 ### Screenshot, capture, sharing
 
-grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, localsend, ffmpegthumbnailer
+grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer
 
 ### File manager and GVfs
 
@@ -110,7 +110,7 @@ docker, docker-buildx, docker-compose, lazydocker
 
 ### Development and runtimes (base list)
 
-git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, python-terminaltexteffects, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
+git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
 
 ### System info and monitoring
 
@@ -134,7 +134,7 @@ gnome-calculator, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kd
 
 ### Firewall and security
 
-ufw, ufw-docker, openssh (sshd is installed but **not** enabled by default)
+ufw, openssh (sshd is installed but **not** enabled by default)
 
 ### Bluetooth
 
@@ -146,7 +146,11 @@ flatpak
 
 ### Misc
 
-plocate, whois, tzupdate, unzip, exfatprogs, impala, wtype
+plocate, whois, unzip, exfatprogs, impala, wtype
+
+### AUR base (`install/r2-d2-base.aur.packages`)
+
+brave-origin-nightly-bin, cursor-bin, helium-browser-bin, z-code-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
 
 ---
 
@@ -172,10 +176,10 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 162 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, and elephant-* provider plugins (desktopapplications, websearch, menus, etc.).
+- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
-- **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook (if limine present).
+- **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
 - **Default TUI shortcuts:** none (add via Install → TUI).
 - **Default editors:** Cursor (AUR), Opencode (curl installer).

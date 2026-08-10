@@ -1,6 +1,7 @@
 #!/bin/bash
 
-r2-d2-pkg-add gnome-themes-extra yaru-icon-theme
+r2-d2-pkg-add gnome-themes-extra
+r2-d2-pkg-aur-add yaru-icon-theme
 
 gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
 gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
