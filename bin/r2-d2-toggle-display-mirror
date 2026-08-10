@@ -29,14 +29,14 @@ fi
 if [[ -f $STATE_FILE ]]; then
   # Currently mirroring — switch to extend
   rm -f "$STATE_FILE"
-  hyprctl keyword monitor "$EXTERNAL,preferred,auto,1"
-  hyprctl keyword monitor "$BUILTIN,preferred,auto,1"
+  r2-d2-hyprland-monitor-set "$EXTERNAL" preferred auto 1 mirror ""
+  r2-d2-hyprland-monitor-set "$BUILTIN" preferred auto 1
   notify-send "󰍺  Display extended"
 else
   # Currently extending — switch to mirror
   mkdir -p "$STATE_DIR"
   touch "$STATE_FILE"
-  hyprctl keyword monitor "$EXTERNAL,preferred,0x0,1,mirror,$BUILTIN"
+  r2-d2-hyprland-monitor-set "$EXTERNAL" preferred 0x0 1 mirror "$BUILTIN"
   notify-send "󰍺  Display mirrored"
 fi
 

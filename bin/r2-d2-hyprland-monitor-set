@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Apply a monitor rule via hyprctl eval (required when Hyprland uses Lua config).
+# Legacy: hyprctl keyword monitor "..." → keyword can't work with non-legacy parsers.
+#
+# Usage:
+#   r2-d2-hyprland-monitor-set OUTPUT disable
+#   r2-d2-hyprland-monitor-set OUTPUT MODE POSITION SCALE
+#   r2-d2-hyprland-monitor-set OUTPUT MODE POSITION SCALE mirror MIRROR
+#
+# Examples:
+#   r2-d2-hyprland-monitor-set eDP-1 disable
+#   r2-d2-hyprland-monitor-set eDP-1 preferred auto 1
+#   r2-d2-hyprland-monitor-set HDMI-A-1 preferred 0x0 1 mirror eDP-1
+
+set -euo pipefail
+
+if (($# < 2)); then
+  echo "Usage: r2-d2-hyprland-monitor-set OUTPUT disable|MODE POSITION SCALE [mirror MIRROR]" >&2
+  exit 1
+fi
+
+lua_str() {
+  local s=$1
+  s=${s//\\/\\\\}
+  s=${s//\"/\\\"}
+  printf '"%s"' "$s"
+}
+
+lua_scale() {
+  if [[ $1 =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    printf '%s' "$1"
+  else
+    lua_str "$1"
+  fi
+}
+
+output=$1
+shift
+
+if [[ $1 == disable ]]; then
+  hyprctl eval "hl.monitor({ output = $(lua_str "$output"), disabled = true })"
+  exit 0
+fi
+
+if (($# < 3)); then
+  echo "Usage: r2-d2-hyprland-monitor-set OUTPUT MODE POSITION SCALE [mirror MIRROR]" >&2
+  exit 1
+fi
+
+mode=$1
+position=$2
+scale=$3
+shift 3
+
+# disabled=false is required to re-enable a previously disabled output.
+fields="output = $(lua_str "$output"), mode = $(lua_str "$mode"), position = $(lua_str "$position"), scale = $(lua_scale "$scale"), disabled = false"
+
+# Only set mirror when asked (including mirror "" to clear an existing mirror).
+if (($# >= 2)) && [[ $1 == mirror ]]; then
+  fields+=", mirror = $(lua_str "$2")"
+fi
+
+hyprctl eval "hl.monitor({ $fields })"

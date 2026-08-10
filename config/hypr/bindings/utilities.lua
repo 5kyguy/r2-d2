@@ -34,5 +34,6 @@ hl.bind("F5", hl.dsp.exec_cmd("voxtype record start"), { description = "Start di
 hl.bind("F5", hl.dsp.exec_cmd("voxtype record stop"), { release = true, description = "Stop dictation (push-to-talk)" })
 
 -- Lid switch: closing disables built-in display ONLY when an external monitor is connected.
-hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("r2-d2-hw-external-monitors && r2-d2-toggle-builtin-display"), { locked = true })
-hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("r2-d2-toggle-builtin-display"), { locked = true })
+-- Use explicit enable/disable (not toggle) so hotkeys and lid events cannot fight each other.
+hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("r2-d2-hw-external-monitors && r2-d2-toggle-builtin-display disable"), { locked = true })
+hl.bind("switch:off:Lid Switch", hl.dsp.exec_cmd("r2-d2-toggle-builtin-display enable"), { locked = true })

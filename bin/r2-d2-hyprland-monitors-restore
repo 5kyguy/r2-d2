@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Restore monitor layout after hyprctl reload (session tweaks live in keywords, not monitors.conf).
+# Restore monitor layout after hyprctl reload (session tweaks live in runtime eval, not monitors.lua).
 
 set -euo pipefail
 
@@ -15,16 +15,20 @@ apply_mirror() {
   external=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
 
   if [[ -n $builtin && -n $external ]]; then
-    hyprctl keyword monitor "$external,preferred,0x0,1,mirror,$builtin"
+    r2-d2-hyprland-monitor-set "$external" preferred 0x0 1 mirror "$builtin"
   fi
 }
 
 if [[ -f $BUILTIN_DISABLED ]]; then
-  hyprctl keyword monitor "$(cat "$BUILTIN_DISABLED"),disable"
+  r2-d2-hyprland-monitor-set "$(cat "$BUILTIN_DISABLED")" disable
 elif [[ -f $DISPLAY_MIRROR ]]; then
   apply_mirror
 elif [[ ! -t 0 ]]; then
   while read -r rule; do
-    [[ -n $rule ]] && hyprctl keyword monitor "$rule"
+    [[ -z $rule ]] && continue
+    # Saved rules look like: name,WxH@Hz,XxY,scale
+    IFS=',' read -r name mode position scale <<<"$rule"
+    [[ -n $name && -n $mode && -n $position && -n $scale ]] || continue
+    r2-d2-hyprland-monitor-set "$name" "$mode" "$position" "$scale"
   done
 fi
