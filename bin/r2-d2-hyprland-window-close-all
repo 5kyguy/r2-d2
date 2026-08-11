@@ -6,4 +6,4 @@ hyprctl clients -j |
   xargs -I{} hyprctl dispatch closewindow address:{}
 
 # Move to first workspace
-hyprctl dispatch workspace 1
+hyprctl dispatch "hl.dsp.focus({ workspace = 1 })"

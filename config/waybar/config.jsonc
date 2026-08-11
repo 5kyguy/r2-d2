@@ -36,7 +36,8 @@
     "tooltip-format": "R2-D2"
   },
   "hyprland/workspaces": {
-    "on-click": "activate",
+    // "activate" uses legacy `hyprctl dispatch workspace N`, which fails under Lua config.
+    "on-click": "hyprctl dispatch \"hl.dsp.focus({ workspace = {id} })\"",
     "format": "{icon}",
     "format-icons": {
       "default": "",
