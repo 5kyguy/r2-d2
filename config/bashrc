@@ -7,11 +7,16 @@ source ~/.config/bash/rc
 
 # Load SSH keys into agent (keychain 3.x).
 # --immediate skips the "Press Enter to initialize keys" gate that otherwise
-# blocks Cursor/IDE terminals until you type something (stderr was also being
-# discarded, so the prompt was invisible). One call loads all present keys.
+# blocks Cursor/IDE terminals. Start the agent first, then add each key in its
+# own invocation — keychain batches all keys into one ssh-add, which in restored
+# IDE ttys often only prompts for the first passphrase and leaves the rest unloaded.
 if command -v keychain &>/dev/null; then
-  eval "$(keychain add --eval --immediate --ignore-missing --quiet \
-    id_git_ssh id_rsa_ssh_login id_ssh_login)"
+  eval "$(keychain add --eval --immediate --no-passphrase --quiet)"
+  for _r2d2_ssh_key in id_git_ssh id_rsa_ssh_login id_ssh_login; do
+    [[ -f $HOME/.ssh/$_r2d2_ssh_key ]] || continue
+    keychain add --immediate --ignore-missing --quiet "$_r2d2_ssh_key"
+  done
+  unset _r2d2_ssh_key
 fi
 
 # Add your own exports, aliases, and functions here.
