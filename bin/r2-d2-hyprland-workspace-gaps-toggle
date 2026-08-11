@@ -1,15 +1,12 @@
 #!/bin/bash
 
 # Toggle workspace gaps between looknfeel defaults and none.
+# Uses hl.config (Lua) — hyprctl keyword fails under the Lua config parser.
 
-gaps_out=$(hyprctl getoption general:gaps_out -j | jq -r '.custom' | awk '{print $1}')
+gaps_out=$(hyprctl getoption general:gaps_out -j | jq -r '.css // .custom // .int // empty' | awk '{print $1}')
 
-if [[ $gaps_out == "0" ]]; then
-  hyprctl keyword general:gaps_out 2
-  hyprctl keyword general:gaps_in 1
-  hyprctl keyword general:border_size 1
+if [[ $gaps_out == "0" || -z $gaps_out ]]; then
+  hyprctl eval 'hl.config({ general = { gaps_out = 2, gaps_in = 1, border_size = 1 } })'
 else
-  hyprctl keyword general:gaps_out 0
-  hyprctl keyword general:gaps_in 0
-  hyprctl keyword general:border_size 0
+  hyprctl eval 'hl.config({ general = { gaps_out = 0, gaps_in = 0, border_size = 0 } })'
 fi

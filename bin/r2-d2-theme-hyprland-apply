@@ -2,6 +2,7 @@
 
 # Apply wallpaper-driven border colors from theme-accent state without hyprctl reload.
 # Derives colors the same way as r2-d2-theme-apply (no parsing of looknfeel.lua).
+# Uses hl.config (Lua) — hyprctl keyword fails under the Lua config parser.
 
 set -euo pipefail
 
@@ -53,16 +54,28 @@ ir, ig, ib = rgb(values.get("inactive", "#606060"))
 
 print(f'active_border="rgb({ar:02X}{ag:02X}{ab:02X})"')
 print(f'inactive_border="rgb({ir:02X}{ig:02X}{ib:02X})"')
-print(f'group_border_active="rgba({rgba_hex(ar, ag, ab, 0.55)}) rgba({rgba_hex(ar, ag, ab, 0.22)}) 90deg"')
-print('group_border_inactive="rgba(3a3a3a55)"')
-print(f'group_locked_active="rgba({rgba_hex(ar, ag, ab, 0.88)}) rgba({rgba_hex(ar, ag, ab, 0.22)}) 90deg"')
+print(f'group_active_c1="rgba({rgba_hex(ar, ag, ab, 0.55)})"')
+print(f'group_active_c2="rgba({rgba_hex(ar, ag, ab, 0.22)})"')
+print('group_inactive="rgba(3a3a3a55)"')
+print(f'group_locked_c1="rgba({rgba_hex(ar, ag, ab, 0.88)})"')
+print(f'group_locked_c2="rgba({rgba_hex(ar, ag, ab, 0.22)})"')
 print('group_locked_inactive="rgba(3a3a3a77)"')
 PY
 )"
 
-hyprctl keyword general:col.active_border "$active_border" >/dev/null 2>&1 || true
-hyprctl keyword general:col.inactive_border "$inactive_border" >/dev/null 2>&1 || true
-hyprctl keyword group:col.border_active "$group_border_active" >/dev/null 2>&1 || true
-hyprctl keyword group:col.border_inactive "$group_border_inactive" >/dev/null 2>&1 || true
-hyprctl keyword group:col.border_locked_active "$group_locked_active" >/dev/null 2>&1 || true
-hyprctl keyword group:col.border_locked_inactive "$group_locked_inactive" >/dev/null 2>&1 || true
+hyprctl eval "hl.config({
+  general = {
+    col = {
+      active_border = \"$active_border\",
+      inactive_border = \"$inactive_border\",
+    },
+  },
+  group = {
+    col = {
+      border_active = { colors = { \"$group_active_c1\", \"$group_active_c2\" }, angle = 90 },
+      border_inactive = \"$group_inactive\",
+      border_locked_active = { colors = { \"$group_locked_c1\", \"$group_locked_c2\" }, angle = 90 },
+      border_locked_inactive = \"$group_locked_inactive\",
+    },
+  },
+})" >/dev/null 2>&1 || true

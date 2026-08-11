@@ -14,6 +14,8 @@
 # Behavior:
 #   - If the window is already pinned, it will be unpinned and removed from the pop layer.
 #   - If the window is not pinned, it will be floated, resized, moved/centered, pinned, brought to top, and popped.
+#
+# Uses Lua dispatchers (Hyprland 0.55+); legacy hyprctl dispatch fails under Lua config.
 
 width=${1:-1280}
 height=${2:-800}
@@ -24,23 +26,30 @@ active=$(hyprctl activewindow -j)
 pinned=$(echo "$active" | jq ".pinned")
 addr=$(echo "$active" | jq -r ".address")
 
+if [[ -z $addr || $addr == null ]]; then
+  exit 0
+fi
+
 if [[ $pinned == "true" ]]; then
-  hyprctl -q --batch \
-    "dispatch pin address:$addr;" \
-    "dispatch togglefloating address:$addr;" \
-    "dispatch tagwindow -pop address:$addr;"
+  hyprctl dispatch "hl.dsp.window.pin({ window = \"$addr\" })"
+  hyprctl dispatch "hl.dsp.window.float({ window = \"$addr\", action = \"toggle\" })"
+  hyprctl dispatch "hl.dsp.window.tag({ window = \"$addr\", tag = \"-pop\" })"
 elif [[ -n $addr ]]; then
-  hyprctl dispatch togglefloating address:$addr
-  hyprctl dispatch resizeactive exact $width $height address:$addr
+  hyprctl dispatch "hl.dsp.window.float({ window = \"$addr\", action = \"set\" })"
+
+  # Exact size via relative delta (Lua resize has no legacy "exact WxH" form).
+  read -r cur_w cur_h < <(hyprctl clients -j | jq -r --arg a "$addr" '.[] | select(.address == $a) | "\(.size[0]) \(.size[1])"')
+  dx=$((width - cur_w))
+  dy=$((height - cur_h))
+  hyprctl dispatch "hl.dsp.window.resize({ window = \"$addr\", x = $dx, y = $dy, relative = true })"
 
   if [[ -n $x && -n $y ]]; then
-    hyprctl dispatch moveactive $x $y address:$addr
+    hyprctl dispatch "hl.dsp.window.move({ window = \"$addr\", x = $x, y = $y })"
   else
-    hyprctl dispatch centerwindow address:$addr
+    hyprctl dispatch "hl.dsp.window.center({ window = \"$addr\" })"
   fi
 
-  hyprctl -q --batch \
-    "dispatch pin address:$addr;" \
-    "dispatch alterzorder top address:$addr;" \
-    "dispatch tagwindow +pop address:$addr;"
+  hyprctl dispatch "hl.dsp.window.pin({ window = \"$addr\" })"
+  hyprctl dispatch "hl.dsp.window.alter_zorder({ window = \"$addr\", mode = \"top\" })"
+  hyprctl dispatch "hl.dsp.window.tag({ window = \"$addr\", tag = \"+pop\" })"
 fi

@@ -21,12 +21,9 @@ walker -q
 focused=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 
 for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
-  hyprctl dispatch focusmonitor $m
+  hyprctl dispatch "hl.dsp.focus({ monitor = \"$m\" })"
 
-  hyprctl dispatch exec -- \
-    alacritty --class=org.r2d2.screensaver \
-    --config-file ~/.config/alacritty/screensaver.toml \
-    -e r2-d2-cmd-screensaver
+  hyprctl dispatch "hl.dsp.exec_cmd(\"alacritty --class=org.r2d2.screensaver --config-file $HOME/.config/alacritty/screensaver.toml -e r2-d2-cmd-screensaver\")"
 done
 
-hyprctl dispatch focusmonitor $focused
+hyprctl dispatch "hl.dsp.focus({ monitor = \"$focused\" })"

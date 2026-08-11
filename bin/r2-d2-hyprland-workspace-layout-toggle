@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Toggle the layout on the current active workspace between dwindle and scrolling
+# Toggle the layout on the current active workspace between dwindle and scrolling.
+# Uses hl.workspace_rule (Lua) — hyprctl keyword workspace fails under Lua config.
 
 ACTIVE_WORKSPACE=$(hyprctl activeworkspace -j | jq -r '.id')
 CURRENT_LAYOUT=$(hyprctl activeworkspace -j | jq -r '.tiledLayout')
@@ -10,5 +11,5 @@ dwindle) NEW_LAYOUT=scrolling ;;
 *) NEW_LAYOUT=dwindle ;;
 esac
 
-hyprctl keyword workspace $ACTIVE_WORKSPACE, layout:$NEW_LAYOUT
+hyprctl eval "hl.workspace_rule({ workspace = \"$ACTIVE_WORKSPACE\", layout = \"$NEW_LAYOUT\" })"
 notify-send "󱂬    Workspace layout set to $NEW_LAYOUT"

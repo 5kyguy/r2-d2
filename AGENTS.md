@@ -29,6 +29,19 @@ another session and will not see warnings you ignore.
 First-time cutover from hyprlang `.conf` to Lua requires a **Hyprland restart**
 (log out / reboot); `hyprctl reload` alone will not switch entrypoints.
 
+## Hyprland IPC — Lua forms only
+
+The session uses a Lua config provider. Legacy `hyprctl keyword …` and
+`hyprctl dispatch workspace 1`-style calls fail. Prefer:
+
+| Want to... | Use |
+| --- | --- |
+| Change options | `hyprctl eval 'hl.config({ … })'` |
+| Run a dispatcher | `hyprctl dispatch "hl.dsp.…"` (e.g. `hl.dsp.focus({ workspace = 1 })`) |
+| Set a monitor | `r2-d2-hyprland-monitor-set` (wraps `hl.monitor`) |
+
+Read-only queries (`hyprctl monitors -j`, `clients -j`, `getoption`, …) are fine.
+
 ## Use the wrappers, not raw commands
 
 R2-D2 ships wrappers that handle pacman + AUR, the notification daemon, and
