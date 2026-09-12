@@ -1,0 +1,70 @@
+#!/bin/bash
+
+# Turn Bluetooth on or off, remembered across reboots.
+# Port of omarchy-bluetooth-power.
+#
+# BlueZ never persists an adapter's Powered property, so turning Bluetooth off
+# through bluetoothctl lasts only until the next boot. The rfkill soft block does
+# persist: systemd-rfkill saves every switch under /var/lib/systemd/rfkill and
+# restores it early on the next boot.
+
+POWER_WAIT_SECONDS=${R2D2_BLUETOOTH_POWER_WAIT_SECONDS:-2}
+
+controllers() {
+  timeout 2s bluetoothctl list 2>/dev/null | awk '{print $2}'
+}
+
+powered() {
+  local controller
+
+  for controller in $(controllers); do
+    [[ $(timeout 2s bluetoothctl show "$controller" 2>/dev/null) == *"Powered: yes"* ]] && return 0
+  done
+
+  return 1
+}
+
+wait_powered() {
+  local deadline=$((SECONDS + POWER_WAIT_SECONDS))
+
+  while :; do
+    powered && return 0
+    ((SECONDS < deadline)) || return 1
+    sleep 0.2
+  done
+}
+
+power_on() {
+  rfkill unblock bluetooth
+
+  wait_powered && return 0
+
+  timeout 5s bluetoothctl power on >/dev/null 2>&1
+  wait_powered && return 0
+
+  echo "r2-d2-bluetooth-power: adapter did not come up" >&2
+  return 1
+}
+
+case "${1:-}" in
+on)
+  power_on
+  ;;
+off)
+  rfkill block bluetooth
+  ;;
+toggle)
+  if powered; then
+    rfkill block bluetooth
+  else
+    power_on
+  fi
+  ;;
+is-on)
+  powered
+  ;;
+*)
+  echo "Usage: r2-d2-bluetooth-power <on|off|toggle|is-on>" >&2
+  exit 1
+  ;;
+esac
