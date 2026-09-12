@@ -63,7 +63,7 @@ install() {
 }
 
 install_and_launch() {
-  present_terminal "echo 'Installing $1...'; r2-d2-pkg-add $2 && setsid gtk-launch $3"
+  present_terminal "echo 'Installing $1...'; r2-d2-pkg-add $2 && setsid uwsm-app -- gtk-launch $3"
 }
 
 aur_install() {
@@ -71,7 +71,7 @@ aur_install() {
 }
 
 aur_install_and_launch() {
-  present_terminal "echo 'Installing $1 from AUR...'; r2-d2-pkg-aur-add $2 && setsid gtk-launch $3"
+  present_terminal "echo 'Installing $1 from AUR...'; r2-d2-pkg-aur-add $2 && setsid uwsm-app -- gtk-launch $3"
 }
 
 show_trigger_menu() {
@@ -85,10 +85,11 @@ show_trigger_menu() {
 }
 
 show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n  Screenrecord") in
+  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰐲  QR code") in
   *Screenshot*) r2-d2-cmd-screenshot ;;
   *Screenrecord*) show_screenrecord_menu ;;
-  *) back_to show_trigger_menu ;;
+  *QR*) r2-d2-capture-qr ;;
+  *) show_main_menu ;;
   esac
 }
 
@@ -150,7 +151,7 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver") in
+  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver\n󰻌  Crash capture") in
   *"Top bar"*) r2-d2-toggle-waybar ;;
   *Display*) r2-d2-toggle-builtin-display ;;
   *Mirror*) r2-d2-toggle-display-mirror ;;
@@ -161,18 +162,20 @@ show_toggle_menu() {
   *Ratio*) r2-d2-hyprland-window-single-square-aspect-toggle ;;
   *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
   *Screensaver*) r2-d2-toggle-screensaver ;;
+  *"Crash capture"*) r2-d2-toggle-crash-capture ;;
   *) back_to show_trigger_menu ;;
   esac
 }
 
 show_setup_menu() {
-  local options="󱐋  Power Profile\n  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="󱐋  Power Profile\n  Text size\n  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Audio*) r2-d2-launch-audio ;;
   *Wifi*) r2-d2-launch-wifi ;;
   *Bluetooth*) r2-d2-launch-bluetooth ;;
   *Power*) show_setup_power_menu ;;
+  *Text*) show_setup_text_size_menu ;;
   *System*) show_setup_system_menu ;;
   *DNS*) present_terminal r2-d2-setup-dns ;;
   *Security*) show_setup_security_menu ;;
@@ -180,6 +183,34 @@ show_setup_menu() {
   *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *Reset*) present_terminal r2-d2-reset-sudo ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_setup_text_size_menu() {
+  local current choice
+  current=$(r2-d2-display-text-size 2>/dev/null | awk '/^text size:/{print $3}')
+  choice=$(menu "Text size" "Small (10)\nDefault (12)\nLarge (14)\nLarger (16)\nCustom…" "" "${current:-12}")
+
+  case "$choice" in
+  CNCLD | "")
+    back_to show_setup_menu
+    ;;
+  *10*)
+    r2-d2-display-text-size 10
+    ;;
+  *12*)
+    r2-d2-display-text-size 12
+    ;;
+  *14*)
+    r2-d2-display-text-size 14
+    ;;
+  *16*)
+    r2-d2-display-text-size 16
+    ;;
+  *Custom*)
+    size=$(gum input --placeholder "Text size 9–20" --value "${current:-12}")
+    [[ -n $size && $size != "CNCLD" ]] && r2-d2-display-text-size "$size"
+    ;;
   esac
 }
 
@@ -198,14 +229,24 @@ show_setup_power_menu() {
   if [[ $profile == "CNCLD" || -z $profile ]]; then
     back_to show_setup_menu
   else
-    powerprofilesctl set "$profile"
+    r2-d2-powerprofiles-set autodetect "$profile"
   fi
 }
 
 show_setup_security_menu() {
-  case $(menu "Setup" "󰈷  Fingerprint\n  Fido2") in
+  local options="󰈷  Fingerprint\n  Fido2"
+
+  if r2-d2-sudo-docker --configured; then
+    options="$options\n  Sudoless Docker"
+  else
+    options="$options\n  Disable Sudoless Docker"
+  fi
+
+  case $(menu "Setup" "$options") in
   *Fingerprint*) present_terminal r2-d2-setup-fingerprint ;;
   *Fido2*) present_terminal r2-d2-setup-fido2 ;;
+  *"Disable Sudoless Docker"*) present_terminal r2-d2-remove-security-sudoless-docker ;;
+  *"Sudoless Docker"*) present_terminal r2-d2-setup-security-sudoless-docker ;;
   *) show_setup_menu ;;
   esac
 }
@@ -289,7 +330,13 @@ show_install_development_menu() {
 }
 
 show_remove_menu() {
-  case $(menu "Remove" "󰣇  Package\n  Web App\n  Web Apps (all)\n  TUI\n  TUI (all)\n󰵮  Development\n  Dictation\n󰈷  Fingerprint\n  Fido2\n󰒲  Drop package (by name)") in
+  local options="󰣇  Package\n  Web App\n  Web Apps (all)\n  TUI\n  TUI (all)\n󰵮  Development\n  Dictation\n󰈷  Fingerprint\n  Fido2\n󰒲  Drop package (by name)"
+
+  if ! r2-d2-sudo-docker --configured; then
+    options="$options\n  Sudoless Docker"
+  fi
+
+  case $(menu "Remove" "$options") in
   *Package*) terminal r2-d2-pkg-remove ;;
   *"Web Apps (all)"*) present_terminal r2-d2-webapp-remove-all ;;
   *Web*) present_terminal r2-d2-webapp-remove ;;
@@ -300,6 +347,7 @@ show_remove_menu() {
   *Fingerprint*) present_terminal "r2-d2-setup-fingerprint --remove" ;;
   *Fido2*) present_terminal "r2-d2-setup-fido2 --remove" ;;
   *Drop*) terminal r2-d2-pkg-drop ;;
+  *"Sudoless Docker"*) present_terminal r2-d2-remove-security-sudoless-docker ;;
   *) show_main_menu ;;
   esac
 }
