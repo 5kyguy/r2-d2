@@ -20,6 +20,7 @@ cups
 cups-browsed
 cups-filters
 cups-pdf
+ddcutil
 dkms
 docker
 docker-buildx
@@ -58,10 +59,8 @@ hyprlock
 hyprpicker
 hyprsunset
 imagemagick
-impala
 inetutils
 inxi
-iwd
 jq
 just
 kdenlive
@@ -89,12 +88,14 @@ nano
 nautilus
 nautilus-python
 net-tools
+networkmanager
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 nss-mdns
 obs-studio
 openssh
+pacman-contrib
 pamixer
 pinta
 pipewire
@@ -111,12 +112,14 @@ power-profiles-daemon
 python-gobject
 python-pip
 python-poetry-core
+qrencode
 qt5-wayland
 ripgrep
 satty
 sddm
 slurp
 snapper
+socat
 starship
 steam
 sushi
@@ -132,6 +135,7 @@ tree
 ttf-cascadia-mono-nerd
 ttf-jetbrains-mono-nerd
 ufw
+udiskie
 unzip
 usage
 uwsm
@@ -149,5 +153,6 @@ xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xmlstarlet
 yarn
+zbar
 zoxide
 zram-generator

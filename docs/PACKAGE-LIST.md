@@ -54,7 +54,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **155** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -78,7 +78,7 @@ pipewire, pipewire-alsa, pipewire-jack, pipewire-pulse, wireplumber, pamixer, wi
 
 ### Network and discovery
 
-iwd, avahi, nss-mdns, inetutils, net-tools
+networkmanager, avahi, nss-mdns, inetutils, net-tools, qrencode
 
 ### Fonts and icons
 
@@ -94,11 +94,11 @@ xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland
 
 ### Screenshot, capture, sharing
 
-grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer
+grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer, zbar
 
 ### File manager and GVfs
 
-nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader
+nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
@@ -114,7 +114,7 @@ git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, lu
 
 ### System info and monitoring
 
-btop, inxi, fastfetch, dust, usage, brightnessctl
+btop, inxi, fastfetch, dust, usage, brightnessctl, ddcutil
 
 ### Printing
 
@@ -122,7 +122,11 @@ cups, cups-browsed, cups-filters, cups-pdf, system-config-printer
 
 ### Power and hardware
 
-power-profiles-daemon, bolt, wireless-regdb
+power-profiles-daemon, bolt, wireless-regdb, socat
+
+### Package tools
+
+pacman-contrib
 
 ### Notifications and OSD
 
@@ -146,7 +150,7 @@ flatpak
 
 ### Misc
 
-plocate, whois, unzip, exfatprogs, impala, wtype
+plocate, whois, unzip, exfatprogs, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
@@ -176,7 +180,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 155 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
