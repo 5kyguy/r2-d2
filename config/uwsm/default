@@ -8,3 +8,7 @@ export EDITOR=nano
 
 # Use a custom directory for screenrecordings (remember to make the directory!)
 # export R2D2_SCREENRECORD_DIR="$HOME/Videos/Screencasts"
+
+# Default screenrecord uses KMS (gpu-screen-recorder -w MONITOR|geometry) via
+# r2-d2-capture-region. Set true to use the xdg-desktop portal picker instead:
+# export R2D2_SCREENRECORD_USE_PORTAL=true

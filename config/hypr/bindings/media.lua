@@ -8,6 +8,8 @@ hl.bind("XF86AudioMute", hl.dsp.exec_cmd(osdclient .. " --output-volume mute-tog
 hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd(osdclient .. " --input-volume mute-toggle"), { locked = true, description = "Mute microphone" })
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("r2-d2-brightness-display +5%"), { locked = true, repeating = true, description = "Brightness up" })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("r2-d2-brightness-display 5%-"), { locked = true, repeating = true, description = "Brightness down" })
+hl.bind("SHIFT + XF86MonBrightnessUp", hl.dsp.exec_cmd("r2-d2-brightness-display 100%"), { locked = true, description = "Brightness max" })
+hl.bind("SHIFT + XF86MonBrightnessDown", hl.dsp.exec_cmd("r2-d2-brightness-display 1%"), { locked = true, description = "Brightness min" })
 
 -- Precise 1% multimedia adjustments with Alt modifier
 hl.bind("ALT + XF86AudioRaiseVolume", hl.dsp.exec_cmd(osdclient .. " --output-volume +1"), { locked = true, repeating = true, description = "Volume up precise" })

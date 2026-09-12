@@ -4,13 +4,18 @@
 # Alternative location can be set via R2D2_SCREENRECORD_DIR or XDG_VIDEOS_DIR ENVs.
 # Resolution is capped to 4K for monitors above 4K, native otherwise.
 # Override via --resolution= (e.g. --resolution=1920x1080, --resolution=0x0 for native).
+#
+# Backend:
+#   Default interactive capture uses KMS via slurp (r2-d2-capture-region).
+#   --fullscreen targets the focused monitor (agent-safe, no picker).
+#   Set R2D2_SCREENRECORD_USE_PORTAL=true for HDR / eGPU / window portal capture.
 
 # shellcheck source=/dev/null
 [[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
 OUTPUT_DIR="${R2D2_SCREENRECORD_DIR:-${XDG_VIDEOS_DIR:-$HOME/Videos}}"
 
 if [[ ! -d $OUTPUT_DIR ]]; then
-  notify-send "Screen recording directory does not exist: $OUTPUT_DIR" -u critical -t 3000
+  r2-d2-notification-send -u critical -t 3000 "Screen recording directory does not exist: $OUTPUT_DIR"
   exit 1
 fi
 
@@ -38,24 +43,20 @@ done
 start_webcam_overlay() {
   cleanup_webcam
 
-  # Auto-detect first available webcam if none specified
   if [[ -z $WEBCAM_DEVICE ]]; then
     WEBCAM_DEVICE=$(v4l2-ctl --list-devices 2>/dev/null | grep -m1 "^\s*/dev/video" | tr -d '\t')
     if [[ -z $WEBCAM_DEVICE ]]; then
-      notify-send "No webcam devices found" -u critical -t 3000
+      r2-d2-notification-send -u critical -t 3000 "No webcam devices found"
       return 1
     fi
   fi
 
-  # Get monitor scale
   local scale
   scale=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true) | .scale')
 
-  # Target width (base 360px, scaled to monitor)
   local target_width
   target_width=$(awk "BEGIN {printf \"%.0f\", 360 * $scale}")
 
-  # Try preferred 16:9 resolutions in order, use first available
   local preferred_resolutions=("640x360" "1280x720" "1920x1080")
   local video_size_arg=""
   local available_formats
@@ -92,16 +93,31 @@ cleanup_webcam() {
   pkill -f "WebcamOverlay" 2>/dev/null
 }
 
+select_capture_target() {
+  local target
+  target=$(r2-d2-capture-region smart --match-monitor) || return 1
+
+  if [[ $target == monitor:* ]]; then
+    echo "$target"
+    return
+  fi
+
+  [[ $target =~ ^(-?[0-9]+),(-?[0-9]+)[[:space:]]([0-9]+)x([0-9]+)$ ]] || return 1
+
+  echo "region:${BASH_REMATCH[3]}x${BASH_REMATCH[4]}+${BASH_REMATCH[1]}+${BASH_REMATCH[2]}"
+}
+
 start_screenrecording() {
   local filename
   filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
   local audio_devices=""
   local -a audio_args=()
+  local -a capture_args=()
+  local target=""
 
   [[ $DESKTOP_AUDIO == "true" ]] && audio_devices+="default_output"
 
   if [[ $MICROPHONE_AUDIO == "true" ]]; then
-    # Merge audio tracks into one - separate tracks only play one at a time in most players
     [[ -n $audio_devices ]] && audio_devices+="|"
     audio_devices+="default_input"
   fi
@@ -110,24 +126,31 @@ start_screenrecording() {
 
   local resolution="${RESOLUTION:-$(default_resolution)}"
 
-  # --fullscreen targets the focused monitor directly, skipping the interactive
-  # portal picker. Used by the agent, which cannot drive a region picker.
   if [[ $FULLSCREEN == "true" ]]; then
-    local focused_monitor
-    focused_monitor=$(r2-d2-hyprland-monitor-focused)
-    gpu-screen-recorder -w "$focused_monitor" -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+    target="monitor:$(r2-d2-hyprland-monitor-focused)"
+    capture_args=(-w "${target#monitor:}" -s "$resolution")
+  elif [[ ${R2D2_SCREENRECORD_USE_PORTAL:-false} == "true" ]]; then
+    target="portal"
+    capture_args=(-w portal -s "$resolution")
   else
-    gpu-screen-recorder -w portal -k auto -s "$resolution" -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+    target=$(select_capture_target) || return 1
+    case $target in
+    monitor:*)
+      capture_args=(-w "${target#monitor:}" -s "$resolution")
+      ;;
+    region:*)
+      capture_args=(-w "${target#region:}")
+      [[ -n $RESOLUTION ]] && capture_args+=(-s "$RESOLUTION")
+      ;;
+    esac
   fi
 
-  # Wait for the output file (appears after portal selection). Do not rely on the
-  # background PID: gpu-screen-recorder may fork and the parent exits while recording
-  # continues, which previously made the loop exit early with no indicator or state file.
+  gpu-screen-recorder "${capture_args[@]}" -k auto -f 60 -fm cfr -fallback-cpu-encoding yes -o "$filename" "${audio_args[@]}" &
+
   local waited=0
   while [[ ! -f $filename ]] && ((waited < 600)); do
     sleep 0.2
     waited=$((waited + 1))
-    # After a short grace period, stop if nothing is recording (startup failed or user dismissed portal)
     if ((waited >= 25)) && ! pgrep -f "[g]pu-screen-recorder" >/dev/null; then
       break
     fi
@@ -139,14 +162,13 @@ start_screenrecording() {
     return 0
   fi
 
-  notify-send "Screen recording failed" "No recording file was created. If a portal dialog appeared, complete it; otherwise check GPU drivers and gpu-screen-recorder." -u critical -t 6000
+  r2-d2-notification-send -u critical -t 6000 "Screen recording failed" "No recording file was created. Check GPU drivers and gpu-screen-recorder."
   return 1
 }
 
 stop_screenrecording() {
-  pkill -SIGINT -f "[g]pu-screen-recorder" # SIGINT required to save video properly
+  pkill -SIGINT -f "[g]pu-screen-recorder"
 
-  # Wait a maximum of 5 seconds to finish before hard killing
   local count=0
   while pgrep -f "[g]pu-screen-recorder" >/dev/null && ((count < 50)); do
     sleep 0.1
@@ -158,17 +180,15 @@ stop_screenrecording() {
 
   if pgrep -f "[g]pu-screen-recorder" >/dev/null; then
     pkill -9 -f "[g]pu-screen-recorder"
-    notify-send "Screen recording error" "Recording process had to be force-killed. Video may be corrupted." -u critical -t 5000
+    r2-d2-notification-send -u critical -t 5000 "Screen recording error" "Recording process had to be force-killed. Video may be corrupted."
   else
     trim_first_frame
     local filename
     filename=$(cat "$RECORDING_FILE" 2>/dev/null)
     local preview="${filename%.mp4}-preview.png"
 
-    # Echo the saved path so the agent (and the MCP screenrecord tool) can find it.
     [[ -n $filename ]] && echo "$filename"
 
-    # Generate a preview thumbnail from the first frame
     ffmpeg -y -i "$filename" -ss 00:00:00.1 -vframes 1 -q:v 2 "$preview" -loglevel quiet 2>/dev/null
 
     (

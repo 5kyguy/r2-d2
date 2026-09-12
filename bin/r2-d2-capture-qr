@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Decode a QR code from a screenshot region.
+# Port of omarchy-capture-qr.
+
+# Keep hyprpicker alive until after grim captures so the screenshot sees the
+# frozen overlay rather than live content shifting during teardown.
+cleanup_freeze() {
+  [[ -n ${FREEZE_PID:-} ]] && kill "$FREEZE_PID" 2>/dev/null || true
+}
+trap cleanup_freeze EXIT
+
+pick_output=$(r2-d2-capture-region region --keep-freeze) || exit 0
+FREEZE_PID=$(printf '%s\n' "$pick_output" | sed -n '1p')
+SELECTION=$(printf '%s\n' "$pick_output" | sed -n '2p')
+
+[[ -z $SELECTION ]] && exit 0
+
+# Decode QR codes only. Leaving the other symbologies enabled lets dense screen
+# content false-positive as an EAN or Code 39 barcode and take over the clipboard.
+RESULT=$(grim -g "$SELECTION" - | zbarimg -q --raw -Sdisable -Sqrcode.enable - 2>/dev/null)
+
+if [[ -z $RESULT ]]; then
+  r2-d2-notification-send -g 󰐲 -u critical "No QR code found" "Select a region containing a QR code"
+  exit 1
+fi
+
+# QR codes routinely carry secrets, like the otpauth:// URIs behind 2FA setup
+# codes, so the decoded value goes to the clipboard and nowhere else.
+printf '%s' "$RESULT" | wl-copy --sensitive
+r2-d2-notification-send -g 󰐲 "QR code copied to clipboard"

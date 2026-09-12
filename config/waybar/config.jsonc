@@ -10,7 +10,7 @@
 
   "modules-left": [
     "custom/r2-d2", 
-    "hyprland/workspaces", 
+    "ext/workspaces", 
     "cpu", 
     "memory", 
     "temperature"
@@ -35,9 +35,9 @@
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "R2-D2"
   },
-  "hyprland/workspaces": {
-    // "activate" uses legacy `hyprctl dispatch workspace N`, which fails under Lua config.
-    "on-click": "hyprctl dispatch \"hl.dsp.focus({ workspace = {id} })\"",
+  "ext/workspaces": {
+    "on-click": "activate",
+    "sort-by-id": true,
     "format": "{icon}",
     "format-icons": {
       "default": "",
@@ -52,13 +52,6 @@
       "9": "9",
       "10": "0",
       "active": "󱓻"
-    },
-    "persistent-workspaces": {
-      "1": [],
-      "2": [],
-      "3": [],
-      "4": [],
-      "5": []
     }
   },
   "cpu": {
