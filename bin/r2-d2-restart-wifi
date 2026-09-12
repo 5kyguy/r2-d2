@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# Unblock and restart the Wi-Fi service.
+# Unblock and restart Wi-Fi via NetworkManager.
 
 echo -e "Unblocking wifi...\n"
+
 rfkill unblock wifi
+nmcli networking on
+nmcli radio wifi on
+nmcli device wifi rescan 2>/dev/null || true
 rfkill list wifi

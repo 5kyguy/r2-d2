@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Launch the R2-D2 wifi controls (provided by the Impala TUI).
-# Attempts to unblock the wifi service first in case it should be been blocked.
+# Launch NetworkManager's nmtui for Wi-Fi configuration.
 
 rfkill unblock wifi
-r2-d2-launch-or-focus-tui impala
+r2-d2-launch-or-focus-tui nmtui

@@ -13,7 +13,7 @@ hl.window_rule({
 })
 
 hl.window_rule({
-  match = { class = "(org.r2d2.bluetui|org.r2d2.impala|org.r2d2.wiremix|org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|R2-D2|About|TUI.float|org.gnome.Totem|org.gnome.eog)" },
+  match = { class = "(org.r2d2.bluetui|org.r2d2.nmtui|org.r2d2.wiremix|org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|R2-D2|About|TUI.float|org.gnome.Totem|org.gnome.eog)" },
   tag = "+floating-window",
 })
 hl.window_rule({

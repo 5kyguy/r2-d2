@@ -29,6 +29,8 @@ if [[ -z $state ]]; then
 fi
 
 shopt -s nullglob
+# Reload NM so interface list / power policy matches current state before iw.
+nmcli general reload conf >/dev/null 2>&1 || true
 for iface in /sys/class/net/*/wireless; do
   iface="$(basename "$(dirname "$iface")")"
   iw dev "$iface" set power_save "$state" 2>/dev/null
