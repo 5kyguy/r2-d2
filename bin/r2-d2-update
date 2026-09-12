@@ -5,7 +5,13 @@ set -e
 trap 'echo ""; echo -e "\033[0;31mSomething went wrong during the update!\n\nPlease review the output above carefully, correct the error, and retry the update.\033[0m"' ERR
 
 if [[ $1 == "-y" ]] || r2-d2-update-confirm; then
-  r2-d2-snapshot create || (($? == 127))
+  r2-d2-update-requires-free-space
+  r2-d2-update-pkg-prune
+  # Before the snapshot: the cache is on the snapshotted subvolume, so pruning
+  # after it frees nothing until that snapshot ages out. A missing snapshot is
+  # not worth blocking an update when snapper is broken or unconfigured.
+  r2-d2-snapshot create || (($? == 127)) ||
+    echo -e "\e[33mContinuing the update without a snapshot.\e[0m" >&2
   r2-d2-update-git
   r2-d2-update-perform
 fi
