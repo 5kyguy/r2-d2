@@ -7,6 +7,7 @@ run_logged $R2D2_INSTALL/config/branding.sh
 run_logged $R2D2_INSTALL/config/git.sh
 run_logged $R2D2_INSTALL/config/gpg.sh
 run_logged $R2D2_INSTALL/config/timezones.sh
+run_logged $R2D2_INSTALL/config/sudoers-helpers.sh
 run_logged $R2D2_INSTALL/config/increase-file-watchers.sh
 run_logged $R2D2_INSTALL/config/detect-keyboard-layout.sh
 run_logged $R2D2_INSTALL/config/xcompose.sh
@@ -15,6 +16,8 @@ run_logged $R2D2_INSTALL/config/flatpak.sh
 run_logged $R2D2_INSTALL/config/mimetypes.sh
 run_logged $R2D2_INSTALL/config/walker-elephant.sh
 run_logged $R2D2_INSTALL/config/fast-shutdown.sh
+run_logged $R2D2_INSTALL/config/oomd.sh
+run_logged $R2D2_INSTALL/config/zram.sh
 run_logged $R2D2_INSTALL/config/input-group.sh
 run_logged $R2D2_INSTALL/config/keyd.sh
 run_logged $R2D2_INSTALL/config/makima.sh
