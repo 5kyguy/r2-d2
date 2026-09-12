@@ -9,6 +9,8 @@ base-devel
 bash-completion
 bat
 bluez
+bluez-tools
+bluez-utils
 bluetui
 bolt
 brightnessctl

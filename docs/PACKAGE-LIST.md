@@ -54,7 +54,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **155** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **157** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -142,7 +142,7 @@ ufw, openssh (sshd is installed but **not** enabled by default)
 
 ### Bluetooth
 
-bluez, bluetui
+bluez, bluez-utils, bluez-tools, bluetui
 
 ### App launcher and helpers
 
@@ -180,7 +180,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 155 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 157 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
