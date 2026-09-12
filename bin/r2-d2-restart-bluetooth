@@ -1,7 +1,23 @@
 #!/bin/bash
 
-# Unblock and restart the bluetooth service.
+# Reload the Bluetooth USB driver after firmware/init races (common on MediaTek).
 
-echo -e "Unblocking bluetooth...\n"
-rfkill unblock bluetooth
-rfkill list bluetooth
+set -euo pipefail
+
+if ((EUID != 0)); then
+  exec pkexec "$0" "$@"
+fi
+
+rfkill unblock bluetooth || true
+modprobe -r btusb 2>/dev/null || true
+sleep 2
+modprobe btusb
+sleep 2
+
+if [[ -r /sys/class/bluetooth/hci0/address ]]; then
+  echo "Bluetooth adapter ready: $(cat /sys/class/bluetooth/hci0/address)"
+  exit 0
+fi
+
+echo "Bluetooth adapter still missing after reload. Check: journalctl -k -b | grep -i hci0" >&2
+exit 1

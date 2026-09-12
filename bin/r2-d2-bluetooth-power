@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Turn Bluetooth on or off, remembered across reboots.
-# Port of omarchy-bluetooth-power.
 #
 # BlueZ never persists an adapter's Powered property, so turning Bluetooth off
 # through bluetoothctl lasts only until the next boot. The rfkill soft block does
@@ -11,24 +10,41 @@
 POWER_WAIT_SECONDS=${R2D2_BLUETOOTH_POWER_WAIT_SECONDS:-2}
 
 controllers() {
+  command -v bluetoothctl >/dev/null 2>&1 || return 0
   timeout 2s bluetoothctl list 2>/dev/null | awk '{print $2}'
 }
 
 powered() {
-  local controller
+  local controller found=0
 
-  for controller in $(controllers); do
-    [[ $(timeout 2s bluetoothctl show "$controller" 2>/dev/null) == *"Powered: yes"* ]] && return 0
-  done
+  # Prefer BlueZ Powered when bluetoothctl can see controllers.
+  if command -v bluetoothctl >/dev/null 2>&1; then
+    for controller in $(controllers); do
+      found=1
+      [[ $(timeout 2s bluetoothctl show "$controller" 2>/dev/null) == *"Powered: yes"* ]] && return 0
+    done
+    ((found)) && return 1
+  fi
 
-  return 1
+  # No bluetoothctl (or no controller on D-Bus yet): use rfkill soft state so
+  # migrations never treat a missing CLI as "off" and soft-block across reboot.
+  command -v rfkill >/dev/null 2>&1 || return 1
+  rfkill list bluetooth 2>/dev/null | grep -q 'Soft blocked: no'
 }
 
 wait_powered() {
   local deadline=$((SECONDS + POWER_WAIT_SECONDS))
 
   while :; do
-    powered && return 0
+    # After unblock, wait for a real BlueZ adapter when possible.
+    if command -v bluetoothctl >/dev/null 2>&1; then
+      local controller
+      for controller in $(controllers); do
+        [[ $(timeout 2s bluetoothctl show "$controller" 2>/dev/null) == *"Powered: yes"* ]] && return 0
+      done
+    elif powered; then
+      return 0
+    fi
     ((SECONDS < deadline)) || return 1
     sleep 0.2
   done
@@ -39,8 +55,10 @@ power_on() {
 
   wait_powered && return 0
 
-  timeout 5s bluetoothctl power on >/dev/null 2>&1
-  wait_powered && return 0
+  if command -v bluetoothctl >/dev/null 2>&1; then
+    timeout 5s bluetoothctl power on >/dev/null 2>&1
+    wait_powered && return 0
+  fi
 
   echo "r2-d2-bluetooth-power: adapter did not come up" >&2
   return 1
