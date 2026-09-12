@@ -2,11 +2,12 @@
 
 hl.on("hyprland.start", function()
   -- Clear built-in display toggle state on login (session-only, resets on reboot)
-  hl.exec_cmd("rm -f ~/.local/state/r2-d2/toggles/builtin-display-disabled")
+  hl.exec_cmd("rm -f ~/.local/state/r2-d2/toggles/builtin-display-disabled ~/.local/state/r2-d2/toggles/builtin-display-clamshell")
   hl.exec_cmd("uwsm-app -- mako")
   hl.exec_cmd("uwsm-app -- waybar")
   hl.exec_cmd("uwsm-app -- swaybg -i ~/.local/share/r2-d2/backgrounds/@background -m fill")
   hl.exec_cmd("uwsm-app -- swayosd-server")
+  hl.exec_cmd("uwsm-app -- udiskie --automount --no-notify --no-tray")
   hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
   hl.exec_cmd("r2-d2-cmd-first-run")
   -- Set the power profile on boot (udev rules only fire on changes).
@@ -14,6 +15,8 @@ hl.on("hyprland.start", function()
   -- Slow app launch fix -- set systemd vars
   hl.exec_cmd("bash -c 'systemctl --user import-environment $(env | cut -d\"=\" -f 1)'")
   hl.exec_cmd("dbus-update-activation-environment --systemd --all")
+  -- Reconcile clamshell / docked display state across hotplug
+  hl.exec_cmd("uwsm-app -- r2-d2-hyprland-monitor-watch")
 
   -- Apply external-left monitor layout when 2 monitors (e.g. HDMI left of laptop)
   hl.timer(function()
