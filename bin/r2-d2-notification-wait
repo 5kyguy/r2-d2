@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Wait for the desktop notification server to accept notifications.
+# Usage: r2-d2-notification-wait [timeout-seconds]
+
+set -uo pipefail
+
+timeout=${1:-10}
+
+notification_server_ready() {
+  busctl --user call \
+    org.freedesktop.Notifications \
+    /org/freedesktop/Notifications \
+    org.freedesktop.Notifications \
+    GetServerInformation >/dev/null 2>&1
+}
+
+attempts=$((timeout * 10))
+while ((attempts > 0)); do
+  if notification_server_ready; then
+    exit 0
+  fi
+  attempts=$((attempts - 1))
+  sleep 0.1
+done
+
+exit 1
