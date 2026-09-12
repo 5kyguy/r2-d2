@@ -1,6 +1,29 @@
 #!/bin/bash
 
+# Set timezone with gum filter; elevate via sudo (passwordless when sudoers allow)
+# or pkexec when there is no TTY.
+
+set -euo pipefail
+
+PACKAGED_PATH=/usr/bin/timedatectl
+
+sudo_grants_passwordless() {
+  # Match the scoped set-timezone rule; listing with the real args is awkward
+  # for regex sudoers, so check that timedatectl appears under !authenticate.
+  sudo -n -l -l "$PACKAGED_PATH" 2>/dev/null | grep -q '!authenticate'
+}
+
+require_root_timedatectl() {
+  if (( EUID == 0 )); then
+    timedatectl "$@"
+  elif [[ -t 0 ]] || sudo_grants_passwordless; then
+    sudo timedatectl "$@"
+  else
+    pkexec timedatectl "$@"
+  fi
+}
+
 timezone=$(timedatectl list-timezones | gum filter --height 20 --header "Set timezone") || exit 1
-sudo timedatectl set-timezone "$timezone"
+require_root_timedatectl set-timezone "$timezone"
 echo "Timezone is now set to $timezone"
 r2-d2-restart-waybar
