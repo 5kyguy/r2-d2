@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Succeed when the named toggle flag file exists.
+# Usage: r2-d2-toggle-enabled <flag-name>
+
+[[ -f "$HOME/.local/state/r2-d2/toggles/$1" ]]

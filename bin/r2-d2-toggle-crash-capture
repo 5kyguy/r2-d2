@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Toggle crash capture notifications.
+
+readonly CRASH_GLYPH=$'\U000f16a1'
+
+r2-d2-toggle crash-capture-off
+
+if r2-d2-toggle-enabled crash-capture-off; then
+  systemctl --user stop r2-d2-crash-watch.service 2>/dev/null || true
+  r2-d2-notification-send -g "$CRASH_GLYPH" "Crash capture disabled"
+else
+  systemctl --user start r2-d2-crash-watch.service 2>/dev/null || true
+  r2-d2-notification-send -g "$CRASH_GLYPH" "Crash capture enabled"
+fi

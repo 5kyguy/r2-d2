@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Silence crash notifications for one program, or list what is silenced.
+# Usage: r2-d2-crash-mute [--] [<program>] [on|off|toggle]
+
+set -uo pipefail
+
+readonly MUTES="$HOME/.local/state/r2-d2/toggles/crash-ignore"
+
+usage() {
+  echo "Usage: r2-d2-crash-mute [--] [<program>] [on|off|toggle]" >&2
+}
+
+list() {
+  local entry found=0
+
+  for entry in "$MUTES"/* "$MUTES"/.*; do
+    [[ -f $entry ]] || continue
+    printf '%s\n' "${entry##*/}"
+    found=1
+  done
+
+  ((found)) || echo "No programs muted. Crashes all notify."
+}
+
+[[ ${1:-} == "--" ]] && shift
+
+if (($# == 0)); then
+  list
+  exit 0
+fi
+
+program=$1
+action=${2:-on}
+program=${program##*/}
+
+if [[ -z $program || $program == "." || $program == ".." ]]; then
+  echo "Not a program name: $1" >&2
+  usage
+  exit 1
+fi
+
+case "$action" in
+on | off | toggle) ;;
+*)
+  echo "Not an action: $action" >&2
+  usage
+  exit 1
+  ;;
+esac
+
+r2-d2-toggle "crash-ignore/$program" "$action" || exit 1
+
+if r2-d2-toggle-enabled "crash-ignore/$program"; then
+  echo "Muted crash notifications for $program."
+else
+  echo "Crash notifications for $program are back on."
+fi

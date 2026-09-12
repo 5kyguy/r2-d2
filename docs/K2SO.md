@@ -14,6 +14,7 @@ r2-d2-install-k2so
 4. Runs `k2so init` to register the markdown agent at `~/.config/opencode/agents/k2so.md` — **K-2SO never writes the full `opencode.json`**
 5. Writes `~/.config/k2so/profile.toml` when absent
 6. Enables `k2so.service` (daemon) and `k2so-dashboard.service` (persistent HTTP dashboard at `127.0.0.1:7780`)
+7. Enables `r2-d2-crash-watch.service` so process crashes toast and can be diagnosed via `k2so ask --type crash-diagnosis`
 
 ## API key
 
@@ -124,3 +125,9 @@ journalctl --user -u k2so -f
 ```
 
 The unit sets `R2D2_PATH` and `PATH` so OpenCode can spawn `r2d2-mcp`.
+
+## Crash diagnosis
+
+When `k2so.service` is active, `r2-d2-crash-watch` follows systemd-coredump journal entries for your user. A critical toast offers **Click to diagnose with K-2SO**; accepting runs `r2-d2-k2so-crash` → `k2so ask --type crash-diagnosis` with the diagnose-crash skill under `config/k2so/skills/diagnose-crash/`.
+
+Toggle via Trigger → Toggle → Crash capture (`r2-d2-toggle-crash-capture`), or mute one program with `r2-d2-crash-mute <name>`.

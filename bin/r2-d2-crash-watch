@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Watch for process crashes and offer a K-2SO diagnosis.
+
+set -uo pipefail
+
+readonly COREDUMP_MESSAGE_ID=fc2e22bc6ee647b6b90729ab34a250b1
+readonly CRASH_GLYPH=$'\U000f16a1'
+readonly dedupe_seconds=${R2D2_CRASH_DEDUPE_SECONDS:-60}
+readonly ignore_pattern=${R2D2_CRASH_IGNORE:-}
+
+declare -A last_notified
+
+k2so_ready() {
+  command -v k2so >/dev/null 2>&1 || return 1
+  systemctl --user is-active --quiet k2so.service 2>/dev/null
+}
+
+announce() {
+  local comm=$1 pid=$2 exe=$3 signal=$4
+
+  r2-d2-notification-wait || return 1
+
+  (
+    ACTION=$(r2-d2-notification-send -a -u critical -g "$CRASH_GLYPH" \
+      "Process crashed: $comm" "Click to diagnose with K-2SO" -t 0)
+    [[ $ACTION == default ]] && r2-d2-k2so-crash "$pid" "$comm" "$exe" "$signal"
+  ) &
+}
+
+journalctl -f -n 0 -o json "MESSAGE_ID=$COREDUMP_MESSAGE_ID" 2>/dev/null |
+  while IFS= read -r entry; do
+    IFS=$'\t' read -r uid comm pid exe signal < <(
+      jq -r 'def field: if . == null or . == "" then "-" else . end;
+             [(._UID | field),
+              (.COREDUMP_COMM | field),
+              (.COREDUMP_PID | field),
+              (.COREDUMP_EXE | field),
+              (.COREDUMP_SIGNAL_NAME | field)] | @tsv' <<<"$entry" 2>/dev/null
+    )
+
+    [[ $pid =~ ^[0-9]+$ ]] || continue
+    k2so_ready || continue
+
+    [[ $uid =~ ^[0-9]+$ ]] || continue
+    ((uid == UID)) || continue
+
+    name=$comm
+    [[ $exe == /* ]] && name=${exe##*/}
+    name=${name##*/}
+
+    [[ -n $name && $name != "-" && $name != "." && $name != ".." ]] || name=unknown
+
+    [[ -n $ignore_pattern && $name =~ $ignore_pattern ]] && continue
+    [[ $name == r2-d2-crash-* || $name == r2-d2-k2so-* || $name == k2so ]] && continue
+
+    r2-d2-toggle-enabled "crash-ignore/$name" && continue
+
+    now=$EPOCHSECONDS
+    (((now - ${last_notified[$name]:-0}) < dedupe_seconds)) && continue
+
+    announce "$name" "$pid" "$exe" "$signal" && last_notified[$name]=$now
+  done
