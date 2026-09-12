@@ -1,6 +1,32 @@
 #!/bin/bash
 
-# Show a fuzzy-finder TUI for picking packages installed on the system to be removed.
+# Remove packages. With names: remove those packages. With no args: fuzzy-pick.
+
+set -euo pipefail
+
+remove_pkgs() {
+  local -a pkgs=("$@")
+  local -a installed=()
+  local pkg
+
+  ((${#pkgs[@]})) || return 0
+
+  for pkg in "${pkgs[@]}"; do
+    if pacman -Q "$pkg" &>/dev/null; then
+      installed+=("$pkg")
+    else
+      echo "Package not installed: $pkg" >&2
+    fi
+  done
+
+  ((${#installed[@]})) || return 0
+  sudo pacman -Rns --noconfirm "${installed[@]}"
+}
+
+if (($# > 0)); then
+  remove_pkgs "$@"
+  exit 0
+fi
 
 fzf_args=(
   --multi
@@ -14,10 +40,9 @@ fzf_args=(
   --color 'pointer:red,marker:red'
 )
 
-pkg_names=$(yay -Qqe | fzf "${fzf_args[@]}")
+mapfile -t pkg_names < <(yay -Qqe | fzf "${fzf_args[@]}")
 
-if [[ -n $pkg_names ]]; then
-  # Convert newline-separated selections to space-separated for yay
-  echo "$pkg_names" | tr '\n' ' ' | xargs sudo pacman -Rns --noconfirm
+if ((${#pkg_names[@]})); then
+  remove_pkgs "${pkg_names[@]}"
   r2-d2-show-done
 fi
