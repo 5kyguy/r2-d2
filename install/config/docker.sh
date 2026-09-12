@@ -3,6 +3,8 @@
 # Configure Docker daemon:
 # - limit log size to avoid running out of disk
 # - use host's DNS resolver
+# Do NOT add the install user to the docker group by default (root-equivalent).
+# Opt in later via Setup > Security > Sudoless Docker.
 sudo mkdir -p /etc/docker
 sudo tee /etc/docker/daemon.json >/dev/null <<'EOF'
 {
@@ -21,11 +23,6 @@ sudo systemctl restart systemd-resolved
 # Start Docker on-demand
 r2-d2-pkg-add docker
 chrootable_systemctl_enable docker.socket docker
-
-# Give this user privileged Docker access (group is created by the docker package)
-if getent group docker >/dev/null; then
-  sudo usermod -aG docker "$USER"
-fi
 
 # Prevent Docker from preventing boot for network-online.target
 sudo mkdir -p /etc/systemd/system/docker.service.d

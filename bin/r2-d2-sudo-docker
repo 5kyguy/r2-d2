@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Succeed (exit 0) when Docker needs sudo; fail when it can be used directly.
+# --configured checks account groups (for menus); default checks socket writability.
+
+DOCKER_SOCKET="${R2D2_DOCKER_SOCKET:-/var/run/docker.sock}"
+
+case "${1:-}" in
+--configured)
+  id -nG "$USER" 2>/dev/null | grep -qw docker && exit 1
+  exit 0
+  ;;
+"")
+  [[ -w $DOCKER_SOCKET ]] && exit 1
+  exit 0
+  ;;
+*)
+  echo "Usage: r2-d2-sudo-docker [--configured]" >&2
+  exit 2
+  ;;
+esac

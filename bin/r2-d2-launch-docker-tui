@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Open lazydocker; use pkexec when the user is not in the docker group.
+
+if r2-d2-sudo-docker; then
+  exec pkexec /usr/bin/env TERM="${TERM:-xterm-256color}" lazydocker
+else
+  exec lazydocker
+fi

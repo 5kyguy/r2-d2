@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Docker
+Comment=Manage Docker containers
+Exec=r2-d2-launch-docker-tui
+Terminal=true
+Type=Application
+Icon=docker
+Categories=Development;
+StartupNotify=false

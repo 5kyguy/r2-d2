@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Disable sudoless Docker by removing the user from the docker group.
+
+set -e
+
+if r2-d2-sudo-docker --configured; then
+  echo "Sudoless Docker is not enabled: $USER is not in the docker group."
+  exit 0
+fi
+
+echo "Removing $USER from the docker group..."
+sudo gpasswd -d "$USER" docker >/dev/null
+
+r2-d2-state set reboot-required
+
+echo ""
+echo "Sudoless Docker DISABLED. Docker access goes through a polkit/sudo prompt"
+echo "again. It takes effect after a reboot."
+echo ""
+if [[ -z ${R2D2_DEFER_REBOOT:-} ]] && gum confirm "Reboot now to apply?"; then
+  r2-d2-system-reboot
+fi
