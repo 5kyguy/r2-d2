@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# update-perform tees stdout/stderr into the log. gum's TUI must talk to the
+# real terminal or the confirm prompts are invisible and the update looks hung.
+if [[ -r /dev/tty && -w /dev/tty ]]; then
+  exec >/dev/tty 2>/dev/tty
+fi
+
 echo
 
 if [[ ! -d /usr/lib/modules/$(uname -r) ]]; then
