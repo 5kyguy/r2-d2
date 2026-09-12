@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# Apply clamshell display state to Hyprland monitors.
+# Port of omarchy-hyprland-monitor-clamshell, adapted to R2's eval-based
+# monitor-set (no toggle-via-reload .lua files).
+
+set -euo pipefail
+
+TOGGLES_DIR="$HOME/.local/state/r2-d2/toggles"
+CLAMSHELL_FLAG="$TOGGLES_DIR/builtin-display-clamshell"
+MANUAL_DISABLE_FLAG="$TOGGLES_DIR/builtin-display-disabled"
+SCALE_STATE="$TOGGLES_DIR/internal-monitor-scale"
+
+INTERNAL=$(r2-d2-hyprland-monitor-laptop)
+
+# INTERNAL is written into hyprctl eval below, so refuse unsafe names.
+if [[ -n $INTERNAL && ! $INTERNAL =~ ^[A-Za-z0-9._-]+$ ]]; then
+  echo "Refusing unsafe internal monitor name" >&2
+  exit 1
+fi
+
+valid_scale() {
+  [[ $1 =~ ^[0-9]+([.][0-9]+)?$ ]]
+}
+
+scales_match() {
+  local left="$1"
+  local right="$2"
+
+  valid_scale "$left" && valid_scale "$right" || return 1
+  awk -v left="$left" -v right="$right" 'BEGIN {
+    diff = left - right
+    if (diff < 0) diff = -diff
+    exit(diff < 0.001 ? 0 : 1)
+  }'
+}
+
+current_internal_scale() {
+  [[ -n $INTERNAL ]] || return 0
+  hyprctl monitors all -j | jq -r --arg internal "$INTERNAL" '.[] | select(.name == $internal and .disabled != true) | .scale' | head -1
+}
+
+store_internal_scale() {
+  local scale="$1"
+  valid_scale "$scale" || return 0
+
+  mkdir -p "$TOGGLES_DIR"
+  printf '%s\n' "$scale" >"$SCALE_STATE"
+}
+
+remember_internal_scale() {
+  local scale
+  scale=$(current_internal_scale)
+  store_internal_scale "$scale"
+}
+
+read_monitor_scale() {
+  local scale=""
+
+  if [[ -f $SCALE_STATE ]]; then
+    scale=$(<"$SCALE_STATE")
+    if valid_scale "$scale"; then
+      echo "$scale"
+      return
+    fi
+  fi
+
+  # Default matches R2 monitors.lua catch-all scale.
+  echo 1
+}
+
+dpms_internal() {
+  local action="$1"
+
+  [[ -n $INTERNAL ]] || return 0
+  hyprctl dispatch "hl.dsp.dpms({ action = \"$action\", monitor = \"$INTERNAL\" })" >/dev/null 2>&1 || true
+}
+
+enable_internal() {
+  local changed=0
+  local scale
+  local active_scale
+
+  if [[ -f $CLAMSHELL_FLAG ]]; then
+    rm -f "$CLAMSHELL_FLAG"
+    changed=1
+  fi
+
+  # Manual disable wins while an external is still active.
+  if [[ -f $MANUAL_DISABLE_FLAG ]] && r2-d2-hyprland-monitor-external-active; then
+    return 0
+  fi
+
+  [[ -n $INTERNAL ]] || return 0
+
+  scale=$(read_monitor_scale)
+  active_scale=$(current_internal_scale)
+
+  if [[ -f $MANUAL_DISABLE_FLAG ]]; then
+    # External gone: clear stale manual disable and re-enable.
+    rm -f "$MANUAL_DISABLE_FLAG"
+    changed=1
+  fi
+
+  if ((!changed)) && scales_match "$active_scale" "$scale"; then
+    return 0
+  fi
+
+  r2-d2-hyprland-monitor-set "$INTERNAL" preferred auto "$scale" >/dev/null 2>&1 || true
+
+  if ((changed)); then
+    dpms_internal enable
+  fi
+}
+
+disable_internal() {
+  [[ -n $INTERNAL ]] || exit 0
+  [[ -f $MANUAL_DISABLE_FLAG ]] && return 0
+
+  mkdir -p "$TOGGLES_DIR"
+  remember_internal_scale
+
+  if [[ ! -f $CLAMSHELL_FLAG ]] || [[ $(<"$CLAMSHELL_FLAG") != "$INTERNAL" ]]; then
+    printf '%s\n' "$INTERNAL" >"$CLAMSHELL_FLAG"
+    r2-d2-hyprland-monitor-set "$INTERNAL" disable >/dev/null 2>&1 || true
+  fi
+}
+
+if r2-d2-hw-clamshell && r2-d2-hyprland-monitor-external-active; then
+  disable_internal
+else
+  enable_internal
+fi

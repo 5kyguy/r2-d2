@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Lock and reconcile displays when the laptop lid closes.
+# Port of omarchy-system-lid-close (hyprlock instead of Quickshell).
+
+# A docked lid close does not suspend (HandleLidSwitchDocked defaults to
+# ignore), so it must not lock either: that is clamshell mode.
+if r2-d2-hw-laptop-closed && ! r2-d2-hw-external-monitors; then
+  r2-d2-lock-screen >/dev/null 2>&1 || true
+fi
+
+r2-d2-hyprland-monitor-clamshell

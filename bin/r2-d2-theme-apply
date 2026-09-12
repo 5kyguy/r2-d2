@@ -216,4 +216,15 @@ apply_mapping "share-picker.css.in" "default/config/hyprland-preview-share-picke
 mkdir -p "$(dirname "$STATE_FILE")"
 echo "$ACCENT" >"$STATE_FILE"
 
+# Preserve user text size across theme/accent re-renders (repo templates only).
+if [[ -x $R2D2_ROOT/bin/r2-d2-display-text-size ]]; then
+  text_size_state="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/display/text-size"
+  if [[ -f $text_size_state ]]; then
+    size=$(tr -d '[:space:]' <"$text_size_state")
+    if [[ $size =~ ^[0-9]+$ ]]; then
+      R2D2_TEXT_SIZE_CONFIG_ROOT="$R2D2_ROOT/config" "$R2D2_ROOT/bin/r2-d2-display-text-size" "$size" >/dev/null || true
+    fi
+  fi
+fi
+
 echo "Applied R2-D2 theme accent to repo: $ACCENT"

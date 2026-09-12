@@ -1,46 +1,109 @@
 #!/bin/bash
 
-# Adjust brightness on the most likely display device.
-# Usage: r2-d2-brightness-display <step>
-# step accepts: +5%, 5%-, or an explicit percentage like 50%.
+# Show or adjust brightness on the focused display (backlight or DDC/CI).
+# Usage: r2-d2-brightness-display [--no-osd] [--monitor name] [+N%|N%-|N%|off|on]
+# Port of omarchy-brightness-display (without Apple Studio Display path).
 
-step="${1:-+5%}"
+no_osd=0
+monitor=""
 
-# Guard against overlapping invocations from hardware key auto-repeat.
-# Without this, holding a brightness key spawns several concurrent OSD
-# renders that glitch. The flock is non-blocking: later invocations exit.
-runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
-exec 9>"$runtime_dir/r2-d2-brightness-display.lock"
-flock -n 9 || exit 0
-
-# Start with the first possible output, then refine to the most likely given an order heuristic.
-device="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
-for candidate in amdgpu_bl* acpi_video*; do
-  if [[ -e /sys/class/backlight/$candidate ]]; then
-    device="$candidate"
+while (($# > 0)); do
+  case "$1" in
+  --no-osd)
+    no_osd=1
+    shift
+    ;;
+  --monitor)
+    (($# >= 2)) || exit 1
+    monitor="$2"
+    shift 2
+    ;;
+  *)
     break
-  fi
+    ;;
+  esac
 done
 
-# Non-uniform brightness stepping (port of omarchy c078d7ad).
-# Raw +5%/5%- steps feel jerky at the low end on amdgpu_bl's wide range, and
-# can turn the screen off entirely on some models. Below 5% we step by 1%,
-# with a floor of 1% so the panel never goes black.
-case "$step" in
-  +5%)
-    current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
-    if ((current < 5)); then target=$((current + 1)); else target=$((current + 5)); fi
+backlight_brightness() {
+  brightnessctl -d "$1" -m 2>/dev/null | awk -F, '{ gsub("%", "", $4); print $4; found=1 } END{ exit !found }'
+}
+
+pick_backlight_device() {
+  local device candidate
+  device="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
+  for candidate in amdgpu_bl* acpi_video*; do
+    if [[ -e /sys/class/backlight/$candidate ]]; then
+      device="$candidate"
+      break
+    fi
+  done
+  [[ -n $device ]] || return 1
+  printf '%s\n' "$device"
+}
+
+[[ -n $monitor ]] || monitor="$(r2-d2-hyprland-monitor-focused 2>/dev/null || true)"
+
+monitor_is_internal() {
+  [[ $monitor =~ ^(eDP|LVDS|DSI)- ]]
+}
+
+use_ddc_display() {
+  [[ -n $monitor ]] && ! monitor_is_internal
+}
+
+if (($# == 0)); then
+  if use_ddc_display; then
+    r2-d2-brightness-display-ddc "$monitor"
+    exit
+  fi
+
+  device="$(pick_backlight_device)" || exit 1
+  backlight_brightness "$device"
+  exit
+fi
+
+step="$1"
+
+if [[ $step == "off" ]]; then
+  hyprctl dispatch 'hl.dsp.dpms({ action = "disable" })' >/dev/null 2>&1
+  exit 0
+elif [[ $step == "on" ]]; then
+  hyprctl monitors -j 2>/dev/null | jq -e '[.[] | select(.disabled == false)] | length > 0 and all(.dpmsStatus)' >/dev/null 2>&1 && exit 0
+  hyprctl dispatch 'hl.dsp.dpms({ action = "enable" })' >/dev/null 2>&1
+  exit 0
+fi
+
+# Drop overlapping brightness key events so concurrent invocations do not race.
+exec {lock_fd}>"${XDG_RUNTIME_DIR:-/tmp}/r2-d2-brightness-display.lock"
+flock -n "$lock_fd" || exit 0
+
+if use_ddc_display; then
+  brightness="$(r2-d2-brightness-display-ddc "$monitor" "$step")" || exit 1
+  ((no_osd)) || r2-d2-swayosd-brightness "$brightness"
+else
+  device="$(pick_backlight_device)" || exit 1
+  current=$(backlight_brightness "$device") || exit 1
+
+  if [[ $step == "+5%" ]]; then
+    if ((current < 5)); then
+      ((target = current + 1))
+    else
+      ((target = current + 5))
+    fi
+
     ((target > 100)) && target=100
-    step="$target%" ;;
-  5%-)
-    current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
-    if ((current <= 5)); then target=$((current - 1)); else target=$((current - 5)); fi
+    step="$target%"
+  elif [[ $step == "5%-" ]]; then
+    if ((current <= 5)); then
+      ((target = current - 1))
+    else
+      ((target = current - 5))
+    fi
+
     ((target < 1)) && target=1
-    step="$target%" ;;
-esac
+    step="$target%"
+  fi
 
-# Set the actual brightness of the display device.
-brightnessctl -d "$device" set "$step" >/dev/null
-
-# Use SwayOSD to display the new brightness setting.
-r2-d2-swayosd-brightness "$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')"
+  brightnessctl -d "$device" set "$step" >/dev/null
+  ((no_osd)) || r2-d2-swayosd-brightness "$(backlight_brightness "$device")"
+fi

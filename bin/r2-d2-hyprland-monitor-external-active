@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Returns true when any non-internal Hyprland monitor is enabled.
+
+hyprctl monitors -j 2>/dev/null | jq -e '
+  [.[] | select(.disabled != true and (.name | test("^(eDP|LVDS|DSI)-") | not))] | length > 0
+' >/dev/null

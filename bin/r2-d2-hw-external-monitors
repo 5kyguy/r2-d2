@@ -3,10 +3,10 @@
 # Returns true when an external monitor is physically connected.
 # Used to guard lid-close behavior so closing the lid with no external
 # display doesn't kill the only active screen.
-# Port of omarchy omarchy-hw-external-monitors.
+# Port of omarchy-hw-external-monitors (skips eDP/LVDS/DSI).
 
 for status in /sys/class/drm/card*-*/status; do
-  [[ $status == *-eDP-*/status ]] && continue
-  [[ $(< $status) == "connected" ]] && exit 0
+  [[ $status == *-eDP-*/status || $status == *-LVDS-*/status || $status == *-DSI-*/status ]] && continue
+  [[ $(<$status) == "connected" ]] && exit 0
 done
 exit 1

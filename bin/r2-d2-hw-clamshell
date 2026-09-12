@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Returns true when clamshell mode is active (lid closed + external monitors).
+# Port of omarchy-hw-clamshell.
+
+r2-d2-hw-laptop-closed && r2-d2-hw-external-monitors

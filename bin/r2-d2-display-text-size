@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# Scale text everywhere — Waybar, GTK apps, Alacritty, and Hyprland groupbar.
+# Usage: r2-d2-display-text-size [size|reset]
+#
+# One knob for apparent text size across the desktop, anchored to Waybar's
+# default of 12px:
+#   • Waybar font-size (12px -> 12px)
+#   • GNOME/GTK text-scaling-factor (12px -> 1.0, quantized)
+#   • Alacritty font point size (12px -> 9pt)
+#   • Hyprland groupbar font_size (12px -> 10)
+# Accepts an integer from 9 to 20 (px).
+
+set -euo pipefail
+
+MIN=9
+MAX=20
+GKEY_SCHEMA="org.gnome.desktop.interface"
+GKEY_NAME="text-scaling-factor"
+
+# Anchors: 12px Waybar == factor 1.0 == 9pt Alacritty == 10 groupbar.
+TERM_DEFAULT_PT=9
+WAYBAR_DEFAULT_PX=12
+GROUPBAR_DEFAULT=10
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/display"
+STATE_FILE="$STATE_DIR/text-size"
+
+# Optional: apply into a config root other than ~/.config (used by theme-apply).
+CONFIG_ROOT="${R2D2_TEXT_SIZE_CONFIG_ROOT:-$HOME/.config}"
+
+usage() {
+  echo "Usage: r2-d2-display-text-size [size|reset]"
+  echo "  (no args)   print the current text size, GTK factor, and terminal size"
+  echo "  <size>      set text size in px ($MIN–$MAX)"
+  echo "  reset       return to defaults (12px / 1.0 / 9pt)"
+}
+
+gtk_font_pt() {
+  local name pt
+  name="$(gsettings get "$GKEY_SCHEMA" font-name 2>/dev/null)" || true
+  pt="${name%\'}"
+  pt="${pt##* }"
+  if [[ $pt =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    echo "$pt"
+  else
+    echo 11
+  fi
+}
+
+term_pt_for() {
+  awk -v s="$1" -v p="$TERM_DEFAULT_PT" -v b="$WAYBAR_DEFAULT_PX" \
+    'BEGIN { printf "%d", int(s * p / b + 0.5) }'
+}
+
+groupbar_for() {
+  awk -v s="$1" -v g="$GROUPBAR_DEFAULT" -v b="$WAYBAR_DEFAULT_PX" \
+    'BEGIN { printf "%d", int(s * g / b + 0.5) }'
+}
+
+current_size() {
+  if [[ -f $STATE_FILE ]]; then
+    local size
+    size=$(<"$STATE_FILE")
+    [[ $size =~ ^[0-9]+$ ]] && echo "$size" && return
+  fi
+  echo "$WAYBAR_DEFAULT_PX"
+}
+
+set_gtk_factor() {
+  gsettings set "$GKEY_SCHEMA" "$GKEY_NAME" "$1" 2>/dev/null || true
+}
+
+set_alacritty_size() {
+  local pt="$1"
+  local file="$CONFIG_ROOT/alacritty/alacritty.toml"
+  [[ -f $file ]] || return 0
+  sed -i -E "s/^size[[:space:]]*=.*/size = $pt/" "$file"
+  # Alacritty watches the config file.
+  touch "$file"
+}
+
+set_waybar_size() {
+  local px="$1"
+  local file="$CONFIG_ROOT/waybar/style.css"
+  [[ -f $file ]] || return 0
+  sed -i -E "s/font-size:[[:space:]]*[0-9]+px/font-size: ${px}px/g" "$file"
+}
+
+set_groupbar_size() {
+  local size="$1"
+  local file="$CONFIG_ROOT/hypr/looknfeel.lua"
+  [[ -f $file ]] || return 0
+  sed -i -E "s/(font_size[[:space:]]*=[[:space:]]*)[0-9]+/\1$size/" "$file"
+}
+
+apply_size() {
+  local size="$1"
+  local factor term_pt groupbar
+
+  factor="$(awk -v s="$size" -v b="$WAYBAR_DEFAULT_PX" -v f="$(gtk_font_pt)" \
+    'BEGIN { printf "%.4f", int(f * s / b + 0.5) / f }')"
+  term_pt="$(term_pt_for "$size")"
+  groupbar="$(groupbar_for "$size")"
+
+  # Only touch live GTK settings when writing the user's real config.
+  if [[ $CONFIG_ROOT == "$HOME/.config" ]]; then
+    set_gtk_factor "$factor"
+  fi
+
+  set_alacritty_size "$term_pt"
+  set_waybar_size "$size"
+  set_groupbar_size "$groupbar"
+
+  mkdir -p "$STATE_DIR"
+  printf '%s\n' "$size" >"$STATE_FILE"
+}
+
+reload_ui() {
+  # Only restart live UI when writing the user's real config.
+  [[ $CONFIG_ROOT == "$HOME/.config" ]] || return 0
+
+  if r2-d2-cmd-present r2-d2-restart-waybar; then
+    r2-d2-restart-waybar >/dev/null 2>&1 || true
+  fi
+  if r2-d2-cmd-present r2-d2-hyprland-reload; then
+    r2-d2-hyprland-reload >/dev/null 2>&1 || true
+  fi
+}
+
+case "${1:-}" in
+-h | --help)
+  usage
+  exit 0
+  ;;
+"")
+  size="$(current_size)"
+  factor="$(gsettings get "$GKEY_SCHEMA" "$GKEY_NAME" 2>/dev/null || echo n/a)"
+  term="$(grep -oP '^size[[:space:]]*=[[:space:]]*\K[0-9.]+' "$HOME/.config/alacritty/alacritty.toml" 2>/dev/null | head -1 || true)"
+  printf 'text size: %s px\ngtk text-scaling-factor: %s\nterminal font: %s pt\n' \
+    "$size" "$factor" "${term:-n/a}"
+  exit 0
+  ;;
+reset | default)
+  apply_size "$WAYBAR_DEFAULT_PX"
+  if [[ $CONFIG_ROOT == "$HOME/.config" ]]; then
+    gsettings reset "$GKEY_SCHEMA" "$GKEY_NAME" 2>/dev/null || true
+  fi
+  reload_ui
+  exit 0
+  ;;
+esac
+
+size="$1"
+if [[ ! $size =~ ^[0-9]+$ ]] || ((size < MIN || size > MAX)); then
+  echo "Size must be an integer between $MIN and $MAX (px)." >&2
+  usage >&2
+  exit 1
+fi
+
+apply_size "$size"
+reload_ui

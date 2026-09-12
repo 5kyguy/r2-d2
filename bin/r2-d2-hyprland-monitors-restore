@@ -4,15 +4,17 @@
 
 set -euo pipefail
 
-BUILTIN_DISABLED="$HOME/.local/state/r2-d2/toggles/builtin-display-disabled"
-DISPLAY_MIRROR="$HOME/.local/state/r2-d2/toggles/display-mirror"
+TOGGLES_DIR="$HOME/.local/state/r2-d2/toggles"
+BUILTIN_DISABLED="$TOGGLES_DIR/builtin-display-disabled"
+BUILTIN_CLAMSHELL="$TOGGLES_DIR/builtin-display-clamshell"
+DISPLAY_MIRROR="$TOGGLES_DIR/display-mirror"
 
 apply_mirror() {
   local monitors_json builtin external
 
   monitors_json=$(hyprctl monitors -j 2>/dev/null) || return 0
-  builtin=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("eDP"; "i")) | .name' | head -1)
-  external=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("eDP"; "i") | not) | .name' | head -1)
+  builtin=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)-")) | .name' | head -1)
+  external=$(echo "$monitors_json" | jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)-") | not) | .name' | head -1)
 
   if [[ -n $builtin && -n $external ]]; then
     r2-d2-hyprland-monitor-set "$external" preferred 0x0 1 mirror "$builtin"
@@ -21,6 +23,8 @@ apply_mirror() {
 
 if [[ -f $BUILTIN_DISABLED ]]; then
   r2-d2-hyprland-monitor-set "$(cat "$BUILTIN_DISABLED")" disable
+elif [[ -f $BUILTIN_CLAMSHELL ]]; then
+  r2-d2-hyprland-monitor-set "$(cat "$BUILTIN_CLAMSHELL")" disable
 elif [[ -f $DISPLAY_MIRROR ]]; then
   apply_mirror
 elif [[ ! -t 0 ]]; then
