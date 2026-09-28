@@ -1,0 +1,208 @@
+#!/bin/bash
+
+# Opt-in publisher for the activated theme document.
+# A missing or incomplete config is a successful no-op. Network failure exits 0.
+
+set -euo pipefail
+
+python3 - "$@" <<'PY'
+import fcntl
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+
+def state_dir():
+    base = os.environ.get('XDG_STATE_HOME') or str(Path.home() / '.local/state')
+    return Path(base) / 'r2-d2'
+
+
+def config_path():
+    base = os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / '.config')
+    return Path(base) / 'r2-d2/theme-publish.conf'
+
+
+def log(message):
+    path = state_dir() / 'theme-publish.log'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('a', encoding='utf-8') as handle:
+        handle.write(message.rstrip() + '\n')
+
+
+def read_config():
+    path = config_path()
+    if not path.is_file():
+        return {}
+    values = {}
+    for line in path.read_text(encoding='utf-8').splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith('#') or '=' not in stripped:
+            continue
+        key, value = stripped.split('=', 1)
+        values[key.strip()] = value.strip()
+    return values
+
+
+def allowed_endpoint(endpoint):
+    parsed = urllib.parse.urlparse(endpoint)
+    host = (parsed.hostname or '').lower()
+    if parsed.scheme == 'https' and host:
+        return True
+    return parsed.scheme == 'http' and host in {'127.0.0.1', 'localhost'}
+
+
+def atomic_write(path, content):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, temporary = tempfile.mkstemp(prefix='.' + path.name + '.', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'wb') as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def read_desired():
+    path = state_dir() / 'theme-publish.desired'
+    try:
+        raw = path.read_bytes()
+        data = json.loads(raw)
+        revision = data.get('revision')
+        if not isinstance(revision, str) or len(revision) != 64:
+            return None
+        return {'raw': raw, 'revision': revision}
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def confirmed_revision():
+    path = state_dir() / 'theme-publish.confirmed'
+    try:
+        return path.read_text(encoding='utf-8').strip()
+    except OSError:
+        return ''
+
+
+def post_and_read(endpoint, token, raw):
+    request = urllib.request.Request(
+        endpoint,
+        data=raw,
+        method='PUT',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+            'User-Agent': 'r2-d2-theme-publish',
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            status = response.status
+            response.read()
+    except urllib.error.HTTPError as error:
+        return error.code, None
+    except Exception:
+        return 0, None
+    try:
+        with urllib.request.urlopen(urllib.request.Request(endpoint, method='GET'), timeout=10) as response:
+            body = json.loads(response.read().decode())
+        revision = body.get('revision') if isinstance(body, dict) else None
+        return status, revision if isinstance(revision, str) else None
+    except Exception:
+        return status, None
+
+
+def publish_loop(endpoint, token):
+    directory = state_dir()
+    directory.mkdir(parents=True, exist_ok=True)
+    lock = os.open(directory / 'theme-publish.lock', os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        retries = int(os.environ.get('R2D2_THEME_PUBLISH_RETRIES', '8'))
+        base_delay = float(os.environ.get('R2D2_THEME_PUBLISH_RETRY_SECONDS', '1'))
+        failures = 0
+        confirmed = confirmed_revision()
+        while failures < retries:
+            desired = read_desired()
+            if desired is None:
+                log('publish skipped: desired theme is unreadable')
+                return
+            if desired['revision'] == confirmed:
+                time.sleep(0.05)
+                again = read_desired()
+                if again is None or again['revision'] == desired['revision']:
+                    return
+                desired = again
+            status, remote = post_and_read(endpoint, token, desired['raw'])
+            if status in {400, 401, 403, 413}:
+                log(f'publish rejected status={status} revision={desired["revision"]}')
+                return
+            if remote == desired['revision']:
+                atomic_write(directory / 'theme-publish.confirmed', (remote + '\n').encode())
+                confirmed = remote
+                failures = 0
+                log(f'publish confirmed revision={remote}')
+                continue
+            failures += 1
+            log(f'publish retry {failures} status={status} revision={desired["revision"]}')
+            time.sleep(min(base_delay * (2 ** (failures - 1)), 30))
+        log('publish gave up before readback matched')
+    finally:
+        os.close(lock)
+
+
+def run():
+    config = read_config()
+    if config.get('enabled') != 'true':
+        return
+    endpoint = config.get('endpoint', '')
+    token = config.get('token', '')
+    if not endpoint or not token or not allowed_endpoint(endpoint):
+        log('publish skipped: opt-in config is incomplete or the endpoint is not allowed')
+        return
+    theme_path = state_dir() / 'theme.json'
+    try:
+        raw = theme_path.read_bytes()
+    except OSError:
+        log('publish skipped: theme.json is missing')
+        return
+    if len(raw) > 32768:
+        log('publish skipped: theme document exceeds 32 KiB')
+        return
+    try:
+        revision = json.loads(raw).get('revision')
+        if not isinstance(revision, str) or len(revision) != 64:
+            raise ValueError('revision')
+    except (json.JSONDecodeError, ValueError, TypeError):
+        log('publish skipped: theme.json is not a versioned document')
+        return
+    atomic_write(state_dir() / 'theme-publish.desired', raw)
+    if os.environ.get('R2D2_THEME_PUBLISH_FOREGROUND') != '1':
+        pid = os.fork()
+        if pid > 0:
+            return
+        os.setsid()
+        devnull = os.open(os.devnull, os.O_RDWR)
+        os.dup2(devnull, 0)
+        os.dup2(devnull, 1)
+        os.dup2(devnull, 2)
+    publish_loop(endpoint, token)
+
+
+try:
+    run()
+except Exception as error:
+    try:
+        log(f'publish failed: {type(error).__name__}')
+    except Exception:
+        pass
+sys.exit(0)
+PY
