@@ -4,6 +4,7 @@ TryExec=alacritty
 Exec=alacritty
 Icon=Alacritty
 Terminal=false
+NoDisplay=true
 Categories=System;TerminalEmulator;
 Name=Alacritty
 GenericName=Terminal
