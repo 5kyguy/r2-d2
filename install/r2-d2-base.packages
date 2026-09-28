@@ -70,8 +70,6 @@ kernel-modules-hook
 keychain
 keyd
 kvantum-qt5
-lazydocker
-lazygit
 less
 libpulse
 libqalculate

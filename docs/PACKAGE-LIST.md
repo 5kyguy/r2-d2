@@ -54,7 +54,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **158** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **156** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -106,11 +106,11 @@ chromium (fallback). Default browser is **Brave Origin** (AUR package `brave-ori
 
 ### Containers and Docker
 
-docker, docker-buildx, docker-compose, lazydocker
+docker, docker-buildx, docker-compose
 
 ### Development and runtimes (base list)
 
-git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate, lazygit
+git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate
 
 ### System info and monitoring
 
@@ -154,7 +154,7 @@ plocate, whois, unzip, exfatprogs, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, helium-browser-bin, z-code-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
 
 ---
 
@@ -180,8 +180,8 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 158 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Base pacman packages:** 156 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).

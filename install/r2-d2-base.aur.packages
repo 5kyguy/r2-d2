@@ -15,7 +15,6 @@ walker
 xdg-terminal-exec
 yaru-icon-theme
 yay
-z-code-bin
 
 # Elephant providers (walker data sources). Version must match the elephant package.
 elephant-desktopapplications
