@@ -141,9 +141,12 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 R2-D2 uses a dark companion palette with a **wallpaper-driven accent**. The base colors (background, text, inactive borders) stay fixed; the accent is extracted from the active wallpaper and applied across Hyprland, Waybar, GTK, the terminal, notifications, and other UI.
 
 - Change the wallpaper with the background selector (**Super + Ctrl + Space**). `r2-d2-theme-bg-set` updates the desktop image, extracts an accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
-- Desaturated or grayscale wallpapers fall back to a white accent (`#EAEAEA` in `config/theme/palette.toml`).
+- Desaturated or grayscale wallpapers use the palette fallback accent (`#EAEAEA`). That is a real accent. `#FFFFFF` is only the monochrome used when no accent can be read.
+- Notifications use Manrope. The next update installs `ttf-manrope` with the base packages. Waybar, Walker, Hyprlock, and the terminal stay on JetBrainsMono Nerd Font.
 - Run **Update** (`r2-d2-update`) to refresh all repo-managed config and optionally reload desktop components when prompted.
 - Theme templates live in `config/theme/templates/`; `r2-d2-theme-apply` renders them into the repo only.
+- Successful renders stage `.theme-state.json`; explicit theme/full-config syncs then atomically select `${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme.json` for local consumers. Rendering alone does not activate that document or reload the desktop. See [the visual contract](VISUAL-CONTRACT.md#state) for compatibility, validation, and failure behavior.
+- Website publication is off unless `${XDG_CONFIG_HOME:-$HOME/.config}/r2-d2/theme-publish.conf` opts in. A failed publish does not affect the desktop or Brook. Provisioning and rotation are in [the visual contract](VISUAL-CONTRACT.md#publication).
 
 ## Keyboard (Caps Lock → Super)
 
