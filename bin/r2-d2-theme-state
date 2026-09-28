@@ -1,0 +1,144 @@
+#!/bin/bash
+
+# Internal theme-document helper. Callers hold .theme.lock across render/sync.
+set -euo pipefail
+
+export R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+
+python3 - "$@" <<'PY'
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import re
+import sys
+import tempfile
+import tomllib
+
+root = Path(os.environ['R2D2_PATH'])
+state = Path(os.environ.get('XDG_STATE_HOME') or Path.home() / '.local/state') / 'r2-d2'
+keys = {'background', 'foreground', 'inactive', 'dim_foreground', 'fallback_accent',
+        'critical', 'critical_dark', 'warning', 'magenta'}
+
+
+def rgb(value):
+    if not isinstance(value, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', value):
+        raise ValueError('Expected a full #RRGGBB color')
+    return tuple(int(value[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def luminance(value):
+    channels = [c / 255 for c in rgb(value)]
+    linear = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels]
+    return sum(c * w for c, w in zip(linear, (0.2126, 0.7152, 0.0722)))
+
+
+def contrast(a, b):
+    high, low = sorted((luminance(a), luminance(b)), reverse=True)
+    return (high + 0.05) / (low + 0.05)
+
+
+def readable(source, surfaces, target, threshold):
+    for step in range(101):
+        values = [math.floor(c + (target - c) * (step / 100) + 0.5) for c in rgb(source)]
+        color = '#' + ''.join(f'{c:02X}' for c in values)
+        ratio = min(contrast(color, surface) for surface in surfaces)
+        if ratio >= threshold:
+            return color, step / 100, round(ratio, 2)
+    raise ValueError('No accessible accent')
+
+
+def derive(source, mode):
+    surfaces = ('#0A0A0A', '#121212', '#1A1A1A') if mode == 'dark' else ('#FFFFFF', '#FAFAFA', '#F4F4F4')
+    target = 255 if mode == 'dark' else 0
+    text, text_mix, text_ratio = readable(source, surfaces, target, 4.5)
+    border, border_mix, border_ratio = readable(source, surfaces, target, 3)
+    inks = ('#0A0A0A', '#FAFAFA')
+    ink = max(inks, key=lambda value: contrast(source, value))
+    fill, amount = source, 0.0
+    if contrast(fill, ink) < 4.5:
+        options = []
+        for candidate, endpoint in zip(inks, (255, 0)):
+            value, mix, _ = readable(source, (candidate,), endpoint, 4.5)
+            options.append((mix, value, candidate))
+        amount, fill, ink = min(options, key=lambda option: option[0])
+    return dict(source=source, text=text, text_mix=text_mix, text_contrast_min=text_ratio,
+                border=border, border_mix=border_mix, border_contrast_min=border_ratio,
+                control=fill, control_mix=amount, on_control=ink,
+                control_contrast=round(contrast(fill, ink), 2),
+                rgb=', '.join(str(c) for c in rgb(source)))
+
+
+def document(source, palette):
+    rgb(source)
+    if not isinstance(palette, dict) or set(palette) != keys:
+        raise ValueError('Unexpected palette fields')
+    for value in palette.values():
+        rgb(value)
+    source = source.upper()
+    data = dict(version=1, contract='skyguy-visual', contract_version=1,
+                palette={key: value.upper() for key, value in palette.items()},
+                accent=dict(source=source, dark=derive(source, 'dark'), light=derive(source, 'light')))
+    payload = json.dumps(data, sort_keys=True, separators=(',', ':')).encode()
+    data['revision'] = hashlib.sha256(payload).hexdigest()
+    return data
+
+
+def load(path):
+    if path.stat().st_size > 32768:
+        raise ValueError('Theme document exceeds 32 KiB')
+    data = json.loads(path.read_text())
+    expected = document(data['accent']['source'], data['palette'])
+    if json.dumps(data, sort_keys=True) != json.dumps(expected, sort_keys=True):
+        raise ValueError('Invalid theme schema, revision, or derived roles')
+    return data
+
+
+def atomic_write(path, content):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file() and path.read_text() == content:
+        return
+    fd, temporary = tempfile.mkstemp(prefix='.' + path.name + '.', dir=path.parent)
+    try:
+        with os.fdopen(fd, 'w') as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+try:
+    command, *args = sys.argv[1:]
+    if command == 'build' and len(args) == 1:
+        palette = tomllib.loads((root / 'config/theme/palette.toml').read_text())
+        print(json.dumps(document(args[0], palette), sort_keys=True, indent=2))
+    elif command == 'stage' and len(args) == 1:
+        data = load(Path(args[0]))
+        atomic_write(root / '.theme-state.json', json.dumps(data, sort_keys=True, indent=2) + '\n')
+        atomic_write(state / 'theme-accent', data['accent']['source'] + '\n')
+    elif command in ('check', 'activate') and not args:
+        data = load(root / '.theme-state.json')
+        # Refuse incomplete source trees before a sync changes any live files.
+        for relative in (
+            'config/hypr/looknfeel.lua', 'config/hypr/hyprlock.conf',
+            'config/waybar/waybar.css', 'config/waybar/style.css',
+            'config/gtk-3.0/gtk.css', 'config/alacritty/alacritty.toml',
+            'config/mako/config', 'config/swayosd/style.css',
+            'config/btop/themes/current.theme', 'config/starship.toml',
+            'default/config/walker/themes/default/style.css',
+            'default/config/hyprland-preview-share-picker/style.css',
+        ):
+            if not (root / relative).is_file():
+                raise ValueError(f'Missing rendered output: {relative}; run r2-d2-theme-apply first')
+        if command == 'activate':
+            atomic_write(state / 'theme.json', json.dumps(data, sort_keys=True, indent=2) + '\n')
+    else:
+        raise ValueError('Usage: r2-d2-theme-state build ACCENT | stage FILE | check | activate')
+except (ValueError, KeyError, TypeError, OSError) as error:
+    print(f'Theme state: {error}', file=sys.stderr)
+    sys.exit(1)
+PY

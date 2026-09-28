@@ -1,8 +1,8 @@
 @define-color background-color {{BACKGROUND}};
-@define-color border-color {{ACCENT}};
-@define-color label {{DIM_FOREGROUND}};
-@define-color image {{DIM_FOREGROUND}};
-@define-color progress {{DIM_FOREGROUND}};
+@define-color border-color {{ACCENT_BORDER}};
+@define-color label {{FOREGROUND}};
+@define-color image {{FOREGROUND}};
+@define-color progress {{ACCENT_TEXT}};
 
 window {
     background-color: transparent;
@@ -15,7 +15,7 @@ window {
 .osd,
 osd,
 osd {
-    background-color: alpha(@background-color, 0.4);
+    background-color: @background-color;
     border: 1px solid @border-color;
     border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -29,7 +29,7 @@ image {
 
 label {
     color: @label;
-    font-size: 8px;
+    font-size: 12px;
     font-weight: 400;
     margin: 0;
     text-shadow: none;

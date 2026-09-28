@@ -7,6 +7,10 @@ set -euo pipefail
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
+exec 9>"$R2D2_PATH/.theme.lock"
+flock 9
+"$R2D2_PATH/bin/r2-d2-theme-state" check
+
 declare -a THEME_PATHS=(
   config/hypr/looknfeel.lua
   config/hypr/hyprlock.conf
@@ -26,11 +30,18 @@ for relative_path in "${THEME_PATHS[@]}"; do
 
   [[ -f $src ]] || continue
   mkdir -p "$(dirname "$dest")"
-  cp "$src" "$dest"
+  cp -T "$src" "$dest"
 done
 
 mkdir -p ~/.config/walker/themes/default
-cp "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
+cp -T "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
 
 mkdir -p ~/.config/hyprland-preview-share-picker
-cp "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+cp -T "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+
+# Announce the selected configuration only after every copy succeeds.
+"$R2D2_PATH/bin/r2-d2-theme-state" activate
+
+if [[ -f "$R2D2_PATH/bin/r2-d2-theme-publish" ]]; then
+  "$R2D2_PATH/bin/r2-d2-theme-publish" || true
+fi

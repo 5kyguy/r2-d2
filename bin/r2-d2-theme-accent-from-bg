@@ -7,9 +7,17 @@ set -euo pipefail
 
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 PALETTE="$R2D2_ROOT/config/theme/palette.toml"
-STATE_DIR="$HOME/.local/state/r2-d2"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2"
 STATE_FILE="$STATE_DIR/theme-accent"
 BACKGROUND_LINK="$R2D2_ROOT/backgrounds/@background"
+
+print_only=false
+if [[ ${1:-} == "--print-only" && $# == 1 ]]; then
+  print_only=true
+elif (( $# > 0 )); then
+  echo "Usage: r2-d2-theme-accent-from-bg [--print-only]" >&2
+  exit 1
+fi
 
 read_palette() {
   local key="$1"
@@ -20,8 +28,17 @@ FALLBACK="$(read_palette fallback_accent)"
 
 write_accent() {
   local accent="$1"
-  mkdir -p "$STATE_DIR"
-  echo "$accent" >"$STATE_FILE"
+  if [[ ! $accent =~ ^#[[:xdigit:]]{6}$ ]]; then
+    echo "Invalid wallpaper accent: expected #RRGGBB" >&2
+    exit 1
+  fi
+  if [[ $print_only == false ]]; then
+    mkdir -p "$STATE_DIR"
+    local tmp
+    tmp=$(mktemp "$STATE_DIR/.theme-accent.XXXXXX")
+    printf '%s\n' "$accent" >"$tmp"
+    mv "$tmp" "$STATE_FILE"
+  fi
   echo "$accent"
 }
 
@@ -47,8 +64,6 @@ import re
 import sys
 
 fallback = sys.argv[1].upper()
-if not fallback.startswith("#"):
-    fallback = "#" + fallback
 
 best = None
 best_score = -1.0

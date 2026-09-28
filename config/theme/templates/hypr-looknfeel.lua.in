@@ -5,7 +5,7 @@
 local background = "{{BACKGROUND_RGBA}}"
 local shadow_color = "rgba(00000055)"
 local shadow_inactive = "rgba(00000044)"
-local active_border = "rgb({{ACCENT_RGB}})"
+local active_border = "rgb({{ACCENT_BORDER_RGB}})"
 local inactive_border = "rgb({{INACTIVE_RGB}})"
 
 local group_border_active = { colors = { "rgba({{ACCENT_RGBA_55}})", "rgba({{ACCENT_RGBA_22}})" }, angle = 90 }

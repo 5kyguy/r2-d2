@@ -2,22 +2,22 @@
 theme[main_bg]="{{BACKGROUND}}"
 
 # Main text color
-theme[main_fg]="#EAEAEA"
+theme[main_fg]="{{FOREGROUND}}"
 
 # Title color for boxes
-theme[title]="{{ACCENT_DIM}}"
+theme[title]="{{ACCENT_TEXT}}"
 
 # Highlight color for keyboard shortcuts
-theme[hi_fg]="{{ACCENT}}"
+theme[hi_fg]="{{ACCENT_TEXT}}"
 
 # Background color of selected item in processes box
-theme[selected_bg]="{{ACCENT_DIM}}"
+theme[selected_bg]="{{ACCENT_CONTROL}}"
 
 # Foreground color of selected item in processes box
-theme[selected_fg]="#EAEAEA"
+theme[selected_fg]="{{ACCENT_ON_CONTROL}}"
 
 # Color of inactive/disabled text
-theme[inactive_fg]="#333333"
+theme[inactive_fg]="{{INACTIVE}}"
 
 # Misc colors for processes box including mini cpu graphs, details memory graph and details status text
 theme[proc_misc]="{{DIM_FOREGROUND}}"

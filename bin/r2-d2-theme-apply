@@ -9,7 +9,14 @@ R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 THEME_DIR="$R2D2_ROOT/config/theme"
 TEMPLATE_DIR="$THEME_DIR/templates"
 PALETTE="$THEME_DIR/palette.toml"
-STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
+if [[ ! -f $STATE_FILE && -f $HOME/.local/state/r2-d2/theme-accent ]]; then
+  STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+fi
+
+# Serialize repo rendering with explicit live syncs, not with the desktop itself.
+exec 9>"$R2D2_ROOT/.theme.lock"
+flock 9
 
 usage() {
   echo "Usage: r2-d2-theme-apply [--accent #RRGGBB | --from-background | --from-state]" >&2
@@ -28,14 +35,18 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
   --accent)
     [[ $# -ge 2 ]] || usage
+    [[ -z $mode ]] || usage
+    mode="accent"
     accent="${2^^}"
     shift 2
     ;;
   --from-background)
+    [[ -z $mode ]] || usage
     mode="background"
     shift
     ;;
   --from-state)
+    [[ -z $mode ]] || usage
     mode="state"
     shift
     ;;
@@ -46,37 +57,41 @@ done
 
 if [[ -n $mode ]]; then
   case "$mode" in
-  background) accent="$(r2-d2-theme-accent-from-bg)" ;;
+  background) accent="$(r2-d2-theme-accent-from-bg --print-only)" ;;
   state)
     if [[ -f $STATE_FILE ]]; then
-      accent="$(tr -d '[:space:]' <"$STATE_FILE")"
+      accent="$(<"$STATE_FILE")"
     else
-      accent="$(r2-d2-theme-accent-from-bg)"
+      accent="$(r2-d2-theme-accent-from-bg --print-only)"
     fi
     ;;
   esac
 fi
 
-if [[ -z $accent ]]; then
+if [[ -z $accent && $mode != "accent" ]]; then
   if [[ -f $STATE_FILE ]]; then
-    accent="$(tr -d '[:space:]' <"$STATE_FILE")"
+    accent="$(<"$STATE_FILE")"
   else
     accent="$(read_palette fallback_accent)"
   fi
 fi
 
 accent="${accent^^}"
-if [[ $accent != \#* ]]; then
-  accent="#$accent"
-fi
+
+# Validate all input and derive the complete document before changing outputs.
+pending="$(mktemp "$R2D2_ROOT/.theme-state.XXXXXX")"
+trap 'rm -f "$pending"' EXIT
+"$R2D2_ROOT/bin/r2-d2-theme-state" build "$accent" >"$pending"
 
 eval "$(
-  python3 - "$accent" "$PALETTE" <<'PY'
+  python3 - "$accent" "$PALETTE" "$pending" <<'PY'
+import json
 import re
 import sys
 
 accent = sys.argv[1].lstrip("#").upper()
 palette_path = sys.argv[2]
+pending_path = sys.argv[3]
 
 values = {}
 for line in open(palette_path, encoding="utf-8"):
@@ -129,7 +144,29 @@ pairs = {
     "WARNING": values.get("warning", "#E07924"),
     "MAGENTA": values.get("magenta", "#932A37"),
     "R2D2_BACKGROUND": "~/.local/share/r2-d2/backgrounds/@background",
+    "RAISED": "#1A1A1A",
+    "PAGE": "#0A0A0A",
+    "PAGE_TEXT": "#EDEDED",
+    "CRITICAL_TEXT": "#D25E5E",
 }
+
+dark = json.load(open(pending_path, encoding="utf-8"))["accent"]["dark"]
+pairs["ACCENT_TEXT"] = dark["text"]
+pairs["ACCENT_BORDER"] = dark["border"]
+pairs["ACCENT_CONTROL"] = dark["control"]
+pairs["ACCENT_ON_CONTROL"] = dark["on_control"]
+
+def channels(name, hex_color):
+    red, green, blue = rgb(hex_color)
+    pairs[f"{name}_R"] = str(red)
+    pairs[f"{name}_G"] = str(green)
+    pairs[f"{name}_B"] = str(blue)
+    pairs[f"{name}_RGB"] = f"{red:02X}{green:02X}{blue:02X}"
+
+channels("ACCENT_TEXT", pairs["ACCENT_TEXT"])
+channels("ACCENT_BORDER", pairs["ACCENT_BORDER"])
+channels("RAISED", pairs["RAISED"])
+channels("CRITICAL_TEXT", pairs["CRITICAL_TEXT"])
 
 bg = pairs["BACKGROUND"].lstrip("#")
 pairs["BACKGROUND_R"] = str(int(bg[0:2], 16))
@@ -162,6 +199,28 @@ render_template() {
     -e "s|{{ACCENT_B}}|${ACCENT_B}|g" \
     -e "s|{{ACCENT_BRIGHT}}|${ACCENT_BRIGHT}|g" \
     -e "s|{{ACCENT_DIM}}|${ACCENT_DIM}|g" \
+    -e "s|{{ACCENT_TEXT_RGB}}|${ACCENT_TEXT_RGB}|g" \
+    -e "s|{{ACCENT_TEXT_R}}|${ACCENT_TEXT_R}|g" \
+    -e "s|{{ACCENT_TEXT_G}}|${ACCENT_TEXT_G}|g" \
+    -e "s|{{ACCENT_TEXT_B}}|${ACCENT_TEXT_B}|g" \
+    -e "s|{{ACCENT_TEXT}}|${ACCENT_TEXT}|g" \
+    -e "s|{{ACCENT_BORDER_RGB}}|${ACCENT_BORDER_RGB}|g" \
+    -e "s|{{ACCENT_BORDER_R}}|${ACCENT_BORDER_R}|g" \
+    -e "s|{{ACCENT_BORDER_G}}|${ACCENT_BORDER_G}|g" \
+    -e "s|{{ACCENT_BORDER_B}}|${ACCENT_BORDER_B}|g" \
+    -e "s|{{ACCENT_BORDER}}|${ACCENT_BORDER}|g" \
+    -e "s|{{ACCENT_CONTROL}}|${ACCENT_CONTROL}|g" \
+    -e "s|{{ACCENT_ON_CONTROL}}|${ACCENT_ON_CONTROL}|g" \
+    -e "s|{{RAISED_R}}|${RAISED_R}|g" \
+    -e "s|{{RAISED_G}}|${RAISED_G}|g" \
+    -e "s|{{RAISED_B}}|${RAISED_B}|g" \
+    -e "s|{{RAISED}}|${RAISED}|g" \
+    -e "s|{{PAGE_TEXT}}|${PAGE_TEXT}|g" \
+    -e "s|{{PAGE}}|${PAGE}|g" \
+    -e "s|{{CRITICAL_TEXT_R}}|${CRITICAL_TEXT_R}|g" \
+    -e "s|{{CRITICAL_TEXT_G}}|${CRITICAL_TEXT_G}|g" \
+    -e "s|{{CRITICAL_TEXT_B}}|${CRITICAL_TEXT_B}|g" \
+    -e "s|{{CRITICAL_TEXT}}|${CRITICAL_TEXT}|g" \
     -e "s|{{BACKGROUND}}|${BACKGROUND}|g" \
     -e "s|{{BACKGROUND_R}}|${BACKGROUND_R}|g" \
     -e "s|{{BACKGROUND_G}}|${BACKGROUND_G}|g" \
@@ -184,6 +243,9 @@ render_template() {
 }
 
 declare -a OUTPUTS=()
+
+# A partial render must never leave an older document eligible for activation.
+rm -f "$R2D2_ROOT/.theme-state.json"
 
 apply_mapping() {
   local template_name="$1"
@@ -213,9 +275,6 @@ apply_mapping "starship.toml.in" "config/starship.toml"
 apply_mapping "walker.css.in" "default/config/walker/themes/default/style.css"
 apply_mapping "share-picker.css.in" "default/config/hyprland-preview-share-picker/style.css"
 
-mkdir -p "$(dirname "$STATE_FILE")"
-echo "$ACCENT" >"$STATE_FILE"
-
 # Preserve user text size across theme/accent re-renders (repo templates only).
 if [[ -x $R2D2_ROOT/bin/r2-d2-display-text-size ]]; then
   text_size_state="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/display/text-size"
@@ -226,5 +285,7 @@ if [[ -x $R2D2_ROOT/bin/r2-d2-display-text-size ]]; then
     fi
   fi
 fi
+
+"$R2D2_ROOT/bin/r2-d2-theme-state" stage "$pending"
 
 echo "Applied R2-D2 theme accent to repo: $ACCENT"

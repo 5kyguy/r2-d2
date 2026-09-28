@@ -3,7 +3,8 @@
 @define-color background {{BACKGROUND}};
 @define-color accent {{ACCENT}};
 @define-color muted {{DIM_FOREGROUND}};
-@define-color card_bg #333333;
+@define-color card_bg {{RAISED}};
+@define-color accent_border {{ACCENT_BORDER}};
 @define-color text_dark {{BACKGROUND}};
 @define-color accent_hover {{ACCENT_BRIGHT}};
 @define-color selected_tab {{ACCENT}};
@@ -18,8 +19,8 @@
 }
 
 .window {
-  background: alpha(@background, 0.95);
-  border: solid 2px @accent;
+  background: @background;
+  border: solid 2px @accent_border;
   margin: 4px;
   padding: 18px;
 }
@@ -59,22 +60,22 @@ flowboxchild > .card, button > .card {
     transition: all 0.2s ease;
     border: solid 2px transparent;
     border-color: @background;
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: @card_bg;
     padding: 5px;
 }
 
 flowboxchild:hover > .card, button:hover > .card, flowboxchild:active > .card, flowboxchild:selected > .card, button:active > .card, button:selected > .card, button:focus > .card {
-    border: solid 2px @accent;
+    border: solid 2px @accent_border;
 }
 
 .image {
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
 .region-button {
     padding: 0.5rem 1rem;
-    border-radius: 5px;
+    border-radius: 4px;
     background-color: @accent;
     color: @text_dark;
     transition: all 0.2s ease;

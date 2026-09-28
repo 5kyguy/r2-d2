@@ -38,14 +38,14 @@ text = "CellForeground"
 background = "{{ACCENT_DIM}}"
 
 [colors.normal]
-black = "#333333"
+black = "{{RAISED}}"
 red = "{{CRITICAL_DARK}}"
 green = "{{ACCENT_DIM}}"
 yellow = "{{ACCENT}}"
 blue = "{{ACCENT}}"
 magenta = "{{MAGENTA}}"
 cyan = "{{ACCENT_DIM}}"
-white = "#bebebe"
+white = "{{FOREGROUND}}"
 
 [colors.bright]
 black = "{{DIM_FOREGROUND}}"
@@ -55,4 +55,4 @@ yellow = "{{WARNING}}"
 blue = "{{ACCENT_BRIGHT}}"
 magenta = "{{CRITICAL}}"
 cyan = "{{ACCENT}}"
-white = "#eaeaea"
+white = "{{PAGE_TEXT}}"

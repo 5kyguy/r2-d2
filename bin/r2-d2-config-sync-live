@@ -7,6 +7,10 @@ set -euo pipefail
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
+exec 9>"$R2D2_PATH/.theme.lock"
+flock 9
+"$R2D2_PATH/bin/r2-d2-theme-state" check
+
 mkdir -p ~/.config
 
 for item in "$R2D2_PATH"/config/*; do
@@ -20,7 +24,13 @@ for item in "$R2D2_PATH"/config/*; do
 done
 
 mkdir -p ~/.config/walker/themes/default
-cp "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
+cp -T "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
 
 mkdir -p ~/.config/hyprland-preview-share-picker
-cp "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+cp -T "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+
+"$R2D2_PATH/bin/r2-d2-theme-state" activate
+
+if [[ -f "$R2D2_PATH/bin/r2-d2-theme-publish" ]]; then
+  "$R2D2_PATH/bin/r2-d2-theme-publish" || true
+fi

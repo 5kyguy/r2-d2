@@ -8,7 +8,10 @@ set -euo pipefail
 
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 PALETTE="$R2D2_ROOT/config/theme/palette.toml"
-STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
+if [[ ! -f $STATE_FILE && -f $HOME/.local/state/r2-d2/theme-accent ]]; then
+  STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+fi
 
 if [[ ! -f $PALETTE ]]; then
   exit 0

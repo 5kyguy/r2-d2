@@ -14,7 +14,7 @@ BACKGROUND="$1"
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 BACKGROUND_DIR="$R2D2_ROOT/backgrounds"
 BACKGROUND_LINK="$BACKGROUND_DIR/@background"
-STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
 
 mkdir -p "$BACKGROUND_DIR"
 
