@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # R2-D2 logo font for Waybar use.
-# Manrope for Mako is installed with the base package list (ttf-manrope).
+# Manrope for Mako is installed from the AUR package list (ttf-manrope).
 r2-d2-pkg-add fontconfig
 
 mkdir -p ~/.local/share/fonts

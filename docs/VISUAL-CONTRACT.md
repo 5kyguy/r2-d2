@@ -17,7 +17,7 @@ Control ink is `#0A0A0A` or `#FAFAFA`, whichever contrasts more, if that ratio i
 - Derived text, border, control, and on-control roles from the shared algorithm. The brighter/dimmer mixes in `r2-d2-theme-apply` are not those roles.
 - Critical `#C73838`, critical dark `#862020`, warning `#E07924`, magenta `#932A37`. Small critical text uses `#D25E5E`. Warning on this dark base can stay `#E07924`.
 - Existing logo and icon files under `assets/`. White on dark surfaces, black on light. Silver and blue stay branding variants. They are PNG-in-SVG, so they do not inherit `currentColor`.
-- JetBrainsMono Nerd Font for terminals, Waybar, Walker, Hyprlock, and Alacritty. Icon glyphs stay on that font. Mako uses Manrope for notification text. The package is `ttf-manrope` in the base package list, so the next update installs it. Hyprland blur and wallpaper treatment are unchanged.
+- JetBrainsMono Nerd Font for terminals, Waybar, Walker, Hyprlock, and Alacritty. Icon glyphs stay on that font. Mako uses Manrope for notification text. The package is `ttf-manrope` in the AUR package list, so the next update installs it. Hyprland blur and wallpaper treatment are unchanged.
 
 R2-D2 stays dark. The light palette belongs to the portfolio.
 
