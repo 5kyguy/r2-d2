@@ -23,7 +23,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 | Script | What |
 | ------ | ---- |
 | **opencode.sh** | **Opencode** via the official curl installer (`~/.opencode/bin`). |
-| **fonts.sh** | Copies **r2-d2.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. Manrope itself comes from `ttf-manrope` in the AUR package list. |
+| **fonts.sh** | Copies **r2-d2.ttf** and **manrope-variable.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
 | **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
 | **tuis.sh** | Reserved for optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`). |
@@ -154,7 +154,7 @@ plocate, whois, unzip, exfatprogs, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ttf-manrope, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
 
 ---
 
@@ -181,7 +181,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 ## 4. Summary
 
 - **Base pacman packages:** 156 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
