@@ -27,5 +27,5 @@ end)
 -- looknfeel.lua is rewritten on every wallpaper change, and Hyprland reloads.
 -- That re-applies monitors.lua. Put a manually disabled laptop panel back off.
 hl.on("config.reloaded", function()
-  hl.exec_cmd("r2-d2-hyprland-monitors-restore --flags-only")
+  hl.exec_cmd("r2-d2-hyprland-monitors-restore --after-reload")
 end)

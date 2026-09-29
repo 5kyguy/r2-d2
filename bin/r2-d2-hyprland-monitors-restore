@@ -4,7 +4,51 @@
 
 set -euo pipefail
 
-TOGGLES_DIR="$HOME/.local/state/r2-d2/toggles"
+TOGGLES_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/toggles"
+WORKSPACE_HOLD="$TOGGLES_DIR/workspace-hold"
+
+remember_workspace() {
+  local id
+
+  id=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty' 2>/dev/null || true)
+  [[ $id =~ ^-?[0-9]+$ ]] || return 0
+  mkdir -p "$TOGGLES_DIR"
+  printf '%s %s\n' "$(date +%s)" "$id" >"$WORKSPACE_HOLD"
+}
+
+restore_workspace() {
+  local saved_at id now attempt active
+
+  [[ -f $WORKSPACE_HOLD ]] || return 0
+  read -r saved_at id <"$WORKSPACE_HOLD" || return 0
+  [[ $saved_at =~ ^[0-9]+$ && $id =~ ^-?[0-9]+$ ]] || return 0
+  now=$(date +%s)
+  if ((now - saved_at > 30)); then
+    rm -f "$WORKSPACE_HOLD"
+    return 0
+  fi
+
+  # Disabling the laptop panel moves focus after hyprctl returns, so retry briefly.
+  for attempt in 1 2 3 4 5; do
+    hyprctl dispatch "hl.dsp.focus({ workspace = $id })" >/dev/null 2>&1 || true
+    active=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty' || true)
+    if [[ $active == "$id" ]]; then
+      rm -f "$WORKSPACE_HOLD"
+      return 0
+    fi
+    sleep 0.1
+  done
+}
+
+if [[ ${1:-} == "--remember-workspace" ]]; then
+  remember_workspace
+  exit 0
+fi
+
+if [[ ${1:-} == "--restore-workspace" ]]; then
+  restore_workspace
+  exit 0
+fi
 BUILTIN_DISABLED="$TOGGLES_DIR/builtin-display-disabled"
 BUILTIN_CLAMSHELL="$TOGGLES_DIR/builtin-display-clamshell"
 DISPLAY_MIRROR="$TOGGLES_DIR/display-mirror"
@@ -27,7 +71,7 @@ elif [[ -f $BUILTIN_CLAMSHELL ]]; then
   r2-d2-hyprland-monitor-set "$(cat "$BUILTIN_CLAMSHELL")" disable
 elif [[ -f $DISPLAY_MIRROR ]]; then
   apply_mirror
-elif [[ ${1:-} != "--flags-only" && ! -t 0 ]]; then
+elif [[ ${1:-} != "--flags-only" && ${1:-} != "--after-reload" && ! -t 0 ]]; then
   while read -r rule; do
     [[ -z $rule ]] && continue
     # Saved rules look like: name,WxH@Hz,XxY,scale
@@ -35,4 +79,8 @@ elif [[ ${1:-} != "--flags-only" && ! -t 0 ]]; then
     [[ -n $name && -n $mode && -n $position && -n $scale ]] || continue
     r2-d2-hyprland-monitor-set "$name" "$mode" "$position" "$scale"
   done
+fi
+
+if [[ ${1:-} == "--after-reload" ]]; then
+  restore_workspace
 fi

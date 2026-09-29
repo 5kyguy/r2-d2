@@ -11,6 +11,9 @@ exec 9>"$R2D2_PATH/.theme.lock"
 flock 9
 "$R2D2_PATH/bin/r2-d2-theme-state" check
 
+# Copying Hyprland config reloads the session and can move focus onto a new workspace.
+"$R2D2_PATH/bin/r2-d2-hyprland-monitors-restore" --remember-workspace || true
+
 mkdir -p ~/.config
 
 for item in "$R2D2_PATH"/config/*; do
