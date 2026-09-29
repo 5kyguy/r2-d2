@@ -3,5 +3,5 @@
 # Restart an application by killing it and relaunching via uwsm.
 # Usage: r2-d2-restart-app <application-name> [application-args...]
 
-pkill -x $1
-setsid uwsm-app -- "" >/dev/null 2>&1 &
+pkill -x "$1" || true
+setsid uwsm-app -- "$@" >/dev/null 2>&1 &

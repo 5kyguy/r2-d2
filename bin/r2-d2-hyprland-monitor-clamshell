@@ -87,7 +87,11 @@ enable_internal() {
   fi
 
   # Manual disable wins while an external is still active.
+  # A config reload re-applies monitors.lua and turns the panel back on.
   if [[ -f $MANUAL_DISABLE_FLAG ]] && r2-d2-hyprland-monitor-external-active; then
+    if [[ -n $(current_internal_scale) ]]; then
+      r2-d2-hyprland-monitor-set "$INTERNAL" disable >/dev/null 2>&1 || true
+    fi
     return 0
   fi
 

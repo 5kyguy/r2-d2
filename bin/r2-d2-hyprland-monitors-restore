@@ -27,7 +27,7 @@ elif [[ -f $BUILTIN_CLAMSHELL ]]; then
   r2-d2-hyprland-monitor-set "$(cat "$BUILTIN_CLAMSHELL")" disable
 elif [[ -f $DISPLAY_MIRROR ]]; then
   apply_mirror
-elif [[ ! -t 0 ]]; then
+elif [[ ${1:-} != "--flags-only" && ! -t 0 ]]; then
   while read -r rule; do
     [[ -z $rule ]] && continue
     # Saved rules look like: name,WxH@Hz,XxY,scale
