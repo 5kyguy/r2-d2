@@ -112,7 +112,13 @@ def post_and_read(endpoint, token, raw):
     except Exception:
         return 0, None
     try:
-        with urllib.request.urlopen(urllib.request.Request(endpoint, method='GET'), timeout=10) as response:
+        # Cloudflare rejects the default Python user agent, so the readback must match the upload.
+        readback = urllib.request.Request(
+            endpoint,
+            method='GET',
+            headers={'User-Agent': 'r2-d2-theme-publish'},
+        )
+        with urllib.request.urlopen(readback, timeout=10) as response:
             body = json.loads(response.read().decode())
         revision = body.get('revision') if isinstance(body, dict) else None
         return status, revision if isinstance(revision, str) else None

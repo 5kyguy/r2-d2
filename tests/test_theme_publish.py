@@ -100,6 +100,10 @@ class ThemePublishTests(unittest.TestCase):
                 self.wfile.write(body)
 
             def do_GET(self):
+                if self.headers.get('User-Agent') != 'r2-d2-theme-publish':
+                    self.send_response(403)
+                    self.end_headers()
+                    return
                 if not current['body']:
                     self.send_response(404)
                     self.end_headers()
