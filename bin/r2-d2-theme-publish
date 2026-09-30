@@ -5,6 +5,24 @@
 
 set -euo pipefail
 
+# TLS after fork dies on Python 3.14, and the child was killed with the wallpaper
+# command before the upload finished. Run the upload in its own user service.
+if [[ ${R2D2_THEME_PUBLISH_FOREGROUND:-} != 1 ]]; then
+  self=$(readlink -f "$0")
+  if command -v systemd-run >/dev/null 2>&1; then
+    if systemd-run --user --quiet --collect \
+      --setenv=HOME="$HOME" \
+      --setenv=XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}" \
+      --setenv=XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}" \
+      --setenv=R2D2_THEME_PUBLISH_FOREGROUND=1 \
+      "$self" >/dev/null 2>&1; then
+      exit 0
+    fi
+  fi
+  R2D2_THEME_PUBLISH_FOREGROUND=1 setsid "$self" >/dev/null 2>&1 &
+  exit 0
+fi
+
 python3 - "$@" <<'PY'
 import fcntl
 import json
@@ -191,15 +209,6 @@ def run():
         log('publish skipped: theme.json is not a versioned document')
         return
     atomic_write(state_dir() / 'theme-publish.desired', raw)
-    if os.environ.get('R2D2_THEME_PUBLISH_FOREGROUND') != '1':
-        pid = os.fork()
-        if pid > 0:
-            return
-        os.setsid()
-        devnull = os.open(os.devnull, os.O_RDWR)
-        os.dup2(devnull, 0)
-        os.dup2(devnull, 1)
-        os.dup2(devnull, 2)
     publish_loop(endpoint, token)
 
 

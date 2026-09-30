@@ -131,6 +131,28 @@ class ThemePublishTests(unittest.TestCase):
         self.assertNotIn('test-token', result.stdout + result.stderr)
         self.assertTrue(endpoint.startswith('http://127.0.0.1:'))
 
+    def test_background_publish_starts_a_user_service(self):
+        bin_dir = self.root / 'bin'
+        bin_dir.mkdir()
+        stub = bin_dir / 'systemd-run'
+        stub.write_text('#!/bin/bash\nprintf "%s\\n" "$@" > "$HOME/systemd-run.args"\n')
+        stub.chmod(0o755)
+        endpoint, received, _started, _release = self.serve()
+        self.write_theme('#03AEEC')
+        self.enable(endpoint)
+        env = dict(self.env)
+        env.pop('R2D2_THEME_PUBLISH_FOREGROUND', None)
+        env['PATH'] = f'{bin_dir}:{env["PATH"]}'
+        result = subprocess.run(
+            ['bash', str(self.repo / 'bin/r2-d2-theme-publish')],
+            env=env, text=True, capture_output=True, timeout=15, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(received, [])
+        recorded = (self.home / 'systemd-run.args').read_text()
+        self.assertIn('R2D2_THEME_PUBLISH_FOREGROUND=1', recorded)
+        self.assertIn(str(self.repo / 'bin/r2-d2-theme-publish'), recorded)
+
     def test_readback_confirms_the_published_revision(self):
         endpoint, _received, _started, _release = self.serve()
         document = self.write_theme('#1D4ED8')
