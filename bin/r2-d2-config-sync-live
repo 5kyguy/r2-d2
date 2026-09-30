@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Copy all repo user config into the live session (~/.config/).
-# Preserves user-edited editor settings (Cursor, VS Code).
+# Cursor, VS Code, and OpenCode user files are not replaced. The accent merge
+# updates Cursor color keys only.
 
 set -euo pipefail
 
@@ -31,6 +32,8 @@ cp -T "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walk
 
 mkdir -p ~/.config/hyprland-preview-share-picker
 cp -T "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+
+"$R2D2_PATH/bin/r2-d2-theme-accent-apps"
 
 "$R2D2_PATH/bin/r2-d2-theme-state" activate
 

@@ -286,6 +286,112 @@ class ThemeStateTests(unittest.TestCase):
         ):
             text_out = rendered if isinstance(rendered, str) else rendered.read_text()
             self.assertNotIn('{{', text_out)
+        source = document['accent']['source']
+        gtk4 = (self.repo / 'config/gtk-4.0/gtk.css').read_text()
+        self.assertIn(f'@define-color accent_bg_color {source};', gtk4)
+        self.assertNotIn('window_bg_color', gtk4)
+        self.assertNotIn('{{', gtk4)
+        hermes = (self.repo / 'config/theme/accent-apps/hermes-skin.yaml').read_text()
+        self.assertIn(f'ui_accent: "{source}"', hermes)
+        self.assertNotIn('status_bar_bg', hermes)
+        self.assertNotIn('{{', hermes)
+        opencode = json.loads((self.repo / 'config/theme/accent-apps/opencode.json').read_text())
+        self.assertEqual(opencode['defs']['darkAccent'], source)
+        self.assertEqual(opencode['defs']['lightAccent'], source)
+        self.assertEqual(opencode['defs']['darkStep9'], '#fab283')
+        self.assertNotIn('#9d7cd8', json.dumps(opencode))
+
+    def test_sync_merges_accent_without_replacing_app_themes(self):
+        kvantum = self.root / 'kvantum'
+        kvantum.mkdir()
+        (kvantum / 'theme.kvconfig').write_text(
+            "[GeneralColors]\n"
+            "window.color=#353535\n"
+            "highlight.color=#15539e\n"
+            "inactive.highlight.color=#15539e\n"
+            "link.color=#2EB8E6\n"
+            "highlight.text.color=white\n"
+        )
+        (kvantum / 'theme.svg').write_text("<svg/>\n")
+        self.env['R2D2_KVANTUM_SRC'] = str(kvantum)
+        hermes = self.home / '.hermes'
+        hermes.mkdir()
+        (hermes / 'config.yaml').write_text("display:\n  compact: false\n  skin: default\n\nother: 1\n")
+        cursor = self.home / '.config/Cursor/User/settings.json'
+        cursor.parent.mkdir(parents=True)
+        cursor.write_text(json.dumps({
+            "editor.fontSize": 14,
+            "workbench.colorTheme": "Default Dark+",
+            "workbench.colorCustomizations": {"editor.background": "#111111"},
+        }, indent=2) + "\n")
+        opencode = self.home / '.config/opencode/opencode.json'
+        opencode.parent.mkdir(parents=True)
+        original = '{"mcp":{"r2d2":{"enabled":true}}}\n'
+        opencode.write_text(original)
+        active = self.home / '.config/Kvantum/kvantum.kvconfig'
+        active.parent.mkdir(parents=True)
+        active.write_text("[General]\ntheme=KvGnomeDark\n\n[Applications]\nfoo=1\n")
+
+        self.apply('#1D4ED8')
+        self.assertFalse((self.home / '.hermes/skins/r2-d2.yaml').exists())
+        for command in ('r2-d2-theme-sync-live', 'r2-d2-config-sync-live'):
+            with self.subTest(command=command):
+                result = self.run_script(command)
+                self.assertEqual(result.returncode, 0, result.stderr)
+
+        source = '#1D4ED8'
+        self.assertEqual((self.home / '.config/gtk-4.0/gtk.css').read_text(),
+                         (self.repo / 'config/gtk-4.0/gtk.css').read_text())
+        self.assertEqual((hermes / 'skins/r2-d2.yaml').read_text(),
+                         (self.repo / 'config/theme/accent-apps/hermes-skin.yaml').read_text())
+        hermes_config = (hermes / 'config.yaml').read_text()
+        self.assertIn('skin: r2-d2\n', hermes_config)
+        self.assertIn('compact: false\n', hermes_config)
+        self.assertIn('other: 1\n', hermes_config)
+        theme = json.loads((self.home / '.config/opencode/themes/opencode.json').read_text())
+        self.assertEqual(theme['defs']['darkAccent'], source)
+        self.assertEqual(theme['defs']['darkStep9'], '#fab283')
+        self.assertFalse((self.home / '.config/opencode/tui.json').exists())
+        self.assertEqual(opencode.read_text(), original)
+        settings = json.loads(cursor.read_text())
+        self.assertEqual(settings['editor.fontSize'], 14)
+        self.assertEqual(settings['workbench.colorTheme'], 'Default Dark+')
+        colors = settings['workbench.colorCustomizations']
+        self.assertEqual(colors['editor.background'], '#111111')
+        self.assertEqual(colors['focusBorder'], source)
+        self.assertNotIn('workbench.colorTheme', colors)
+        cloned = (self.home / '.config/Kvantum/r2-d2/r2-d2.kvconfig').read_text()
+        self.assertIn(f'highlight.color={source}\n', cloned)
+        self.assertIn(f'link.color={source}\n', cloned)
+        self.assertIn('window.color=#353535\n', cloned)
+        self.assertEqual((self.home / '.config/Kvantum/r2-d2/r2-d2.svg').read_text(), '<svg/>\n')
+        selected = active.read_text()
+        self.assertIn('theme=r2-d2\n', selected)
+        self.assertIn('foo=1\n', selected)
+
+        before = (
+            (hermes / 'config.yaml').stat().st_mtime_ns,
+            cursor.stat().st_mtime_ns,
+            active.stat().st_mtime_ns,
+        )
+        self.assertEqual(self.run_script('r2-d2-theme-sync-live').returncode, 0)
+        after = (
+            (hermes / 'config.yaml').stat().st_mtime_ns,
+            cursor.stat().st_mtime_ns,
+            active.stat().st_mtime_ns,
+        )
+        self.assertEqual(after, before)
+
+    def test_invalid_cursor_settings_do_not_block_sync(self):
+        cursor = self.home / '.config/Cursor/User/settings.json'
+        cursor.parent.mkdir(parents=True)
+        cursor.write_text('{')
+        self.apply()
+        result = self.run_script('r2-d2-theme-sync-live')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('Skipping Cursor accent merge', result.stderr)
+        self.assertEqual(cursor.read_text(), '{')
+        self.assertTrue((self.state / 'theme.json').is_file())
 
 
 if __name__ == '__main__':

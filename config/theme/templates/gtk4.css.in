@@ -1,0 +1,4 @@
+/* Wallpaper accent only. Window, header, and control surfaces stay on the system theme. */
+@define-color accent_color {{ACCENT}};
+@define-color accent_bg_color {{ACCENT}};
+@define-color accent_fg_color {{ACCENT_ON_CONTROL}};

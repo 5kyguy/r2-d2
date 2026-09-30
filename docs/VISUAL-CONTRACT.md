@@ -34,6 +34,7 @@ Templates rendered by `r2-d2-theme-apply`:
 | `waybar.css.in` | `config/waybar/waybar.css` |
 | `waybar-style.css.in` | `config/waybar/style.css` |
 | `gtk.css.in` | `config/gtk-3.0/gtk.css` |
+| `gtk4.css.in` | `config/gtk-4.0/gtk.css` |
 | `alacritty.toml.in` | `config/alacritty/alacritty.toml` |
 | `mako.ini.in` | `config/mako/config` |
 | `swayosd.css.in` | `config/swayosd/style.css` |
@@ -41,6 +42,20 @@ Templates rendered by `r2-d2-theme-apply`:
 | `starship.toml.in` | `config/starship.toml` |
 | `walker.css.in` | `default/config/walker/themes/default/style.css` |
 | `share-picker.css.in` | `default/config/hyprland-preview-share-picker/style.css` |
+| `hermes-skin.yaml.in` | `config/theme/accent-apps/hermes-skin.yaml` |
+| `opencode-theme.json.in` | `config/theme/accent-apps/opencode.json` |
+| `cursor-accent.json.in` | `config/theme/accent-apps/cursor.json` |
+
+`gtk4.css.in` defines `accent_color`, `accent_bg_color`, and `accent_fg_color` only. Header bars, window backgrounds, and corner radius stay on the GTK theme.
+
+`r2-d2-theme-sync-live` and `r2-d2-config-sync-live` place the other accent files after the repo render. They do not restart Hermes, OpenCode, Cursor, or Qt.
+
+- Hermes: `~/.hermes/skins/r2-d2.yaml` sets `ui_accent`, `banner_accent`, `response_border`, and `selection_bg`. Every other color stays on the built-in default skin. `display.skin` becomes `r2-d2`.
+- OpenCode: `~/.config/opencode/themes/opencode.json` is the built-in OpenCode palette with `darkAccent` and `lightAccent` replaced. The theme name stays `opencode`, so `tui.json` and `opencode.json` are left alone.
+- Cursor: accent keys are merged into `workbench.colorCustomizations` in the existing user settings. `workbench.colorTheme` stays as it is.
+- Kvantum: when `/usr/share/Kvantum/KvDark` is installed, a clone named `r2-d2` changes highlight and link colors, and `kvantum.kvconfig` selects that clone. KvDark uses the same window color as Kvantum's builtin default.
+
+A running Hermes, OpenCode, Cursor, or Qt process keeps its previous accent until the next launch.
 
 SDDM (`default/sddm/r2-d2/`) and Plymouth (`default/plymouth/`) are system-managed. They follow install, update, and migration, not the wallpaper render path. This pass does not recolor them.
 
@@ -48,7 +63,7 @@ The rendered templates use palette roles and the derived dark accent roles (`tex
 
 ## Out of scope
 
-Chromium, Brave, Cursor, VS Code, Steam, Spotify, and other third-party windows. GTK apps can inherit the accent and keep their layouts. K-2SO is a separate project. Menu behavior stays as documented in `docs/MENU.md` and `docs/INSTALL.md`.
+Chromium, Brave, VS Code, Steam, Spotify, and icon themes. GTK 4, Cursor, Kvantum, Hermes, and OpenCode take the wallpaper accent and keep their own surfaces. K-2SO is a separate project. Menu behavior stays as documented in `docs/MENU.md` and `docs/INSTALL.md`.
 
 ## State
 
@@ -95,7 +110,7 @@ Run from the repository root with TMPDIR pointing to a writable scratch director
 ```bash
 python3 -m unittest discover -s tests -v
 bash -n bin/r2-d2-theme-state
-shellcheck bin/r2-d2-theme-state bin/r2-d2-theme-sync-live bin/r2-d2-config-sync-live bin/r2-d2-theme-accent-from-bg bin/r2-d2-theme-publish
+shellcheck bin/r2-d2-theme-state bin/r2-d2-theme-sync-live bin/r2-d2-config-sync-live bin/r2-d2-theme-accent-from-bg bin/r2-d2-theme-accent-apps bin/r2-d2-theme-publish
 ```
 
 The suite isolates HOME, XDG_STATE_HOME, and R2D2_PATH. It exercises actual extraction (ImageMagick), rendering, file copies, schema/fixture checks, grayscale and missing-wallpaper fallback, invalid input, copy failures, idempotence, concurrent readers/writers, and derived accent roles in the rendered templates. Wallpaper process management and desktop reload are replaced with test-only stubs. It does not change the user's running session, test an actual compositor reload, or make network requests.

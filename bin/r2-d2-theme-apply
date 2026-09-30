@@ -267,6 +267,7 @@ apply_mapping "hypr-hyprlock.conf.in" "config/hypr/hyprlock.conf"
 apply_mapping "waybar.css.in" "config/waybar/waybar.css"
 apply_mapping "waybar-style.css.in" "config/waybar/style.css"
 apply_mapping "gtk.css.in" "config/gtk-3.0/gtk.css"
+apply_mapping "gtk4.css.in" "config/gtk-4.0/gtk.css"
 apply_mapping "alacritty.toml.in" "config/alacritty/alacritty.toml"
 apply_mapping "mako.ini.in" "config/mako/config"
 apply_mapping "swayosd.css.in" "config/swayosd/style.css"
@@ -274,6 +275,9 @@ apply_mapping "btop.theme.in" "config/btop/themes/current.theme"
 apply_mapping "starship.toml.in" "config/starship.toml"
 apply_mapping "walker.css.in" "default/config/walker/themes/default/style.css"
 apply_mapping "share-picker.css.in" "default/config/hyprland-preview-share-picker/style.css"
+apply_mapping "hermes-skin.yaml.in" "config/theme/accent-apps/hermes-skin.yaml"
+apply_mapping "opencode-theme.json.in" "config/theme/accent-apps/opencode.json"
+apply_mapping "cursor-accent.json.in" "config/theme/accent-apps/cursor.json"
 
 # Preserve user text size across theme/accent re-renders (repo templates only).
 if [[ -x $R2D2_ROOT/bin/r2-d2-display-text-size ]]; then

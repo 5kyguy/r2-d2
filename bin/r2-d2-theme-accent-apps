@@ -1,0 +1,187 @@
+#!/bin/bash
+
+# Merge the wallpaper accent into Hermes, OpenCode, Cursor, and Kvantum.
+# GTK 4 is a normal theme-sync copy. This script does not restart any app.
+# The caller holds $R2D2_PATH/.theme.lock. Do not lock it again.
+
+set -euo pipefail
+
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+APPS="$R2D2_PATH/config/theme/accent-apps"
+HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
+KVANTUM_SRC="${R2D2_KVANTUM_SRC:-/usr/share/Kvantum/KvDark}"
+
+for required in hermes-skin.yaml opencode.json cursor.json; do
+  if [[ ! -f $APPS/$required ]]; then
+    echo "Missing rendered accent file: $APPS/$required" >&2
+    exit 1
+  fi
+done
+
+python3 - "$APPS" "$HOME" "$HERMES_HOME" "$KVANTUM_SRC" <<'PY'
+import filecmp
+import json
+import os
+import re
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+
+apps, home, hermes_home, kvantum_src = map(Path, sys.argv[1:])
+config = home / ".config"
+
+
+def write_if_changed(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_file() and path.read_text(encoding="utf-8") == text:
+        return
+    fd, tmp_name = tempfile.mkstemp(dir=path.parent, prefix=f".{path.name}.", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(text)
+        os.replace(tmp_name, path)
+    except Exception:
+        if os.path.exists(tmp_name):
+            os.unlink(tmp_name)
+        raise
+
+
+def copy_if_changed(src: Path, dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_file() and filecmp.cmp(src, dest, shallow=False):
+        return
+    shutil.copyfile(src, dest)
+
+
+def set_display_skin(text: str, skin: str) -> str:
+    lines = text.splitlines(keepends=True)
+    start = None
+    for index, line in enumerate(lines):
+        if re.match(r"^display:\s*(#.*)?$", line):
+            start = index
+            break
+    if start is None:
+        body = text
+        if body and not body.endswith("\n"):
+            body += "\n"
+        if body and not body.endswith("\n\n"):
+            body += "\n"
+        return f"{body}display:\n  skin: {skin}\n"
+
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        if re.match(r"^[A-Za-z0-9_-]+:", lines[index]):
+            end = index
+            break
+    for index in range(start + 1, end):
+        match = re.match(r"^(\s+)skin\s*:", lines[index])
+        if match and not lines[index].lstrip().startswith("#"):
+            newline = "\n" if lines[index].endswith("\n") else ""
+            lines[index] = f"{match.group(1)}skin: {skin}{newline}"
+            return "".join(lines)
+    lines.insert(end, f"  skin: {skin}\n")
+    return "".join(lines)
+
+
+def set_kvantum_theme(text: str, theme: str) -> str:
+    if not text.strip():
+        return f"[General]\ntheme={theme}\n"
+    lines = text.splitlines(keepends=True)
+    general = None
+    for index, line in enumerate(lines):
+        if line.strip() == "[General]":
+            general = index
+            break
+    if general is None:
+        prefix = f"[General]\ntheme={theme}\n"
+        if text.startswith("\n"):
+            return prefix + text
+        return prefix + "\n" + text
+    end = len(lines)
+    for index in range(general + 1, len(lines)):
+        stripped = lines[index].strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            end = index
+            break
+    for index in range(general + 1, end):
+        if re.match(r"^theme\s*=", lines[index]):
+            newline = "\n" if lines[index].endswith("\n") else ""
+            lines[index] = f"theme={theme}{newline}"
+            return "".join(lines)
+    lines.insert(end, f"theme={theme}\n")
+    return "".join(lines)
+
+
+def patch_kvantum_colors(text: str, colors: dict[str, str]) -> str:
+    lines = []
+    seen = set()
+    for line in text.splitlines(keepends=True):
+        key = line.split("=", 1)[0]
+        if key in colors:
+            newline = "\n" if line.endswith("\n") else ""
+            lines.append(f"{key}={colors[key]}{newline}")
+            seen.add(key)
+        else:
+            lines.append(line)
+    missing = [key for key in colors if key not in seen]
+    if missing:
+        raise SystemExit(f"Kvantum theme is missing color keys: {', '.join(missing)}")
+    return "".join(lines)
+
+
+copy_if_changed(apps / "hermes-skin.yaml", hermes_home / "skins" / "r2-d2.yaml")
+hermes_config = hermes_home / "config.yaml"
+current = hermes_config.read_text(encoding="utf-8") if hermes_config.is_file() else ""
+write_if_changed(hermes_config, set_display_skin(current, "r2-d2"))
+
+copy_if_changed(apps / "opencode.json", config / "opencode" / "themes" / "opencode.json")
+
+cursor_colors = json.loads((apps / "cursor.json").read_text(encoding="utf-8"))
+if not isinstance(cursor_colors, dict):
+    raise SystemExit("Rendered Cursor accent file must be an object")
+accent = cursor_colors.get("focusBorder")
+on_control = cursor_colors.get("button.foreground")
+if not isinstance(accent, str) or not isinstance(on_control, str):
+    raise SystemExit("Rendered Cursor accent file is missing focus or button colors")
+
+settings_path = config / "Cursor" / "User" / "settings.json"
+if settings_path.is_file():
+    try:
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        print(f"Skipping Cursor accent merge; settings are not JSON: {settings_path}", file=sys.stderr)
+        settings = None
+else:
+    settings = {}
+
+if isinstance(settings, dict):
+    custom = settings.get("workbench.colorCustomizations", {})
+    if isinstance(custom, dict):
+        custom.update(cursor_colors)
+        settings["workbench.colorCustomizations"] = custom
+        write_if_changed(settings_path, json.dumps(settings, indent=2) + "\n")
+    else:
+        print(f"Skipping Cursor accent merge; color customizations are not an object: {settings_path}", file=sys.stderr)
+elif settings is not None:
+    print(f"Skipping Cursor accent merge; settings are not an object: {settings_path}", file=sys.stderr)
+
+configs = sorted(kvantum_src.glob("*.kvconfig")) if kvantum_src.is_dir() else []
+svgs = sorted(kvantum_src.glob("*.svg")) if kvantum_src.is_dir() else []
+if len(configs) == 1 and len(svgs) == 1:
+    dest = config / "Kvantum" / "r2-d2"
+    copy_if_changed(svgs[0], dest / "r2-d2.svg")
+    patched = patch_kvantum_colors(
+        configs[0].read_text(encoding="utf-8"),
+        {
+            "highlight.color": accent,
+            "inactive.highlight.color": accent,
+            "link.color": accent,
+            "highlight.text.color": on_control,
+        },
+    )
+    write_if_changed(dest / "r2-d2.kvconfig", patched)
+    active = config / "Kvantum" / "kvantum.kvconfig"
+    current = active.read_text(encoding="utf-8") if active.is_file() else ""
+    write_if_changed(active, set_kvantum_theme(current, "r2-d2"))
+PY

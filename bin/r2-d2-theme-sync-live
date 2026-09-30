@@ -20,6 +20,7 @@ declare -a THEME_PATHS=(
   config/waybar/waybar.css
   config/waybar/style.css
   config/gtk-3.0/gtk.css
+  config/gtk-4.0/gtk.css
   config/alacritty/alacritty.toml
   config/mako/config
   config/swayosd/style.css
@@ -41,6 +42,8 @@ cp -T "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walk
 
 mkdir -p ~/.config/hyprland-preview-share-picker
 cp -T "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
+
+"$R2D2_PATH/bin/r2-d2-theme-accent-apps"
 
 # Announce the selected configuration only after every copy succeeds.
 "$R2D2_PATH/bin/r2-d2-theme-state" activate

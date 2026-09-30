@@ -1,0 +1,18 @@
+{
+  "focusBorder": "{{ACCENT}}",
+  "tab.activeBorderTop": "{{ACCENT}}",
+  "activityBar.activeBorder": "{{ACCENT}}",
+  "activityBarBadge.background": "{{ACCENT}}",
+  "activityBarBadge.foreground": "{{ACCENT_ON_CONTROL}}",
+  "badge.background": "{{ACCENT}}",
+  "badge.foreground": "{{ACCENT_ON_CONTROL}}",
+  "progressBar.background": "{{ACCENT}}",
+  "button.background": "{{ACCENT}}",
+  "button.foreground": "{{ACCENT_ON_CONTROL}}",
+  "textLink.foreground": "{{ACCENT}}",
+  "editorCursor.foreground": "{{ACCENT}}",
+  "editor.selectionBackground": "#{{ACCENT_RGBA_55}}",
+  "list.activeSelectionBackground": "#{{ACCENT_RGBA_55}}",
+  "list.inactiveSelectionBackground": "#{{ACCENT_RGBA_22}}",
+  "panelTitle.activeBorder": "{{ACCENT}}"
+}

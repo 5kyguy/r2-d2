@@ -1,0 +1,18 @@
+{
+  "focusBorder": "#EAEAEA",
+  "tab.activeBorderTop": "#EAEAEA",
+  "activityBar.activeBorder": "#EAEAEA",
+  "activityBarBadge.background": "#EAEAEA",
+  "activityBarBadge.foreground": "#0A0A0A",
+  "badge.background": "#EAEAEA",
+  "badge.foreground": "#0A0A0A",
+  "progressBar.background": "#EAEAEA",
+  "button.background": "#EAEAEA",
+  "button.foreground": "#0A0A0A",
+  "textLink.foreground": "#EAEAEA",
+  "editorCursor.foreground": "#EAEAEA",
+  "editor.selectionBackground": "#eaeaea8c",
+  "list.activeSelectionBackground": "#eaeaea8c",
+  "list.inactiveSelectionBackground": "#eaeaea38",
+  "panelTitle.activeBorder": "#EAEAEA"
+}
