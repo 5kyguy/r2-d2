@@ -219,21 +219,24 @@ QtObject {
     mergeShell()
   }
 
-  // Startup load only. Runtime theme switches push the payload explicitly
-  // through shell IPC.
+  // Theme sync overwrites these files in place. Watch them so a wallpaper
+  // accent lands without a shell restart. text() is stale inside onFileChanged,
+  // so that signal reloads and onLoaded parses the new contents.
   property FileView colorsFile: FileView {
     id: colorsFile
     path: root.currentThemePath + "/colors.toml"
-    watchChanges: false
+    watchChanges: true
     printErrors: false
     onLoaded: root.loadColors(text())
+    onFileChanged: reload()
   }
   property FileView shellFile: FileView {
     id: shellFile
     path: root.currentThemePath + "/shell.toml"
-    watchChanges: false
+    watchChanges: true
     printErrors: false
     onLoaded: root.loadShell(text())
+    onFileChanged: reload()
     onLoadFailed: root.loadShell("")
   }
   // Machine-level override, layered on top of whatever theme is active. This
