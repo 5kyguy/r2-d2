@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.logo",
+  "name": "R2-D2",
+  "version": "1.0.0",
+  "author": "R2-D2",
+  "description": "Menu button",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Logo.qml" },
+  "barWidget": {
+    "displayName": "R2-D2",
+    "description": "Open the R2-D2 menu",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

@@ -1,3 +1,4 @@
 #!/bin/bash
 
-r2-d2-restart-app swayosd-server
+# The on-screen display lives in the shell. Nothing separate to reload.
+exit 0

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.memory",
+  "name": "Memory",
+  "version": "1.0.0",
+  "author": "R2-D2",
+  "description": "Memory usage",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Memory.qml" },
+  "barWidget": {
+    "displayName": "Memory",
+    "description": "Memory usage",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

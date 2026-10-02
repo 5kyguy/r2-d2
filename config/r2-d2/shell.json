@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "idle": {
+    "screensaver": 150,
+    "lock": 300
+  },
+  "bar": {
+    "position": "top",
+    "transparent": false,
+    "centerAnchor": "r2-d2.clock",
+    "layout": {
+      "left": [
+        { "id": "r2-d2.logo" },
+        { "id": "r2-d2.workspaces" },
+        { "id": "r2-d2.cpu" },
+        { "id": "r2-d2.memory" },
+        { "id": "r2-d2.temperature" }
+      ],
+      "center": [
+        {
+          "id": "r2-d2.clock",
+          "format": "dddd HH:mm"
+        },
+        {
+          "id": "r2-d2.indicators",
+          "items": ["Dictation", "ScreenRecording", "Dnd"]
+        }
+      ],
+      "right": [
+        { "id": "r2-d2.tray" },
+        { "id": "r2-d2.bluetooth" },
+        { "id": "r2-d2.network" },
+        { "id": "r2-d2.audio" },
+        { "id": "r2-d2.power" }
+      ]
+    }
+  },
+  "plugins": []
+}

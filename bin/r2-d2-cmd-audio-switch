@@ -2,15 +2,11 @@
 
 # Switch between audio outputs while preserving the mute status. By default mapped to Super + Mute.
 
-focused_monitor="$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')"
-
 sinks=$(pactl -f json list sinks | jq '[.[] | select((.ports | length == 0) or ([.ports[]? | .availability != "not available"] | any))]')
 sinks_count=$(echo "$sinks" | jq '. | length')
 
 if ((sinks_count == 0)); then
-  swayosd-client \
-    --monitor "$focused_monitor" \
-    --custom-message "No audio devices found"
+  r2-d2-osd -m "No audio devices found"
   exit 1
 fi
 
@@ -60,7 +56,4 @@ if [[ $next_sink_name != "$current_sink_name" ]]; then
   pactl set-default-sink "$next_sink_name"
 fi
 
-swayosd-client \
-  --monitor "$focused_monitor" \
-  --custom-message "$next_sink_description" \
-  --custom-icon "$next_sink_volume_icon"
+r2-d2-osd -i "volume-${icon_state}" -m "$next_sink_description"

@@ -20,9 +20,6 @@ cp "$DEFAULT_CONFIG_DIR"/elephant/menus/background_selector.lua ~/.config/elepha
 mkdir -p ~/.config/hyprland-preview-share-picker
 cp "$DEFAULT_CONFIG_DIR"/hyprland-preview-share-picker/* ~/.config/hyprland-preview-share-picker/
 
-mkdir -p ~/.config/waybar/indicators
-cp "$DEFAULT_CONFIG_DIR"/waybar/indicators/* ~/.config/waybar/indicators/
-
 mkdir -p ~/.config/chromium/extensions/copy-url
 cp "$DEFAULT_CONFIG_DIR"/chromium/extensions/copy-url/* ~/.config/chromium/extensions/copy-url/
 

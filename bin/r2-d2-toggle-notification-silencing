@@ -1,11 +1,11 @@
 #!/bin/bash
 
-makoctl mode -t do-not-disturb
+state=$(r2-d2-shell notifications toggleDnd || true)
 
-if makoctl mode | grep -q 'do-not-disturb'; then
-  notify-send "󰂛    Silenced notifications"
+if [[ $state == "on" ]]; then
+  r2-d2-notification-send --app-name r2-d2-action "󰂛    Silenced notifications"
 else
-  notify-send "󰂚    Enabled notifications"
+  r2-d2-notification-send --app-name r2-d2-action "󰂚    Enabled notifications"
 fi
 
-pkill -RTMIN+10 waybar
+r2-d2-shell -q r2-d2.indicators refresh || true

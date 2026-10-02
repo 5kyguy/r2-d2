@@ -19,12 +19,10 @@ if [[ -f $HOME/.local/state/r2-d2/desktop-refresh-required ]]; then
 
   if gum confirm "Repo-managed files were refreshed. Reload desktop components now?"; then
     r2-d2-restart-hyprctl || true
-    r2-d2-restart-waybar || true
-    r2-d2-restart-mako || true
+    r2-d2-restart-shell || true
     r2-d2-restart-walker || true
     r2-d2-restart-hypridle || true
     r2-d2-restart-hyprsunset || true
-    r2-d2-restart-swayosd || true
   fi
 fi
 

@@ -1,8 +1,8 @@
 # Menu and keybindings
 
-The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. Open it with **Super + Alt + Space** or by clicking the R2-D2 icon in Waybar.
+The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. Open it with **Super + Alt + Space** or by clicking the R2-D2 icon in the shell bar.
 
-Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu power`, `r2-d2-menu toggle`, `r2-d2-menu capture`, `r2-d2-menu webcam`. The Waybar battery icon opens the Power profile submenu (`r2-d2-menu power`).
+Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu power`, `r2-d2-menu toggle`, `r2-d2-menu capture`, `r2-d2-menu webcam`. The battery icon opens the shell power panel.
 
 ---
 
@@ -14,7 +14,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 | ----- | ------ |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
 | **Setup** | Power profile, Audio, Wifi, Bluetooth, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
-| **Restart** | Restart Waybar, Walker, Mako, Hypridle, Hyprsunset, SwayOSD, Pipewire, Terminal, Tmux, Wifi, Bluetooth, Hyprctl |
+| **Restart** | Restart Shell, Walker, Hypridle, Hyprsunset, Pipewire, Terminal, Tmux, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
 | **Update** | R2-D2, Config, System packages, Flatpaks & AppImages, Keyring, Firmware, Webcam drivers, Password, Timezone, Time, Plocate DB, Settings, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
@@ -121,7 +121,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Shift + A** | Audio controls |
 | **Super + Shift + I** | Activity (btop) |
 | **Super + Shift + S** | Screenshot |
-| **Super + Shift + T** | Toggle top bar (Waybar) |
+| **Super + Shift + T** | Toggle top bar |
 | **Super + Shift + D** | Toggle device display |
 | **Super + Shift + M** | Toggle display mirror |
 | **Super + Shift + N** | Toggle notification silencing |
@@ -157,7 +157,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
 | **Super + XF86AudioMute** | Switch audio output |
 
-Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Nightlight, dictation, zoom, per-window transparency, and Mako dismiss shortcuts were removed from the default binding set.
+Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Nightlight, dictation, zoom, and per-window transparency shortcuts were removed from the default binding set.
 
 ---
 
@@ -173,6 +173,6 @@ Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger �
 - `r2-d2-menu restart` — Restart services
 - `r2-d2-menu share` — Share (clipboard/file/folder)
 - `r2-d2-menu screenrecord` — Screenrecord menu
-- `r2-d2-menu power` — Power profile (also Waybar battery icon)
+- `r2-d2-menu power` — Power profile
 - `r2-d2-menu setup` — Setup menu
 - `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers

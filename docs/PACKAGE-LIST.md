@@ -62,7 +62,7 @@ base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, li
 
 ### Compositor and session
 
-hyprland, hypridle, hyprlock, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, swayosd, waybar, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
+hyprland, hypridle, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, quickshell, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
 
 ### Shell and CLI
 
@@ -128,9 +128,9 @@ power-profiles-daemon, bolt, wireless-regdb, socat
 
 pacman-contrib
 
-### Notifications and OSD
+### Shell
 
-mako, swayosd
+quickshell draws the bar, panels, on-screen display, notifications, and lock screen.
 
 ### Apps and tools (user-facing)
 

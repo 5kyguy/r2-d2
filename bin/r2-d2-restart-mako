@@ -1,5 +1,4 @@
 #!/bin/bash
 
-# Reload mako configuration.
-
-makoctl reload
+# Notifications live in the shell. Nothing separate to reload.
+exit 0

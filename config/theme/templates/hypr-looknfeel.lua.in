@@ -120,10 +120,11 @@ hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2.5, bezier = 
 hl.animation({ leaf = "border", enabled = true, speed = 2.9, bezier = "water" })
 hl.animation({ leaf = "borderangle", enabled = true, speed = 3.5, bezier = "flow" })
 
--- Blur overlays, but not waybar — layer blur on a translucent bar ghosts updating glyphs.
+-- Keep the bar instant, and skip blur on it. Layer blur on a translucent bar ghosts updating glyphs.
+hl.layer_rule({ match = { namespace = "^r2-d2-bar$" }, no_anim = true, animation = "none" })
 hl.layer_rule({
   name = "blur_with_ignore_alpha",
-  match = { namespace = "^(walker|notifications|swayosd)$" },
+  match = { namespace = "^(walker|r2-d2-notifications|r2-d2-osd)$" },
   blur = true,
   ignore_alpha = 0.1,
 })

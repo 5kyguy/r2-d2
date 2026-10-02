@@ -275,13 +275,11 @@ show_setup_system_menu() {
 }
 
 show_restart_menu() {
-  case $(menu "Restart" "󰍜  Waybar\n󰍜  Walker\n󰍜  Mako\n󰍜  Hypridle\n󰍜  Hyprsunset\n󰍜  SwayOSD\n󰍜  Pipewire\n󰍜  Terminal\n󰍜  Tmux\n󰍜  Wifi\n󰍜  Bluetooth\n󰍜  Hyprctl") in
-  *Waybar*) r2-d2-restart-waybar ;;
+  case $(menu "Restart" "󰍜  Shell\n󰍜  Walker\n󰍜  Hypridle\n󰍜  Hyprsunset\n󰍜  Pipewire\n󰍜  Terminal\n󰍜  Tmux\n󰍜  Wifi\n󰍜  Bluetooth\n󰍜  Hyprctl") in
+  *Shell*) r2-d2-restart-shell ;;
   *Walker*) r2-d2-restart-walker ;;
-  *Mako*) r2-d2-restart-mako ;;
   *Hypridle*) r2-d2-restart-hypridle ;;
   *Hyprsunset*) r2-d2-restart-hyprsunset ;;
-  *SwayOSD*) r2-d2-restart-swayosd ;;
   *Pipewire*) r2-d2-restart-pipewire ;;
   *Terminal*) r2-d2-restart-terminal ;;
   *Tmux*) r2-d2-restart-tmux ;;

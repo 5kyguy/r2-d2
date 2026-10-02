@@ -1,7 +1,10 @@
 #!/bin/bash
 
-if pgrep -x waybar >/dev/null; then
-  pkill -x waybar
+flag="$HOME/.local/state/r2-d2/toggles/bar-off"
+mkdir -p "$(dirname "$flag")"
+
+if [[ -f $flag ]]; then
+  rm -f "$flag"
 else
-  uwsm-app -- waybar >/dev/null 2>&1 &
+  touch "$flag"
 fi

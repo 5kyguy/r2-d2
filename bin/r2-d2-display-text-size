@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Scale text everywhere — Waybar, GTK apps, Alacritty, and Hyprland groupbar.
+# Scale text everywhere — the shell, GTK apps, Alacritty, and Hyprland groupbar.
 # Usage: r2-d2-display-text-size [size|reset]
 #
-# One knob for apparent text size across the desktop, anchored to Waybar's
+# One knob for apparent text size across the desktop, anchored to the shell's
 # default of 12px:
-#   • Waybar font-size (12px -> 12px)
+#   • Shell font base-size (12px -> 12px)
 #   • GNOME/GTK text-scaling-factor (12px -> 1.0, quantized)
 #   • Alacritty font point size (12px -> 9pt)
 #   • Hyprland groupbar font_size (12px -> 10)
@@ -18,9 +18,9 @@ MAX=20
 GKEY_SCHEMA="org.gnome.desktop.interface"
 GKEY_NAME="text-scaling-factor"
 
-# Anchors: 12px Waybar == factor 1.0 == 9pt Alacritty == 10 groupbar.
+# Anchors: 12px shell == factor 1.0 == 9pt Alacritty == 10 groupbar.
 TERM_DEFAULT_PT=9
-WAYBAR_DEFAULT_PX=12
+SHELL_DEFAULT_PX=12
 GROUPBAR_DEFAULT=10
 
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/display"
@@ -49,12 +49,12 @@ gtk_font_pt() {
 }
 
 term_pt_for() {
-  awk -v s="$1" -v p="$TERM_DEFAULT_PT" -v b="$WAYBAR_DEFAULT_PX" \
+  awk -v s="$1" -v p="$TERM_DEFAULT_PT" -v b="$SHELL_DEFAULT_PX" \
     'BEGIN { printf "%d", int(s * p / b + 0.5) }'
 }
 
 groupbar_for() {
-  awk -v s="$1" -v g="$GROUPBAR_DEFAULT" -v b="$WAYBAR_DEFAULT_PX" \
+  awk -v s="$1" -v g="$GROUPBAR_DEFAULT" -v b="$SHELL_DEFAULT_PX" \
     'BEGIN { printf "%d", int(s * g / b + 0.5) }'
 }
 
@@ -64,7 +64,7 @@ current_size() {
     size=$(<"$STATE_FILE")
     [[ $size =~ ^[0-9]+$ ]] && echo "$size" && return
   fi
-  echo "$WAYBAR_DEFAULT_PX"
+  echo "$SHELL_DEFAULT_PX"
 }
 
 set_gtk_factor() {
@@ -80,11 +80,16 @@ set_alacritty_size() {
   touch "$file"
 }
 
-set_waybar_size() {
+set_shell_size() {
   local px="$1"
-  local file="$CONFIG_ROOT/waybar/style.css"
-  [[ -f $file ]] || return 0
-  sed -i -E "s/font-size:[[:space:]]*[0-9]+px/font-size: ${px}px/g" "$file"
+  # The live override is watched by the shell. Repo theme renders keep base-size 12.
+  [[ $CONFIG_ROOT == "$HOME/.config" ]] || return 0
+  local file="$CONFIG_ROOT/r2-d2/shell-user.toml"
+  mkdir -p "$(dirname "$file")"
+  cat >"$file" <<EOF
+[font]
+base-size = $px
+EOF
 }
 
 set_groupbar_size() {
@@ -98,7 +103,7 @@ apply_size() {
   local size="$1"
   local factor term_pt groupbar
 
-  factor="$(awk -v s="$size" -v b="$WAYBAR_DEFAULT_PX" -v f="$(gtk_font_pt)" \
+  factor="$(awk -v s="$size" -v b="$SHELL_DEFAULT_PX" -v f="$(gtk_font_pt)" \
     'BEGIN { printf "%.4f", int(f * s / b + 0.5) / f }')"
   term_pt="$(term_pt_for "$size")"
   groupbar="$(groupbar_for "$size")"
@@ -109,7 +114,7 @@ apply_size() {
   fi
 
   set_alacritty_size "$term_pt"
-  set_waybar_size "$size"
+  set_shell_size "$size"
   set_groupbar_size "$groupbar"
 
   mkdir -p "$STATE_DIR"
@@ -120,9 +125,7 @@ reload_ui() {
   # Only restart live UI when writing the user's real config.
   [[ $CONFIG_ROOT == "$HOME/.config" ]] || return 0
 
-  if r2-d2-cmd-present r2-d2-restart-waybar; then
-    r2-d2-restart-waybar >/dev/null 2>&1 || true
-  fi
+  # shell-user.toml is watched by the shell, so the font updates without a restart.
   if r2-d2-cmd-present r2-d2-hyprland-reload; then
     r2-d2-hyprland-reload >/dev/null 2>&1 || true
   fi
@@ -142,7 +145,7 @@ case "${1:-}" in
   exit 0
   ;;
 reset | default)
-  apply_size "$WAYBAR_DEFAULT_PX"
+  apply_size "$SHELL_DEFAULT_PX"
   if [[ $CONFIG_ROOT == "$HOME/.config" ]]; then
     gsettings reset "$GKEY_SCHEMA" "$GKEY_NAME" 2>/dev/null || true
   fi

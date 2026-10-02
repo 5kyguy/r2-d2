@@ -107,14 +107,14 @@ ExecStart=%h/.local/bin/k2so prune
 
 Task completion uses `notify-send` (when `[notify].enabled = true` in `profile.toml`).
 
-Done tasks include mako action buttons:
+Done tasks include notification action buttons:
 
 | Action | What it runs |
 | ------ | ------------ |
 | **Open result** | `k2so open <task-id>` — dashboard Result panel |
 | **Open folder** | `k2so open-task <task-id>` — workspace (`response.md`) |
 
-Notifications use app-name `k2so` (see mako `[app-name=k2so]` and a do-not-disturb exception in `config/mako/`).
+Notifications use app-name `k2so`. Do-not-disturb still lets `k2so` and `r2-d2-action` through.
 
 ## Service
 

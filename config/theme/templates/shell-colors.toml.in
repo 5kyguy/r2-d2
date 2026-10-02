@@ -1,0 +1,5 @@
+foreground = "{{FOREGROUND}}"
+background = "{{BACKGROUND}}"
+accent = "{{ACCENT}}"
+muted = "{{INACTIVE}}"
+red = "{{CRITICAL}}"

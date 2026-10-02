@@ -39,5 +39,3 @@ else
   r2-d2-hyprland-monitor-set "$EXTERNAL" preferred 0x0 1 mirror "$BUILTIN"
   notify-send "󰍺  Display mirrored"
 fi
-
-pkill -RTMIN+9 waybar

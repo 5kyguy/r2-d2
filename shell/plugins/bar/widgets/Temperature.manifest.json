@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.temperature",
+  "name": "Temperature",
+  "version": "1.0.0",
+  "author": "R2-D2",
+  "description": "Thermal zone temperature",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Temperature.qml" },
+  "barWidget": {
+    "displayName": "Temperature",
+    "description": "Thermal zone temperature",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

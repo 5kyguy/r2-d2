@@ -57,7 +57,6 @@ gvfs-smb
 hypridle
 hyprland
 hyprland-guiutils
-hyprlock
 hyprpicker
 hyprsunset
 imagemagick
@@ -81,7 +80,6 @@ linux-firmware
 linux-headers
 llvm
 luarocks
-mako
 man-db
 mariadb-libs
 nano
@@ -112,6 +110,7 @@ power-profiles-daemon
 python-gobject
 python-pip
 python-poetry-core
+quickshell
 qrencode
 qt5-wayland
 ripgrep
@@ -124,7 +123,6 @@ starship
 steam
 sushi
 swaybg
-swayosd
 tesseract
 tesseract-data-eng
 system-config-printer
@@ -139,7 +137,6 @@ udiskie
 unzip
 usage
 uwsm
-waybar
 webp-pixbuf-loader
 wget
 whois

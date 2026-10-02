@@ -263,14 +263,11 @@ apply_mapping() {
 }
 
 apply_mapping "hypr-looknfeel.lua.in" "config/hypr/looknfeel.lua"
-apply_mapping "hypr-hyprlock.conf.in" "config/hypr/hyprlock.conf"
-apply_mapping "waybar.css.in" "config/waybar/waybar.css"
-apply_mapping "waybar-style.css.in" "config/waybar/style.css"
+apply_mapping "shell-colors.toml.in" "config/r2-d2/colors.toml"
+apply_mapping "shell.toml.in" "config/r2-d2/shell.toml"
 apply_mapping "gtk.css.in" "config/gtk-3.0/gtk.css"
 apply_mapping "gtk4.css.in" "config/gtk-4.0/gtk.css"
 apply_mapping "alacritty.toml.in" "config/alacritty/alacritty.toml"
-apply_mapping "mako.ini.in" "config/mako/config"
-apply_mapping "swayosd.css.in" "config/swayosd/style.css"
 apply_mapping "btop.theme.in" "config/btop/themes/current.theme"
 apply_mapping "starship.toml.in" "config/starship.toml"
 apply_mapping "walker.css.in" "default/config/walker/themes/default/style.css"

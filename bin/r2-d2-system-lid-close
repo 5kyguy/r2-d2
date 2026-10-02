@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Lock and reconcile displays when the laptop lid closes.
-# Port of omarchy-system-lid-close (hyprlock instead of Quickshell).
+# Port of omarchy-system-lid-close. The shell lock answers r2-d2-lock-screen.
 
 # A docked lid close does not suspend (HandleLidSwitchDocked defaults to
 # ignore), so it must not lock either: that is clamshell mode.

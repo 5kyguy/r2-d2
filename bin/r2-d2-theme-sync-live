@@ -16,14 +16,11 @@ flock 9
 
 declare -a THEME_PATHS=(
   config/hypr/looknfeel.lua
-  config/hypr/hyprlock.conf
-  config/waybar/waybar.css
-  config/waybar/style.css
+  config/r2-d2/colors.toml
+  config/r2-d2/shell.toml
   config/gtk-3.0/gtk.css
   config/gtk-4.0/gtk.css
   config/alacritty/alacritty.toml
-  config/mako/config
-  config/swayosd/style.css
   config/btop/themes/current.theme
   config/starship.toml
 )

@@ -57,7 +57,7 @@ common hardware/system operations. Prefer these over raw equivalents:
 | Run OCR on screen text | `r2-d2-capture-text-extraction` | `tesseract` |
 | Toggle passwordless sudo | `r2-d2-sudo-passwordless-toggle` | editing sudoers directly |
 | Reload Hyprland | `r2-d2-hyprland-reload` | `hyprctl reload` |
-| Restart waybar | `r2-d2-restart-waybar` | `killall waybar` |
+| Restart shell | `r2-d2-restart-shell` | `killall quickshell` |
 
 `r2-d2-notification-send` in particular routes through the right urgency and
 adds click-action / image / glyph hints the bare `notify-send` does not. The
@@ -80,7 +80,7 @@ K-2SO task-completion notifications should always use it.
 - Repo `default/config/` holds `~/.config` support assets applied at install
   and via migrations only.
 - Hyprland compositor config is Lua (`config/hypr/hyprland.lua` + modules).
-  Bindings live under `config/hypr/bindings/*.lua`. hyprlock/hypridle/hyprsunset/xdph
+  Bindings live under `config/hypr/bindings/*.lua`. hypridle/hyprsunset/xdph
   remain `.conf`. If switching from hyprlang `.conf` to Lua for the first time,
   a full Hyprland restart is required (not only `hyprctl reload`).
 

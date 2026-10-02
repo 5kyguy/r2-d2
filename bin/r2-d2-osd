@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Show the R2-D2 shell on-screen display.
+# Usage: r2-d2-osd [-i icon] [-m message] [-p progress]
+
+set -euo pipefail
+
+icon=""
+message=""
+progress=""
+duration=""
+
+while (($#)); do
+  case $1 in
+    -i|--icon) icon="${2:-}"; shift 2 ;;
+    -m|--message) message="${2:-}"; shift 2 ;;
+    -p|--progress) progress="${2:-}"; shift 2 ;;
+    -d|--duration) duration="${2:-}"; shift 2 ;;
+    *) echo "Unknown OSD option: $1" >&2; exit 1 ;;
+  esac
+done
+
+progress_text=""
+if [[ -n $progress ]]; then
+  progress_text="${progress}%"
+fi
+
+payload=$(jq -cn \
+  --arg icon "$icon" \
+  --arg message "$message" \
+  --arg value "$progress" \
+  --arg progressText "$progress_text" \
+  --arg max "100" \
+  --arg duration "$duration" \
+  '{icon:$icon,message:$message,value:$value,progressText:$progressText,max:$max,duration:$duration}')
+
+r2-d2-shell -q osd show "$payload"

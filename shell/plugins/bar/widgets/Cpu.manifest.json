@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.cpu",
+  "name": "CPU",
+  "version": "1.0.0",
+  "author": "R2-D2",
+  "description": "CPU usage",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "Cpu.qml" },
+  "barWidget": {
+    "displayName": "CPU",
+    "description": "CPU usage",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

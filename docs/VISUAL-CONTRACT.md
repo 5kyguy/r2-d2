@@ -17,7 +17,7 @@ Control ink is `#0A0A0A` or `#FAFAFA`, whichever contrasts more, if that ratio i
 - Derived text, border, control, and on-control roles from the shared algorithm. The brighter/dimmer mixes in `r2-d2-theme-apply` are not those roles.
 - Critical `#C73838`, critical dark `#862020`, warning `#E07924`, magenta `#932A37`. Small critical text uses `#D25E5E`. Warning on this dark base can stay `#E07924`.
 - Existing logo and icon files under `assets/`. White on dark surfaces, black on light. Silver and blue stay branding variants. They are PNG-in-SVG, so they do not inherit `currentColor`.
-- JetBrainsMono Nerd Font for terminals, Waybar, Walker, Hyprlock, and Alacritty. Icon glyphs stay on that font. Mako uses Manrope for notification text. The variable font ships in `default/config/` because the AUR package's download returns 404. Hyprland blur and wallpaper treatment are unchanged.
+- JetBrainsMono Nerd Font for terminals, the shell, Walker, and Alacritty. Icon glyphs stay on that font. The variable font ships in `default/config/` because the AUR package's download returns 404. Hyprland blur and wallpaper treatment are unchanged.
 
 R2-D2 stays dark. The light palette belongs to the portfolio.
 
@@ -30,14 +30,11 @@ Templates rendered by `r2-d2-theme-apply`:
 | Template | Output |
 | --- | --- |
 | `hypr-looknfeel.lua.in` | `config/hypr/looknfeel.lua` |
-| `hypr-hyprlock.conf.in` | `config/hypr/hyprlock.conf` |
-| `waybar.css.in` | `config/waybar/waybar.css` |
-| `waybar-style.css.in` | `config/waybar/style.css` |
+| `shell-colors.toml.in` | `config/r2-d2/colors.toml` |
+| `shell.toml.in` | `config/r2-d2/shell.toml` |
 | `gtk.css.in` | `config/gtk-3.0/gtk.css` |
 | `gtk4.css.in` | `config/gtk-4.0/gtk.css` |
 | `alacritty.toml.in` | `config/alacritty/alacritty.toml` |
-| `mako.ini.in` | `config/mako/config` |
-| `swayosd.css.in` | `config/swayosd/style.css` |
 | `btop.theme.in` | `config/btop/themes/current.theme` |
 | `starship.toml.in` | `config/starship.toml` |
 | `walker.css.in` | `default/config/walker/themes/default/style.css` |
@@ -59,7 +56,7 @@ A running Hermes, OpenCode, Cursor, or Qt process keeps its previous accent unti
 
 SDDM (`default/sddm/r2-d2/`) and Plymouth (`default/plymouth/`) are system-managed. They follow install, update, and migration, not the wallpaper render path. This pass does not recolor them.
 
-The rendered templates use palette roles and the derived dark accent roles (`text`, `border`, `control`, `on_control`). Lock-screen and prompt text use the text role. Borders use the border role. Critical notifications and the shell error mark stay on `#C73838` / `#D25E5E`. ANSI slots that were already accent-mapped stay that way. The old fixed grays in Walker, Waybar, btop, Alacritty, GTK, and the share picker are palette roles.
+The rendered templates use palette roles and the derived dark accent roles (`text`, `border`, `control`, `on_control`). Lock-screen and prompt text use the text role. Borders use the border role. Critical notifications and the shell error mark stay on `#C73838` / `#D25E5E`. ANSI slots that were already accent-mapped stay that way. The old fixed grays in Walker, the shell, btop, Alacritty, GTK, and the share picker are palette roles.
 
 ## Out of scope
 
@@ -119,6 +116,6 @@ The suite isolates HOME, XDG_STATE_HOME, and R2D2_PATH. It exercises actual extr
 
 Repository templates are updated. The running session is not. `r2-d2-update` copies Manrope into the user font directory, re-renders these templates from the current wallpaper, syncs config, and then asks before reloading the desktop.
 
-After that reload, check the bar, Walker, Mako, SwayOSD, Hyprlock, a critical notification, a Nerd Font icon, and the text-size control. SDDM and Plymouth still need a login or boot check; they were not part of this render.
+After that reload, check the bar, Walker, the on-screen display, the lock screen, a critical notification, a Nerd Font icon, and the text-size control. SDDM and Plymouth still need a login or boot check; they were not part of this render.
 
 Rollback of the desktop styling is a revert of the template change, then `r2-d2-update` again, then the same reload prompt. That does not roll back the website. Website rollback is removing `theme-publish.conf` or rotating `THEME_PUBLISH_TOKEN`. With publication off, the site keeps its last valid theme or monochrome, and the desktop does not call Cloudflare.

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# omarchy:summary=Send the low battery warning notification and run battery-low hooks.
+# omarchy:args=<percentage>
+# omarchy:hidden=true
+
+set -euo pipefail
+
+if (($# != 1)); then
+  echo "Usage: r2-d2-battery-low <percentage>" >&2
+  exit 1
+fi
+
+level=$1
+
+r2-d2-notification-send -g 󱐋 -u critical "Time to recharge!" "Battery is down to ${level}%" -i battery-caution -t 30000
+r2-d2-hook battery-low "$level"

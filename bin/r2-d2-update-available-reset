@@ -1,5 +1,4 @@
 #!/bin/bash
 
-# Ensure Waybar icon offering the available update is removed
-pkill -RTMIN+7 waybar
+# The update icon lived on Waybar. The shell has no separate update widget.
 exit 0

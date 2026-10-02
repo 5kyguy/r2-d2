@@ -9,13 +9,12 @@ accent="${1:-}"
 
 r2-d2-theme-hyprland-apply >/dev/null 2>&1 || true
 
-# Restart the bar only when it is already shown. Hiding it is a session choice.
-if pgrep -x waybar >/dev/null; then
-  r2-d2-restart-waybar >/dev/null 2>&1 || true
-fi
-r2-d2-restart-mako >/dev/null 2>&1 || true
 r2-d2-restart-walker >/dev/null 2>&1 || true
-r2-d2-restart-swayosd >/dev/null 2>&1 || true
+if [[ -f $HOME/.config/r2-d2/colors.toml && -f $HOME/.config/r2-d2/shell.toml ]]; then
+  colors=$(base64 -w0 "$HOME/.config/r2-d2/colors.toml")
+  shell_theme=$(base64 -w0 "$HOME/.config/r2-d2/shell.toml")
+  r2-d2-shell -q shell applyTheme "$colors" "$shell_theme" || true
+fi
 
 # Writing looknfeel.lua makes Hyprland reload, which re-enables every output.
 r2-d2-hyprland-monitors-restore --flags-only >/dev/null 2>&1 || true
