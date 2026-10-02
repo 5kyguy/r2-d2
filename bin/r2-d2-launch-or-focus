@@ -19,7 +19,31 @@ fi
 
 WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$WINDOW_PATTERN" '.[]|select((.class|test("\\b" + $p + "\\b";"i")) or (.title|test("\\b" + $p + "\\b";"i")))|.address' | head -n1)
 
+# Floating windows keep coordinates from a monitor that has since disconnected.
+# Focus alone leaves them off-screen, so the click looks like a no-op.
+window_on_screen() {
+  local address="$1"
+  local clients monitors
+
+  clients=$(hyprctl clients -j)
+  monitors=$(hyprctl monitors -j)
+  jq -e --arg address "$address" --argjson monitors "$monitors" '
+    .[] | select(.address == $address) as $w
+    | $monitors
+    | map(
+        ($w.at[0] < (.x + .width)) and
+        (($w.at[0] + $w.size[0]) > .x) and
+        ($w.at[1] < (.y + .height)) and
+        (($w.at[1] + $w.size[1]) > .y)
+      )
+    | any
+  ' <<<"$clients" >/dev/null
+}
+
 if [[ -n $WINDOW_ADDRESS ]]; then
+  if ! window_on_screen "$WINDOW_ADDRESS"; then
+    hyprctl dispatch "hl.dsp.window.center({ window = \"address:$WINDOW_ADDRESS\" })" >/dev/null
+  fi
   hyprctl dispatch "hl.dsp.focus({ window = \"address:$WINDOW_ADDRESS\" })"
 else
   eval exec setsid $LAUNCH_COMMAND
