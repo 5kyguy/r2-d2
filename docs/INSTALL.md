@@ -112,7 +112,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **default-config.sh** — Copy repo `default/config/*` support assets into their live `~/.config` locations
 - **theme.sh** — Wallpaper symlink, accent theme apply (`r2-d2-theme-apply`), sync themed config to `~/.config/` (`r2-d2-theme-sync-live`), Chromium policy dirs
 - **keyd.sh** — Deploy Caps Lock → Left Super via keyd (`default/keyd/default.conf` → `/etc/keyd/`); Caps Lock disabled
-- **branding.sh** — Copy logo for fastfetch/screensaver
+- **branding.sh** — Copy the icon for fastfetch and the screensaver
 - **git, gpg, timezones** — User/config defaults
 - **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
