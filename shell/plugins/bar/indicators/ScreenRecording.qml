@@ -11,7 +11,7 @@ BarIndicator {
   activeText: "󰻂"
   inactiveText: "󰻂"
   activeTooltipText: "Stop recording"
-  inactiveTooltipText: "Screen Recording"
+  inactiveTooltipText: "Record a window, screen, or area"
 
   function refresh() {
     if (!root.bar || statusProc.running) return
@@ -37,7 +37,7 @@ BarIndicator {
 
   onPressed: function() {
     if (root.bar) {
-      root.bar.run("r2-d2-cmd-screenrecord")
+      root.bar.run("r2-d2-cmd-screenrecord --choose-target")
     }
   }
 }
