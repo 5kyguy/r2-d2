@@ -6,5 +6,22 @@ echo -e "\e[32mUpdate R2-D2\e[0m"
 
 r2-d2-update-time
 
-git -C $R2D2_PATH pull --autostash
-git -C $R2D2_PATH --no-pager diff --check || git -C $R2D2_PATH reset --merge
+# Theme renders leave this checkout dirty. pull --autostash replays them after
+# the fetch. A file this update deleted cannot be replayed; keep the deletion
+# instead of stopping with an unresolved merge.
+if ! git -C "$R2D2_PATH" pull --autostash; then
+  mapfile -t unmerged < <(git -C "$R2D2_PATH" diff --name-only --diff-filter=U)
+  if (( ${#unmerged[@]} == 0 )); then
+    exit 1
+  fi
+
+  for path in "${unmerged[@]}"; do
+    if git -C "$R2D2_PATH" ls-files -u -- "$path" | awk '{ print $3 }' | grep -qx 2; then
+      echo "Unresolved conflict: $path" >&2
+      exit 1
+    fi
+    git -C "$R2D2_PATH" rm -f -- "$path"
+  done
+fi
+
+git -C "$R2D2_PATH" --no-pager diff --check || git -C "$R2D2_PATH" reset --merge
