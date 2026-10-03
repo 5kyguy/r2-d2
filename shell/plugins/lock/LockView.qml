@@ -17,16 +17,16 @@ Item {
   property string passwordText: ""
   property bool syncingPasswordText: false
 
-  readonly property string placeholderText: "Enter Password"
-  readonly property int fieldWidth: 381
-  readonly property int fieldHeight: 67
-  readonly property int outlineThickness: 3
-  readonly property int fieldFontSize: Math.round(Style.font.heading * 1.125)
-  readonly property int passwordDotFontSize: Math.round(Style.font.heading * 1.33)
-  readonly property int passwordDotLetterSpacing: Math.round(Style.font.heading * 0.19)
-  // Space to keep clear on each side of the field for the fingerprint icon
-  // (icon width plus a gap) so the centered dots never run under it.
-  readonly property real fingerprintReserve: fingerprintConfigured ? Math.round(fingerprintIcon.implicitWidth + 12) : 0
+  // Hyprlock's placeholder, including the fingerprint glyph it always drew.
+  readonly property string placeholderText: " Use the Force 󰈷 "
+  readonly property int fieldWidth: 650
+  readonly property int fieldHeight: 100
+  readonly property int outlineThickness: 4
+  // Hyprlock sizes the field text to a quarter of the field height.
+  readonly property int fieldFontSize: Math.round(fieldHeight / 4)
+  readonly property int passwordDotFontSize: fieldFontSize
+  readonly property int passwordDotLetterSpacing: Math.round(passwordDotFontSize * 0.2)
+  property date clockNow: new Date()
   // Shrink the dots to fit once the password outgrows the field, so every
   // keystroke stays visible — otherwise long passwords clip with no feedback.
   readonly property real passwordDotScale: dotMetrics.advanceWidth > 0
@@ -76,6 +76,13 @@ Item {
     if (inputEnabled) Qt.callLater(forcePasswordFocus)
   }
 
+  Timer {
+    interval: 1000
+    running: true
+    repeat: true
+    onTriggered: root.clockNow = new Date()
+  }
+
   // Measures the masked password at full size; passwordDotScale compares this
   // against the field width to decide how far the dots must shrink to fit.
   TextMetrics {
@@ -119,25 +126,61 @@ Item {
       onPositionChanged: root.wakeRequested()
     }
 
+    // Hyprlock positions are offsets from the screen center, with positive Y up.
+    // Qt's verticalCenterOffset grows downward, so those Y values are negated.
+    Text {
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.verticalCenterOffset: -280
+      text: Qt.formatDateTime(root.clockNow, "hh:mm")
+      color: Color.lock.text
+      font.family: Style.font.family
+      font.pixelSize: 120
+      style: Text.Outline
+      styleColor: Qt.rgba(0, 0, 0, 0.35)
+    }
+
+    Text {
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.verticalCenterOffset: -190
+      text: Qt.formatDateTime(root.clockNow, "dddd, MMMM dd")
+      color: Color.lock.text
+      font.family: Style.font.family
+      font.pixelSize: 22
+      style: Text.Outline
+      styleColor: Qt.rgba(0, 0, 0, 0.35)
+    }
+
+    Text {
+      anchors.centerIn: parent
+      text: "Hello There"
+      color: Color.lock.text
+      font.family: Style.font.family
+      font.pixelSize: 30
+      style: Text.Outline
+      styleColor: Qt.rgba(0, 0, 0, 0.27)
+    }
+
     BorderSurface {
       id: inputField
       width: root.fieldWidth
       height: root.fieldHeight
-      anchors.centerIn: parent
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.verticalCenterOffset: 180
       color: Color.lock.background
       borderSpec: root.inputBorderSpec
-      radius: Style.cornerRadius
+      radius: 0
       clip: true
 
       TextInput {
         id: passwordInput
         anchors.fill: parent
         anchors.topMargin: inputField.borderTop
-        // Reserve the fingerprint icon's width on both sides so the centered
-        // dots stay symmetric and never slide under the icon as they grow.
-        anchors.rightMargin: inputField.borderRight + 18 + root.fingerprintReserve
+        anchors.rightMargin: inputField.borderRight + 18
         anchors.bottomMargin: inputField.borderBottom
-        anchors.leftMargin: inputField.borderLeft + 18 + root.fingerprintReserve
+        anchors.leftMargin: inputField.borderLeft + 18
         verticalAlignment: TextInput.AlignVCenter
         horizontalAlignment: TextInput.AlignHCenter
         activeFocusOnPress: true
@@ -188,7 +231,7 @@ Item {
         anchors.fill: passwordInput
         text: root.authenticatingPassword ? "Checking…" : (root.failureMessage.length > 0 ? root.failureMessage : root.placeholderText)
         visible: passwordInput.text.length === 0
-        color: root.authenticatingPassword ? Color.lock.text : (root.failureMessage.length > 0 ? Color.lock.textError : Color.lock.placeholder)
+        color: Color.lock.text
         font.family: Style.font.family
         font.pixelSize: root.fieldFontSize
         font.italic: !root.authenticatingPassword && root.failureMessage.length > 0
@@ -197,23 +240,6 @@ Item {
         elide: Text.ElideRight
       }
 
-      // Fingerprint hint pinned inside the field's right edge when a sensor is
-      // enrolled, so the user knows they can touch to unlock instead of typing.
-      // Matches hyprlock, which draws its fingerprint icon in the same spot.
-      Text {
-        id: fingerprintIcon
-        objectName: "fingerprintIndicator"
-        anchors.right: parent.right
-        anchors.rightMargin: inputField.borderRight + 18
-        anchors.verticalCenter: parent.verticalCenter
-        visible: root.fingerprintConfigured
-        text: "󰈷"
-        color: Color.lock.placeholder
-        font.family: Style.font.family
-        font.pixelSize: Math.round(root.fieldFontSize * 1.1)
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-      }
     }
   }
 }

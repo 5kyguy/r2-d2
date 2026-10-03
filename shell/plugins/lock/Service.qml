@@ -202,7 +202,7 @@ Item {
     enteredPassword = ""
     pendingPassword = ""
     failedAttempts += 1
-    failureMessage = "Authentication failed (" + failedAttempts + ")"
+    failureMessage = "Authentication failure (" + failedAttempts + ")"
     runWake()
   }
 
