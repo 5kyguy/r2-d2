@@ -28,7 +28,7 @@ hl.window_rule({
 -- Three-finger swipe moves through workspaces that have windows, plus one
 -- empty workspace after the highest of those. Empty gaps are skipped, and
 -- another swipe at that extra workspace stays put.
--- Finger motion to the right advances, matching the built-in workspace swipe.
+-- Finger motion to the left advances, matching the previous workspace swipe.
 local function swipe_workspace(direction)
   local monitor = hl.get_active_monitor()
   if not monitor or not monitor.active_workspace or monitor.active_workspace.special then
@@ -82,13 +82,13 @@ hl.gesture({
   fingers = 3,
   direction = "right",
   action = function()
-    swipe_workspace(1)
+    swipe_workspace(-1)
   end,
 })
 hl.gesture({
   fingers = 3,
   direction = "left",
   action = function()
-    swipe_workspace(-1)
+    swipe_workspace(1)
   end,
 })
