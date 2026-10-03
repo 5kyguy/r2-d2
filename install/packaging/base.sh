@@ -28,5 +28,3 @@ if [[ ${#aur_packages[@]} -gt 0 ]]; then
   done
   echo "All AUR packages from r2-d2-base.aur.packages are installed."
 fi
-
-# Voxtype dictation setup is optional and handled via menu (see `r2-d2-voxtype-install`)

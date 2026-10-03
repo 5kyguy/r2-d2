@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Provision Voxtype once: small.en, the user service, and GPU when Vulkan exists.
+# Later model changes live in ~/.config/voxtype and are not reset.
+
+set -euo pipefail
+
+if r2-d2-cmd-missing voxtype; then
+  exit 0
+fi
+
+R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+marker="$HOME/.local/state/r2-d2/voxtype-provisioned"
+
+mkdir -p ~/.config/voxtype "$HOME/.local/state/r2-d2"
+if [[ ! -f ~/.config/voxtype/config.toml ]]; then
+  cp "$R2D2_PATH/config/voxtype/config.toml" ~/.config/voxtype/config.toml
+fi
+
+if [[ -f $marker ]]; then
+  exit 0
+fi
+
+current=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]' || true)
+if [[ -z $current || $current == "base.en" ]]; then
+  voxtype setup --download --model small.en --activate --no-post-install
+else
+  voxtype setup --download --model "$current" --no-post-install
+fi
+
+if r2-d2-hw-vulkan; then
+  voxtype setup gpu --enable || true
+fi
+
+voxtype setup systemd
+systemctl --user restart voxtype.service || true
+
+touch "$marker"

@@ -69,9 +69,22 @@ hl.on("layer.closed", function(layer)
   end
 end)
 
--- Voxtype push-to-talk (hold F5). release fires stop reliably.
-hl.bind("F5", hl.dsp.exec_cmd("voxtype record start"), { description = "Start dictation (push-to-talk)" })
-hl.bind("F5", hl.dsp.exec_cmd("voxtype record stop"), { release = true, description = "Stop dictation (push-to-talk)" })
+-- Hold Super + Ctrl + D to dictate into whatever text field is focused.
+-- The release bind is universal so it still stops recording if a submap is active.
+hl.define_submap("voxtype_suppress", function()
+  hl.bind("Super_L", hl.dsp.no_op())
+  hl.bind("Super_R", hl.dsp.no_op())
+  hl.bind("Control_L", hl.dsp.no_op())
+  hl.bind("Control_R", hl.dsp.no_op())
+  hl.bind("Alt_L", hl.dsp.no_op())
+  hl.bind("Alt_R", hl.dsp.no_op())
+  hl.bind("Shift_L", hl.dsp.no_op())
+  hl.bind("Shift_R", hl.dsp.no_op())
+  hl.bind("F12", hl.dsp.submap("reset"), { description = "Leave dictation output" })
+end)
+
+hl.bind("SUPER + CTRL + D", hl.dsp.exec_cmd("voxtype record start"), { description = "Dictate into the focused text field" })
+hl.bind("SUPER + CTRL + D", hl.dsp.exec_cmd("voxtype record stop"), { release = true, submap_universal = true, description = "Insert dictation" })
 
 -- Lid switch: lock when undocked; always reconcile clamshell display state.
 hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("r2-d2-system-lid-close"), { locked = true })

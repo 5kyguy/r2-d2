@@ -14,7 +14,7 @@ if ! r2-d2-cmd-present k2so; then
 fi
 
 if r2-d2-cmd-missing voxtype; then
-  notify-send "K-2SO" "Voxtype not installed — run r2-d2-voxtype-install" -u critical -t 5000
+  notify-send "K-2SO" "Voxtype is not available. Update R2-D2 so the dictation service can start." -u critical -t 5000
   exit 1
 fi
 

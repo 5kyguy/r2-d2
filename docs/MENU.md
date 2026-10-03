@@ -43,7 +43,6 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 | **AppImage** | Install an AppImage (`r2-d2-appimage-install`) |
 | **Development** | Docker DB, Node.js, Go, Python, Rust |
 | **Editor** | VS Code, T3 Code (`r2-d2-install-editor`) |
-| **Dictation (Voxtype)** | Install Voxtype + model + systemd service |
 | **K-2SO (companion)** | Install K-2SO background agent + `r2d2-mcp` (`r2-d2-install-k2so`) |
 | **Gaming** | Steam and Xbox controllers |
 | **Dropbox** | Install Dropbox |
@@ -154,10 +153,11 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | ---------- | ------ |
 | **Print** | Screenshot |
 | **Alt + Print** | Screenrecord menu |
+| **Super + Ctrl + D** | Dictate into the focused text field (hold, then release) |
 | **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
 | **Super + XF86AudioMute** | Switch audio output |
 
-Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Nightlight, dictation, zoom, and per-window transparency shortcuts were removed from the default binding set.
+Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Dictation models live in **Setup → Dictation → Model**. Nightlight, zoom, and per-window transparency shortcuts were removed from the default binding set.
 
 ---
 

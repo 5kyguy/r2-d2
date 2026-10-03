@@ -11,7 +11,7 @@
 state_file = "auto"
 
 [hotkey]
-# Hotkey is configured in Hyprland. Default is Super + Ctrl + X
+# Hotkey is configured in Hyprland. Hold Super + Ctrl + D.
 enabled = false
 
 [audio]
@@ -45,7 +45,7 @@ pause_media = true
 # .en models are English-only but faster and more accurate for English
 # large-v3-turbo is faster than large-v3 with minimal accuracy loss (recommended for GPU)
 # Or provide absolute path to a custom .bin model file
-model = "base.en"
+model = "small.en"
 
 # Language for transcription
 # Use "en" for English, "auto" for auto-detection
@@ -60,9 +60,15 @@ translate = false
 
 [output]
 # Primary output mode: "type" or "clipboard"
-# - type: Simulates keyboard input at cursor position (requires ydotool)
+# - type: Types into the focused text field (wtype on Hyprland)
 # - clipboard: Copies text to clipboard (requires wl-copy)
 mode = "type"
+driver_order = ["wtype", "dotool", "ydotool", "clipboard"]
+
+# While the transcript is typed, swallow modifier keys so a slow release of
+# Super + Ctrl + D does not turn the text into shortcuts.
+pre_output_command = "hyprctl dispatch submap voxtype_suppress"
+post_output_command = "hyprctl dispatch submap reset"
 
 # Fall back to clipboard if typing fails
 fallback_to_clipboard = true

@@ -1,29 +1,5 @@
 #!/bin/bash
-set -e
 
-# Install voxtype and configure it for use.
-
-if gum confirm "Install Voxtype + AI model (~150MB) to enable dictation?"; then
-  r2-d2-pkg-add wtype
-  r2-d2-pkg-aur-add voxtype-bin
-
-  # Setup voxtype
-  mkdir -p ~/.config/voxtype
-  if [[ -f "${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/voxtype/config.toml" ]]; then
-    cp "${R2D2_PATH:-$HOME/.local/share/r2-d2}/config/voxtype/config.toml" ~/.config/voxtype/
-  fi
-
-  voxtype setup --download --no-post-install
-
-  # Enable GPU acceleration when Vulkan is available — GPU-accelerated
-  # dictation is dramatically lower latency, which matters for the
-  # Super+Shift+A → k2so voice path. Port of omarchy 64ef8044.
-  if r2-d2-hw-vulkan; then
-    voxtype setup gpu --enable || true
-  fi
-
-  voxtype setup systemd
-
-  r2-d2-restart-waybar
-  notify-send "    Voxtype Dictation Ready" "Press Super + Ctrl + X to toggle dictation.\nEdit ~/.config/voxtype/config.toml for options." -t 10000
-fi
+# Voxtype ships with R2-D2. This remains so older notes still land on setup.
+echo "Voxtype is installed with R2-D2. Downloading the dictation model if it is missing."
+exec r2-d2-voxtype-setup

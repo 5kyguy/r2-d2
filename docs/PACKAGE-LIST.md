@@ -16,7 +16,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 - **Pacman:** All packages from **`install/r2-d2-base.packages`** are installed (see categorized list below).
 - **AUR:** Packages from **`install/r2-d2-base.aur.packages`** are installed via yay (browsers, walker/elephant, limine helpers, localsend, xdg-terminal-exec, and other AUR-only deps).
 - **SSH:** `openssh` is installed so the SSH server is available, but `sshd` is **not** enabled by default. Enable it manually when needed (`sudo systemctl enable --now sshd`).
-- **Voxtype:** Optional via the menu (`r2-d2-voxtype-install`); copies `config/voxtype/config.toml` when installed.
+- **Voxtype:** Installed by default (`voxtype-bin` plus `wtype`). Setup downloads the `small.en` model and enables the user service. Change the model from **Setup → Dictation → Model**.
 
 ### 1.3 Packaging – other steps
 
@@ -154,7 +154,7 @@ plocate, whois, unzip, exfatprogs, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
 
 ---
 
@@ -170,7 +170,6 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **TUI** | `r2-d2-tui-install` — add a TUI shortcut. |
 | **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
 | **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
-| **Dictation (Voxtype)** | Install Voxtype + download the model + enable its systemd service (`r2-d2-voxtype-install`). |
 | **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
 | **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
 
@@ -181,7 +180,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 ## 4. Summary
 
 - **Base pacman packages:** 156 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).

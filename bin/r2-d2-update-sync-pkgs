@@ -16,6 +16,7 @@ if [[ -f $R2D2_PATH/install/r2-d2-base.aur.packages ]]; then
   if ((${#aur_packages[@]} > 0)); then
     if r2-d2-pkg-aur-accessible; then
       r2-d2-pkg-aur-add "${aur_packages[@]}"
+      r2-d2-voxtype-setup || true
     else
       echo -e "\e[31mAUR is unavailable (so skipping missing AUR package installs)\e[0m"
     fi

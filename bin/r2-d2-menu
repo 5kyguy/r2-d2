@@ -214,10 +214,25 @@ show_setup_text_size_menu() {
   esac
 }
 
+show_dictation_model_menu() {
+  local current choice
+  current=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]')
+  choice=$(menu "Dictation model" "tiny.en\nbase.en\nsmall.en\nmedium.en\nlarge-v3-turbo" "" "${current:-small.en}")
+
+  case $choice in
+  CNCLD | "")
+    show_setup_dictation_menu
+    ;;
+  *)
+    present_terminal "r2-d2-voxtype-model $choice"
+    ;;
+  esac
+}
+
 show_setup_dictation_menu() {
   case $(menu "Dictation" "  Config\n󱚤  Model\n󰒲  Status") in
   *Config*) present_terminal r2-d2-voxtype-config ;;
-  *Model*) present_terminal r2-d2-voxtype-model ;;
+  *Model*) show_dictation_model_menu ;;
   *Status*) present_terminal r2-d2-voxtype-status ;;
   *) show_setup_menu ;;
   esac
@@ -291,7 +306,7 @@ show_restart_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n  Dictation (Voxtype)\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
   *Package*) terminal r2-d2-pkg-install ;;
   *AUR*) terminal r2-d2-pkg-aur-install ;;
   *Web*) present_terminal r2-d2-webapp-install ;;
@@ -299,7 +314,6 @@ show_install_menu() {
   *AppImage*) present_terminal r2-d2-appimage-install ;;
   *Development*) show_install_development_menu ;;
   *Editor*) show_install_editor_menu ;;
-  *"Dictation (Voxtype)"*) present_terminal r2-d2-voxtype-install ;;
   *"K-2SO (companion)"*) present_terminal r2-d2-install-k2so ;;
   *Gaming*) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
   *Dropbox*) present_terminal r2-d2-install-dropbox ;;

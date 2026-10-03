@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Copy all repo user config into the live session (~/.config/).
-# Cursor, VS Code, and OpenCode user files are not replaced. The accent merge
-# updates Cursor color keys only.
+# Cursor, VS Code, OpenCode, and Voxtype user files are not replaced. The accent
+# merge updates Cursor color keys only. Voxtype keeps the model chosen in Setup.
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ mkdir -p ~/.config
 for item in "$R2D2_PATH"/config/*; do
   name=$(basename "$item")
 
-  if [[ $name == Cursor || $name == Code || $name == opencode ]]; then
+  if [[ $name == Cursor || $name == Code || $name == opencode || $name == voxtype ]]; then
     continue
   fi
 

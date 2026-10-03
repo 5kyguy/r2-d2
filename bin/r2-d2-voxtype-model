@@ -1,5 +1,16 @@
 #!/bin/bash
-set -e
 
-r2-d2-launch-floating-terminal-with-presentation "voxtype setup model"
-r2-d2-restart-waybar
+# Switch the Whisper model and download it. With no argument, open Voxtype's picker.
+
+set -euo pipefail
+
+model="${1:-}"
+
+if [[ -z $model ]]; then
+  exec r2-d2-launch-floating-terminal-with-presentation "voxtype setup model"
+fi
+
+echo "Downloading the ${model} dictation model…"
+voxtype setup --download --model "$model" --activate --no-post-install
+systemctl --user restart voxtype.service
+echo "Dictation model is now ${model}."

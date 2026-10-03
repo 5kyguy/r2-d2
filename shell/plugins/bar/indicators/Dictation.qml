@@ -12,7 +12,7 @@ BarIndicator {
   activeText: icon
   inactiveText: "󰍬"
   activeTooltipText: state
-  inactiveTooltipText: "Dictate"
+  inactiveTooltipText: "Hold Super+Ctrl+D to dictate"
 
   function update(raw) {
     var data = extractData(raw)
