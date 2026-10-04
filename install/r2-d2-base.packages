@@ -11,7 +11,6 @@ bat
 bluez
 bluez-tools
 bluez-utils
-bluetui
 bolt
 brightnessctl
 btrfs-progs
@@ -27,7 +26,6 @@ dkms
 docker
 docker-buildx
 docker-compose
-dust
 egl-wayland
 eog
 evince

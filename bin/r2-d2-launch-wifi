@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Launch NetworkManager's nmtui for Wi-Fi configuration.
-
-rfkill unblock wifi
-r2-d2-launch-or-focus-tui nmtui

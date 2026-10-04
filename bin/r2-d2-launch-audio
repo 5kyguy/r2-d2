@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Launch the R2-D2 audio controls TUI (provided by wiremix).
-
-r2-d2-launch-or-focus-tui wiremix

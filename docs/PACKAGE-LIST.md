@@ -22,11 +22,10 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 | Script | What |
 | ------ | ---- |
-| **opencode.sh** | **Opencode** via the official curl installer (`~/.opencode/bin`). |
 | **fonts.sh** | Copies **r2-d2.ttf** and **manrope-variable.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
 | **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
-| **tuis.sh** | Reserved for optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`). |
+| **tuis.sh** | Installs no TUI shortcuts. |
 
 ### 1.4 Config – keyboard (keyd)
 
@@ -54,7 +53,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **156** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -114,7 +113,7 @@ git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, lu
 
 ### System info and monitoring
 
-btop, inxi, fastfetch, dust, usage, brightnessctl, ddcutil
+btop, inxi, fastfetch, usage, brightnessctl, ddcutil
 
 ### Printing
 
@@ -142,7 +141,7 @@ ufw, openssh (sshd is installed but **not** enabled by default)
 
 ### Bluetooth
 
-bluez, bluez-utils, bluez-tools, bluetui
+bluez, bluez-utils, bluez-tools
 
 ### App launcher and helpers
 
@@ -167,9 +166,8 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
 | **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
-| **TUI** | `r2-d2-tui-install` — add a TUI shortcut. |
-| **Development** | Docker DB (containers), Node.js, Go, Python, Rust. |
-| **Editor** | VS Code, T3 Code (`r2-d2-install-editor`). Cursor and Opencode are installed by default. |
+| **Development** | Node.js, Go, Python, Rust. |
+| **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes. Cursor is installed by default. Remove lists only editors that are installed. Removing Cursor or Voxtype stays off on later updates until you install that one again. Installing K-2SO still installs OpenCode when it is missing. |
 | **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
 | **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
 
@@ -179,13 +177,12 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 156 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
-- **Default TUI shortcuts:** none (add via Install → TUI).
-- **Default editors:** Cursor (AUR), Opencode (curl installer).
-- **Menu-installable:** Package (any), AUR (any), Web App, TUI, Development runtimes, Editor (VS Code, T3 Code), Gaming (Steam, Xbox controllers).
+- **Default editors:** Cursor (AUR).
+- **Menu-installable:** Package (any), AUR (any), Web App, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), Gaming (Steam, Xbox controllers).
 
 Use this list to adjust `install/r2-d2-base.packages` and menu entries when moving items between defaults and optionals.

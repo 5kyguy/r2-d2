@@ -151,15 +151,13 @@ show_share_menu() {
 }
 
 show_toggle_menu() {
-  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n  Gaps\n  Ratio\n󰍹  Scaling\n󱄄  Screensaver\n󰻌  Crash capture") in
+  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n󰍹  Scaling\n󱄄  Screensaver\n󰻌  Crash capture") in
   *"Top bar"*) r2-d2-toggle-waybar ;;
   *Display*) r2-d2-toggle-builtin-display ;;
   *Mirror*) r2-d2-toggle-display-mirror ;;
   *Notifications*) r2-d2-toggle-notification-silencing ;;
   *Idle*) r2-d2-toggle-idle ;;
   *Layout*) r2-d2-hyprland-workspace-layout-toggle ;;
-  *Gaps*) r2-d2-hyprland-workspace-gaps-toggle ;;
-  *Ratio*) r2-d2-hyprland-window-single-square-aspect-toggle ;;
   *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
   *Screensaver*) r2-d2-toggle-screensaver ;;
   *"Crash capture"*) r2-d2-toggle-crash-capture ;;
@@ -168,13 +166,9 @@ show_toggle_menu() {
 }
 
 show_setup_menu() {
-  local options="󱐋  Power Profile\n  Text size\n  Audio\n󰫡  Wifi\n󰂯  Bluetooth\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="  Text size\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
-  *Audio*) r2-d2-launch-audio ;;
-  *Wifi*) r2-d2-launch-wifi ;;
-  *Bluetooth*) r2-d2-launch-bluetooth ;;
-  *Power*) show_setup_power_menu ;;
   *Text*) show_setup_text_size_menu ;;
   *System*) show_setup_system_menu ;;
   *DNS*) present_terminal r2-d2-setup-dns ;;
@@ -238,16 +232,6 @@ show_setup_dictation_menu() {
   esac
 }
 
-show_setup_power_menu() {
-  profile=$(menu "Power Profile" "$(r2-d2-powerprofiles-list)" "" "$(powerprofilesctl get)")
-
-  if [[ $profile == "CNCLD" || -z $profile ]]; then
-    back_to show_setup_menu
-  else
-    r2-d2-powerprofiles-set autodetect "$profile"
-  fi
-}
-
 show_setup_security_menu() {
   local options="󰈷  Fingerprint\n  Fido2"
 
@@ -290,14 +274,11 @@ show_setup_system_menu() {
 }
 
 show_restart_menu() {
-  case $(menu "Restart" "󰍜  Shell\n󰍜  Walker\n󰍜  Hypridle\n󰍜  Hyprsunset\n󰍜  Pipewire\n󰍜  Terminal\n󰍜  Tmux\n󰍜  Wifi\n󰍜  Bluetooth\n󰍜  Hyprctl") in
+  case $(menu "Restart" "󰍜  Shell\n󰍜  Walker\n󰍜  Pipewire\n󰍜  Terminal\n󰍜  Wifi\n󰍜  Bluetooth\n󰍜  Hyprctl") in
   *Shell*) r2-d2-restart-shell ;;
   *Walker*) r2-d2-restart-walker ;;
-  *Hypridle*) r2-d2-restart-hypridle ;;
-  *Hyprsunset*) r2-d2-restart-hyprsunset ;;
   *Pipewire*) r2-d2-restart-pipewire ;;
   *Terminal*) r2-d2-restart-terminal ;;
-  *Tmux*) r2-d2-restart-tmux ;;
   *Wifi*) r2-d2-restart-wifi ;;
   *Bluetooth*) r2-d2-restart-bluetooth ;;
   *Hyprctl*) r2-d2-restart-hyprctl ;;
@@ -306,11 +287,10 @@ show_restart_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n  TUI\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
+  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
   *Package*) terminal r2-d2-pkg-install ;;
   *AUR*) terminal r2-d2-pkg-aur-install ;;
   *Web*) present_terminal r2-d2-webapp-install ;;
-  *TUI*) present_terminal r2-d2-tui-install ;;
   *AppImage*) present_terminal r2-d2-appimage-install ;;
   *Development*) show_install_development_menu ;;
   *Editor*) show_install_editor_menu ;;
@@ -323,16 +303,18 @@ show_install_menu() {
 }
 
 show_install_editor_menu() {
-  case $(menu "Install" "󰨞  VS Code\n󰆼  T3 Code") in
+  case $(menu "Install" "󰆾  Cursor\n󰨞  VS Code\n󰆼  T3 Code\n  OpenCode\n󰚩  Hermes") in
+  *Cursor*) present_terminal "r2-d2-install-editor cursor" ;;
   *"VS Code"*) present_terminal "r2-d2-install-editor vscode" ;;
   *"T3 Code"*) present_terminal "r2-d2-install-editor t3code" ;;
+  *OpenCode*) present_terminal "r2-d2-install-editor opencode" ;;
+  *Hermes*) present_terminal "r2-d2-install-editor hermes" ;;
   *) show_install_menu ;;
   esac
 }
 
 show_install_development_menu() {
-  case $(menu "Install" "  Docker DB\n  Node.js\n  Go\n  Python\n  Rust") in
-  *Docker*) present_terminal r2-d2-install-docker-dbs ;;
+  case $(menu "Install" "  Node.js\n  Go\n  Python\n  Rust") in
   *Node*) present_terminal "r2-d2-install-dev-env node" ;;
   *Go*) present_terminal "r2-d2-install-dev-env go" ;;
   *Python*) present_terminal "r2-d2-install-dev-env python" ;;
@@ -341,31 +323,119 @@ show_install_development_menu() {
   esac
 }
 
+add_option() {
+  [[ -n $options ]] && options+=$'\n'
+  options+="$1"
+}
+
+any_desktop_exec() {
+  local pattern=$1 file
+  [[ -d $HOME/.local/share/applications ]] || return 1
+  while IFS= read -r -d '' file; do
+    grep -qE "$pattern" "$file" && return 0
+  done < <(find "$HOME/.local/share/applications" -maxdepth 1 -name '*.desktop' -print0)
+  return 1
+}
+
+runtime_present() {
+  case $1 in
+  node) compgen -G "${NVM_DIR:-$HOME/.nvm}/versions/node/v*" >/dev/null ;;
+  go) [[ -x /usr/local/go/bin/go ]] ;;
+  python) r2-d2-pkg-present python || [[ -x $HOME/.local/bin/uv || -x $HOME/.cargo/bin/uv ]] ;;
+  rust) [[ -x $HOME/.cargo/bin/rustup ]] || r2-d2-cmd-present rustup ;;
+  *) return 1 ;;
+  esac
+}
+
+editor_present() {
+  case $1 in
+  cursor) r2-d2-pkg-present cursor-bin ;;
+  vscode) r2-d2-pkg-present visual-studio-code-bin ;;
+  t3code) r2-d2-pkg-present t3code-bin ;;
+  opencode) [[ -x $HOME/.opencode/bin/opencode ]] || r2-d2-cmd-present opencode ;;
+  hermes) [[ -x $HOME/.local/bin/hermes ]] || r2-d2-cmd-present hermes ;;
+  *) return 1 ;;
+  esac
+}
+
 show_remove_menu() {
-  local options="󰣇  Package\n  Web App\n  Web Apps (all)\n  TUI\n  TUI (all)\n󰵮  Development\n  Dictation\n󰈷  Fingerprint\n  Fido2\n󰒲  Drop package (by name)"
+  local options=""
+
+  add_option "󰣇  Package"
+  add_option "󰒲  Drop package (by name)"
+
+  if any_desktop_exec '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler)'; then
+    add_option "  Web App"
+    add_option "  Web Apps (all)"
+  fi
+
+  if runtime_present node || runtime_present go || runtime_present python || runtime_present rust; then
+    add_option "󰵮  Development"
+  fi
+
+  if editor_present cursor || editor_present vscode || editor_present t3code || editor_present opencode || editor_present hermes; then
+    add_option "󰆼  Editor"
+  fi
+
+  if r2-d2-pkg-present voxtype-bin || r2-d2-cmd-present voxtype; then
+    add_option "  Dictation"
+  fi
+
+  if grep -q pam_fprintd.so /etc/pam.d/sudo 2>/dev/null || r2-d2-pkg-present fprintd; then
+    add_option "󰈷  Fingerprint"
+  fi
+
+  if [[ -f /etc/fido2/fido2 ]] || grep -q pam_u2f.so /etc/pam.d/sudo 2>/dev/null; then
+    add_option "  Fido2"
+  fi
 
   if ! r2-d2-sudo-docker --configured; then
-    options="$options\n  Sudoless Docker"
+    add_option "  Sudoless Docker"
   fi
 
   case $(menu "Remove" "$options") in
+  *Drop*) terminal r2-d2-pkg-drop ;;
   *Package*) terminal r2-d2-pkg-remove ;;
   *"Web Apps (all)"*) present_terminal r2-d2-webapp-remove-all ;;
   *Web*) present_terminal r2-d2-webapp-remove ;;
-  *"TUI (all)"*) present_terminal r2-d2-tui-remove-all ;;
-  *TUI*) present_terminal r2-d2-tui-remove ;;
   *Development*) show_remove_development_menu ;;
+  *Editor*) show_remove_editor_menu ;;
   *Dictation*) present_terminal r2-d2-voxtype-remove ;;
   *Fingerprint*) present_terminal "r2-d2-setup-fingerprint --remove" ;;
   *Fido2*) present_terminal "r2-d2-setup-fido2 --remove" ;;
-  *Drop*) terminal r2-d2-pkg-drop ;;
   *"Sudoless Docker"*) present_terminal r2-d2-remove-security-sudoless-docker ;;
   *) show_main_menu ;;
   esac
 }
 
+show_remove_editor_menu() {
+  local options=""
+
+  editor_present cursor && add_option "󰆾  Cursor"
+  editor_present vscode && add_option "󰨞  VS Code"
+  editor_present t3code && add_option "󰆼  T3 Code"
+  editor_present opencode && add_option "  OpenCode"
+  editor_present hermes && add_option "󰚩  Hermes"
+
+  case $(menu "Remove" "$options") in
+  *Cursor*) present_terminal "r2-d2-remove-editor cursor" ;;
+  *"VS Code"*) present_terminal "r2-d2-remove-editor vscode" ;;
+  *"T3 Code"*) present_terminal "r2-d2-remove-editor t3code" ;;
+  *OpenCode*) present_terminal "r2-d2-remove-editor opencode" ;;
+  *Hermes*) present_terminal "r2-d2-remove-editor hermes" ;;
+  *) show_remove_menu ;;
+  esac
+}
+
 show_remove_development_menu() {
-  case $(menu "Remove" "  Node.js\n  Go\n  Python\n  Rust") in
+  local options=""
+
+  runtime_present node && add_option "  Node.js"
+  runtime_present go && add_option "  Go"
+  runtime_present python && add_option "  Python"
+  runtime_present rust && add_option "  Rust"
+
+  case $(menu "Remove" "$options") in
   *Node*) present_terminal "r2-d2-remove-dev-env node" ;;
   *Go*) present_terminal "r2-d2-remove-dev-env go" ;;
   *Python*) present_terminal "r2-d2-remove-dev-env python" ;;
@@ -375,19 +445,13 @@ show_remove_development_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  System packages\n󰣇  Flatpaks & AppImages\n󰒲  Keyring\n  Firmware\n📷  Webcam drivers (AMD)\n  Password\n  Timezone\n  Time\n󰒲  Plocate DB\n󰒲  Rest of settings\n󰒲  Reinstall") in
+  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  Packages\n📷  Webcam\n  Password\n  Timezone & Time\n󰒲  Reinstall") in
   *"R2-D2 (full)"*) present_terminal r2-d2-update ;;
   *Config*) present_terminal r2-d2-update-config ;;
-  *"System packages"*) present_terminal r2-d2-update-system-pkgs ;;
-  *Flatpaks*) present_terminal r2-d2-update-flatpaks-appimages ;;
-  *Keyring*) present_terminal r2-d2-update-keyring ;;
-  *Firmware*) present_terminal r2-d2-update-firmware ;;
+  *Packages*) present_terminal r2-d2-update-packages ;;
   *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
-  *Timezone*) present_terminal r2-d2-tz-select ;;
-  *Time*) present_terminal r2-d2-update-time ;;
   *Password*) show_update_password_menu ;;
-  *Plocate*) present_terminal r2-d2-update-locate ;;
-  *"Rest of settings"*) present_terminal r2-d2-update-settings ;;
+  *Timezone*) present_terminal "r2-d2-tz-select && r2-d2-update-time" ;;
   *Reinstall*) show_reinstall_menu ;;
   *) show_main_menu ;;
   esac
@@ -434,11 +498,12 @@ show_system_menu() {
 }
 
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󱓞  Trigger\n  Setup\n󰍜  Restart\n󰉉  Install\n  Update\n󰭌  Remove\n  About\n  System")"
+  go_to_menu "$(menu "Go" "󰀻  Apps\n󱓞  Trigger\n  Setup\n󰍜  Restart\n󰉉  Install\n  Update\n󰭌  Remove\n  About\n  System")"
 }
 
 go_to_menu() {
   case "${1,,}" in
+  *apps*) r2-d2-launch-walker ;;
   *trigger*) show_trigger_menu ;;
   *capture*) show_capture_menu ;;
   *share*) show_share_menu ;;
@@ -446,7 +511,6 @@ go_to_menu() {
   *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
   *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
-  *power*) show_setup_power_menu ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;
   *remove*) show_remove_menu ;;

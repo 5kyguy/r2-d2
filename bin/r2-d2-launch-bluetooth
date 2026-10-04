@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Launch the R2-D2 bluetooth controls TUI (provided by bluetui).
-# Powers the adapter on (rfkill-persisted) before opening the TUI.
-
-r2-d2-bluetooth-power on || true
-exec r2-d2-launch-or-focus-tui bluetui

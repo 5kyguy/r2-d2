@@ -2,21 +2,22 @@
 
 The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. Open it with **Super + Alt + Space** or by clicking the R2-D2 icon in the shell bar.
 
-Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu power`, `r2-d2-menu toggle`, `r2-d2-menu capture`, `r2-d2-menu webcam`. The battery icon opens the shell power panel.
+Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu toggle`, `r2-d2-menu capture`, `r2-d2-menu webcam`. Audio, Wi-Fi, Bluetooth, and power open from the top bar.
 
 ---
 
 ## Main menu
 
-**Trigger → Setup → Restart → Install → Update → Remove → About → System**
+**Apps → Trigger → Setup → Restart → Install → Update → Remove → About → System**
 
 | Entry | Action |
 | ----- | ------ |
+| **Apps** | App launcher (Walker), the same list as **Super + Space** |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
-| **Setup** | Power profile, Audio, Wifi, Bluetooth, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
-| **Restart** | Restart Shell, Walker, Hypridle, Hyprsunset, Pipewire, Terminal, Tmux, Wifi, Bluetooth, Hyprctl |
+| **Setup** | Text size, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
+| **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
-| **Update** | R2-D2, Config, System packages, Flatpaks & AppImages, Keyring, Firmware, Webcam drivers, Password, Timezone, Time, Plocate DB, Settings, Reinstall |
+| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
 | **About** | About / branding |
 | **System** | Screensaver, Lock, Suspend, Hibernate, Logout, Restart, Shutdown |
@@ -25,7 +26,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 
 | Entry | Action |
 | ----- | ------ |
-| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Gaps, Ratio, Scaling, Screensaver |
+| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Scaling, Screensaver |
 | **Screenshot** | `r2-d2-cmd-screenshot` |
 | **Screenrecord** | Screenrecord options (audio / webcam) |
 | **Share** | Clipboard, file, or folder |
@@ -39,10 +40,9 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu install`, `
 | **Package** | Install from official repos (`r2-d2-pkg-install`) |
 | **AUR** | Install from AUR (`r2-d2-pkg-aur-install`) |
 | **Web App** | Create a web app shortcut (`r2-d2-webapp-install`) |
-| **TUI** | Add a TUI shortcut (`r2-d2-tui-install`) |
 | **AppImage** | Install an AppImage (`r2-d2-appimage-install`) |
-| **Development** | Docker DB, Node.js, Go, Python, Rust |
-| **Editor** | VS Code, T3 Code (`r2-d2-install-editor`) |
+| **Development** | Node.js, Go, Python, Rust |
+| **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes (`r2-d2-install-editor`). Cursor is installed by default. |
 | **K-2SO (companion)** | Install K-2SO background agent + `r2d2-mcp` (`r2-d2-install-k2so`) |
 | **Gaming** | Steam and Xbox controllers |
 | **Dropbox** | Install Dropbox |
@@ -54,18 +54,20 @@ Change wallpaper via **Super + Ctrl + Space** (Walker background selector). Acce
 
 ## Remove submenu
 
+Package and Drop package are always listed. Every other entry appears only when that thing is installed. Development and Editor open a second list of only the installed runtimes or editors.
+
 | Entry | What |
 | ----- | ---- |
 | **Package** | Remove packages (`r2-d2-pkg-remove`) |
+| **Drop package (by name)** | `r2-d2-pkg-drop` |
 | **Web App** | Remove one web app |
 | **Web Apps (all)** | Remove all web apps |
-| **TUI** | Remove one TUI shortcut |
-| **TUI (all)** | Remove all TUI shortcuts |
-| **Development** | Remove Node.js, Go, Python, Rust |
+| **Development** | Remove installed Node.js, Go, Python, or Rust |
+| **Editor** | Remove installed Cursor, VS Code, T3 Code, OpenCode, or Hermes (`r2-d2-remove-editor`) |
 | **Dictation** | Remove Voxtype |
 | **Fingerprint** | Remove fingerprint setup |
 | **Fido2** | Remove Fido2 setup |
-| **Drop package (by name)** | `r2-d2-pkg-drop` |
+| **Sudoless Docker** | Turn off sudoless Docker, when it is enabled |
 
 ---
 
@@ -115,16 +117,16 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 
 | Keybinding | Action |
 | ---------- | ------ |
-| **Super + Shift + B** | Bluetooth controls |
-| **Super + Shift + W** | Wifi controls |
-| **Super + Shift + A** | Audio controls |
+| **Super + Shift + B** | Bluetooth panel |
+| **Super + Shift + W** | Wifi panel |
+| **Super + Shift + A** | Audio panel |
 | **Super + Shift + I** | Activity (btop) |
 | **Super + Shift + S** | Screenshot |
 | **Super + Shift + T** | Toggle top bar |
 | **Super + Shift + D** | Toggle device display |
 | **Super + Shift + M** | Toggle display mirror |
 | **Super + Shift + N** | Toggle notification silencing |
-| **Super + Shift + P** | Power profile |
+| **Super + Shift + P** | Power panel |
 | **Super + Shift + L** | Monitor layout (external left) |
 
 ### Tiling and workspaces
@@ -157,7 +159,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
 | **Super + XF86AudioMute** | Switch audio output |
 
-Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Dictation models live in **Setup → Dictation → Model**. Nightlight, zoom, and per-window transparency shortcuts were removed from the default binding set.
+Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Dictation models live in **Setup → Dictation → Model**. Nightlight, zoom, and per-window transparency shortcuts were removed from the default binding set.
 
 ---
 
@@ -173,6 +175,5 @@ Layout, gaps, ratio, scaling, idle, and screensaver toggles live in **Trigger �
 - `r2-d2-menu restart` — Restart services
 - `r2-d2-menu share` — Share (clipboard/file/folder)
 - `r2-d2-menu screenrecord` — Screenrecord menu
-- `r2-d2-menu power` — Power profile
 - `r2-d2-menu setup` — Setup menu
 - `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers

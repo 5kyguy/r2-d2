@@ -100,11 +100,10 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 **Phase 2 — Packaging** (`install/packaging/all.sh`)
 
 - **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
-- **opencode.sh** — Opencode via the official curl installer
 - **fonts.sh** — Copy R2-D2 font (r2-d2.ttf) to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
 - **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X) via Helium when available
-- **tuis.sh** — Optional TUI shortcuts via Install → TUI (`r2-d2-tui-install`)
+- **tuis.sh** — Installs no TUI shortcuts
 
 **Phase 3 — Config** (`install/config/all.sh`)
 
