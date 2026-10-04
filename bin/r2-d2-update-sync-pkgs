@@ -13,6 +13,10 @@ fi
 
 if [[ -f $R2D2_PATH/install/r2-d2-base.aur.packages ]]; then
   mapfile -t aur_packages < <(grep -v '^#' "$R2D2_PATH/install/r2-d2-base.aur.packages" | grep -v '^$')
+  skip_file="$HOME/.local/state/r2-d2/skipped-aur-packages"
+  if [[ -f $skip_file && ${#aur_packages[@]} -gt 0 ]]; then
+    mapfile -t aur_packages < <(printf '%s\n' "${aur_packages[@]}" | grep -vxF -f "$skip_file" || true)
+  fi
   if ((${#aur_packages[@]} > 0)); then
     if r2-d2-pkg-aur-accessible; then
       r2-d2-pkg-aur-add "${aur_packages[@]}"

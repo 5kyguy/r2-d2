@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Voxtype ships with R2-D2. This remains so older notes still land on setup.
-echo "Voxtype is installed with R2-D2. Downloading the dictation model if it is missing."
-exec r2-d2-voxtype-setup

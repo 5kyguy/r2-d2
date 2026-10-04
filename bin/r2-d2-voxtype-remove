@@ -3,7 +3,7 @@ set -e
 
 # Remove voxtype and its configurations.
 
-if r2-d2-cmd-present voxtype; then
+if r2-d2-cmd-present voxtype || r2-d2-pkg-present voxtype-bin; then
   echo "Uninstall Voxtype to remove dictation."
 
   # Remove services
@@ -11,7 +11,10 @@ if r2-d2-cmd-present voxtype; then
   rm -f ~/.config/systemd/user/voxtype*
   systemctl --user daemon-reload
 
-  # Remove packages and configs
+  # Remove packages and configs. Skip voxtype-bin on later updates.
+  skip_file="$HOME/.local/state/r2-d2/skipped-aur-packages"
+  mkdir -p "${skip_file%/*}"
+  grep -qxF voxtype-bin "$skip_file" 2>/dev/null || printf '%s\n' voxtype-bin >>"$skip_file"
   r2-d2-pkg-drop wtype voxtype-bin
   rm -rf ~/.config/voxtype
   rm -rf ~/.local/share/voxtype
