@@ -60,7 +60,7 @@ ShellRoot {
           { id: "r2-d2.bluetooth" },
           { id: "r2-d2.network" },
           { id: "r2-d2.audio" },
-          { id: "r2-d2.power" }
+          { id: "r2-d2.power", showPercentage: true }
         ]
       }
     },
