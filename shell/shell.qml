@@ -53,7 +53,7 @@ ShellRoot {
         ],
         center: [
           { id: "r2-d2.clock", format: "dddd HH:mm" },
-          { id: "r2-d2.indicators", items: ["Dictation", "ScreenRecording", "Dnd"] }
+          { id: "r2-d2.indicators", items: ["ScreenRecording", "Dnd"] }
         ],
         right: [
           { id: "r2-d2.tray" },

@@ -23,7 +23,7 @@
         },
         {
           "id": "r2-d2.indicators",
-          "items": ["Dictation", "ScreenRecording", "Dnd"]
+          "items": ["ScreenRecording", "Dnd"]
         }
       ],
       "right": [

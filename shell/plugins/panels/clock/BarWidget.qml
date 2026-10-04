@@ -60,6 +60,17 @@ BarWidget {
     return Qt.formatDateTime(date, activeFormat.replace(/ww/g, Model.isoWeekLiteral(date.getFullYear(), date.getMonth(), date.getDate())))
   }
 
+  // Read UTC fields so the hover stays on UTC even when the bar label is local.
+  function zoneTooltip(date) {
+    if (!date || isNaN(date.getTime())) return ""
+    var locale = Qt.locale()
+    var weekday = locale.dayName(date.getUTCDay(), Locale.LongFormat)
+    var month = locale.monthName(date.getUTCMonth(), Locale.LongFormat)
+    var hour = ("0" + date.getUTCHours()).slice(-2)
+    var minute = ("0" + date.getUTCMinutes()).slice(-2)
+    return "UTC  " + weekday + ", " + date.getUTCDate() + " " + month + " " + date.getUTCFullYear() + "  " + hour + ":" + minute
+  }
+
   // ---- Calendar popup. Shape contract for shell.summon/hide/toggle
   //      routing: Bar.findPanelWidget requires open/close/opened on the
   //      bar-widget root.
@@ -153,7 +164,7 @@ BarWidget {
     fixedHeight: root.vertical ? root.verticalLines.length * Style.bar.iconSlot : -1
     horizontalMargin: 8.75
     verticalPadding: 8.75
-    tooltipText: "Right-click to set timezone"
+    tooltipText: root.zoneTooltip(root.displayDate)
 
     onPressed: function(b) {
       if (b === Qt.RightButton) { if (root.bar) root.bar.run("r2-d2-launch-floating-terminal-with-presentation r2-d2-tz-select") }

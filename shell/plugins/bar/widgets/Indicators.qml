@@ -8,7 +8,7 @@ BarWidget {
   id: root
   moduleName: "r2-d2.indicators"
 
-  readonly property var defaultIndicatorEntries: [ "Dictation", "ScreenRecording", "Dnd" ]
+  readonly property var defaultIndicatorEntries: [ "ScreenRecording", "Dnd" ]
   readonly property var indicatorEntries: indicatorEntriesFromSettings(settings)
   property var activeIndicatorIds: []
   property var indicatorActiveStates: ({})
