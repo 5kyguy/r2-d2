@@ -14,7 +14,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 | ----- | ------ |
 | **Apps** | App launcher (Walker), the same list as **Super + Space** |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
-| **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
+| **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
 | **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
@@ -22,9 +22,19 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 | **About** | About / branding |
 | **System** | Screensaver, Lock, Suspend, Hibernate, Logout, Restart, Shutdown |
 
-On a laptop, Setup → System sleep → Lid is **Suspend**, **Lock**, or **Keep running**. Keep running leaves the machine on with the lid shut. An external screen still uses clamshell and does not suspend. Until a policy is chosen, closing the lid locks when no external screen is connected.
+### Setup submenu
 
-Setup → Monitors saves a docked layout and a laptop layout. **Apply** is what login and a desktop reload restore, when every saved output is still connected. With no saved layout, login still places the external screen on the left.
+| Entry | Action |
+| ----- | ------ |
+| **Text size** | 10, 12, 14, 16, or a custom size |
+| **Default apps** | Choose the installed handler for text, PDF, images, or video |
+| **Monitors** | Save or apply a docked layout and a laptop layout |
+| **System sleep** | Suspend, hibernate, and on a laptop the lid-close policy |
+| **Dependencies** | Report missing base and AUR packages (`r2-d2-cmd-doctor`). Does not install them |
+
+Lid close is **Suspend**, **Lock**, or **Keep running**. Keep running leaves the machine on with the lid shut. An external screen still uses clamshell and does not suspend. Until a policy is chosen, closing the lid locks when no external screen is connected.
+
+Monitor layouts are manual. **Apply** is what login and a desktop reload restore, when every saved output is still connected. With no saved layout, login still places the external screen on the left.
 
 ### Trigger submenu
 
@@ -185,4 +195,5 @@ Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (n
 - `r2-d2-menu lid` — Lid-close policy
 - `r2-d2-menu defaults` — Default apps
 - `r2-d2-menu monitors` — Saved monitor layouts
+- `r2-d2-menu doctor` — Dependency check
 - `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers

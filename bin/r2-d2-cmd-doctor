@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Report base packages that are not installed. Does not install anything.
+#
+# Usage: r2-d2-cmd-doctor
+
+set -euo pipefail
+
+if [[ -z ${R2D2_PATH:-} ]]; then
+  R2D2_PATH=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+fi
+
+OFFICIAL="$R2D2_PATH/install/r2-d2-base.packages"
+AUR="$R2D2_PATH/install/r2-d2-base.aur.packages"
+
+if [[ ! -f $OFFICIAL || ! -f $AUR ]]; then
+  echo "Package lists are missing under $R2D2_PATH/install" >&2
+  exit 2
+fi
+
+declare -A installed=()
+while IFS= read -r pkg; do
+  [[ -n $pkg ]] && installed[$pkg]=1
+done < <(pacman -Qq)
+
+report_missing() {
+  local title=$1
+  local file=$2
+  local pkg
+  local -a missing=()
+
+  while IFS= read -r pkg || [[ -n $pkg ]]; do
+    [[ -z $pkg || $pkg == \#* ]] && continue
+    [[ -n ${installed[$pkg]:-} ]] || missing+=("$pkg")
+  done <"$file"
+
+  if ((${#missing[@]} == 0)); then
+    echo "$title: all installed"
+    return 0
+  fi
+
+  echo "Missing $title:"
+  printf '  %s\n' "${missing[@]}"
+  return 1
+}
+
+official_status=0
+aur_status=0
+report_missing "base packages" "$OFFICIAL" || official_status=1
+echo
+report_missing "AUR packages" "$AUR" || aur_status=1
+
+if ((official_status || aur_status)); then
+  echo
+  echo "Nothing was installed."
+  exit 1
+fi

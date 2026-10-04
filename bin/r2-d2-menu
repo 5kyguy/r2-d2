@@ -166,7 +166,7 @@ show_toggle_menu() {
 }
 
 show_setup_menu() {
-  local options="  Text size\n  Default apps\n󰍹  Monitors\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="  Text size\n  Default apps\n󰍹  Monitors\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n  Dependencies\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Text*) show_setup_text_size_menu ;;
@@ -177,6 +177,7 @@ show_setup_menu() {
   *Security*) show_setup_security_menu ;;
   *Dictation*) show_setup_dictation_menu ;;
   *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
+  *Depend*) present_terminal r2-d2-cmd-doctor ;;
   *Reset*) present_terminal r2-d2-reset-sudo ;;
   *) show_main_menu ;;
   esac
@@ -595,6 +596,7 @@ go_to_menu() {
   *lid*) show_setup_lid_menu ;;
   *defaults*) show_setup_default_apps_menu ;;
   *monitors*) show_setup_monitor_menu ;;
+  *doctor*) present_terminal r2-d2-cmd-doctor ;;
   *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;
