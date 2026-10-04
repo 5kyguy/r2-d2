@@ -1,0 +1,242 @@
+#!/bin/bash
+
+# List or set the default app for a file category.
+# Handlers are desktop files already installed that claim one of the category's types.
+#
+# Usage:
+#   r2-d2-setup-default-apps list text|pdf|images|video
+#   r2-d2-setup-default-apps current text|pdf|images|video
+#   r2-d2-setup-default-apps set text|pdf|images|video DESKTOP_ID
+
+set -euo pipefail
+
+usage() {
+  echo "Usage: r2-d2-setup-default-apps list|current|set text|pdf|images|video [desktop-id]" >&2
+}
+
+category_ok() {
+  case $1 in
+  text | pdf | images | video) return 0 ;;
+  *) return 1 ;;
+  esac
+}
+
+mimes_for() {
+  case $1 in
+  text)
+    printf '%s\n' \
+      text/plain text/english text/x-makefile \
+      text/x-c++hdr text/x-c++src text/x-chdr text/x-csrc \
+      text/x-java text/x-moc text/x-pascal text/x-tcl text/x-tex \
+      application/x-shellscript text/x-c text/x-c++ \
+      application/xml text/xml
+    ;;
+  pdf)
+    printf '%s\n' application/pdf
+    ;;
+  images)
+    printf '%s\n' image/png image/jpeg image/gif image/webp image/bmp image/tiff
+    ;;
+  video)
+    printf '%s\n' \
+      video/mp4 video/x-msvideo video/x-matroska video/x-flv video/x-ms-wmv \
+      video/mpeg video/ogg video/webm video/quicktime video/3gpp video/3gpp2 \
+      video/x-ms-asf video/x-ogm+ogg video/x-theora+ogg application/ogg
+    ;;
+  esac
+}
+
+query_mime_for() {
+  case $1 in
+  text) echo text/plain ;;
+  pdf) echo application/pdf ;;
+  images) echo image/png ;;
+  video) echo video/mp4 ;;
+  esac
+}
+
+# Menu candidates. Text stays on text/plain so a browser that only claims XML
+# is not offered as the text editor. Video stays on video/* so an audio app
+# that only claims application/ogg is not offered as the player.
+discover_mimes_for() {
+  case $1 in
+  text) printf '%s\n' text/plain ;;
+  video) mimes_for video | grep -v '^application/ogg$' ;;
+  *) mimes_for "$1" ;;
+  esac
+}
+
+mime_claimed() {
+  local haystack=";$1;"
+  local category=$2
+  local mode=${3:-set}
+  local needle reader
+
+  if [[ $mode == discover ]]; then
+    reader=discover_mimes_for
+  else
+    reader=mimes_for
+  fi
+
+  while IFS= read -r needle; do
+    [[ $haystack == *";$needle;"* ]] && return 0
+  done < <("$reader" "$category")
+  return 1
+}
+
+app_dirs() {
+  local dir
+
+  printf '%s\n' "${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+  IFS=: read -ra data_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+  for dir in "${data_dirs[@]}"; do
+    [[ -n $dir ]] && printf '%s\n' "$dir/applications"
+  done
+}
+
+find_desktop() {
+  local id=$1
+  local dir file fields mime hidden fallback=""
+
+  while IFS= read -r dir; do
+    file="$dir/$id"
+    [[ -f $file ]] || continue
+    [[ -z $fallback ]] && fallback=$file
+
+    fields=$(desktop_fields "$file") || continue
+    mime=$(sed -n '2p' <<<"$fields")
+    hidden=$(sed -n '3p' <<<"$fields")
+    if [[ $hidden == true && -z $mime ]]; then
+      continue
+    fi
+    echo "$file"
+    return 0
+  done < <(app_dirs)
+
+  if [[ -n $fallback ]]; then
+    echo "$fallback"
+    return 0
+  fi
+  return 1
+}
+
+desktop_fields() {
+  # Prints: name, then mime types, for the [Desktop Entry] group.
+  awk '
+    /^\[/ {
+      section = $0
+      next
+    }
+    section != "[Desktop Entry]" { next }
+    /^Name=/ && name == "" { name = substr($0, 6) }
+    /^MimeType=/ { mime = substr($0, 10) }
+    /^Type=/ { type = substr($0, 6) }
+    /^Hidden=true$/ { hidden = "true" }
+    END {
+      if (type != "" && type != "Application") exit 1
+      if (hidden == "") hidden = "false"
+      printf "%s\n%s\n%s\n", name, mime, hidden
+    }
+  ' "$1"
+}
+
+handler_line() {
+  local id=$1
+  local file name
+
+  file=$(find_desktop "$id") || return 1
+  name=$(desktop_fields "$file" | sed -n '1p')
+  [[ -n $name ]] || name=$id
+  printf '%s  %s\n' "$id" "$name"
+}
+
+list_handlers() {
+  local category=$1
+  local dir file id name mime hidden fields
+  local -A seen=()
+
+  while IFS= read -r dir; do
+    [[ -d $dir ]] || continue
+    for file in "$dir"/*.desktop; do
+      [[ -f $file ]] || continue
+      id=$(basename "$file")
+      [[ -n ${seen[$id]:-} ]] && continue
+
+      fields=$(desktop_fields "$file") || continue
+      name=$(sed -n '1p' <<<"$fields")
+      mime=$(sed -n '2p' <<<"$fields")
+      hidden=$(sed -n '3p' <<<"$fields")
+      # A Hidden=true file with no types only removes the launcher entry.
+      # Keep looking so the packaged desktop file can still be a handler.
+      if [[ $hidden == true && -z $mime ]]; then
+        continue
+      fi
+      seen[$id]=1
+      mime_claimed "$mime" "$category" discover || continue
+      [[ -n $name ]] || name=$id
+      printf '%s  %s\n' "$id" "$name"
+    done
+  done < <(app_dirs) | sort -f -k2
+}
+
+current_handler() {
+  local category=$1
+  local id
+
+  id=$(xdg-mime query default "$(query_mime_for "$category")" 2>/dev/null || true)
+  [[ -n $id ]] || return 0
+  handler_line "$id" || printf '%s  %s\n' "$id" "$id"
+}
+
+set_handler() {
+  local category=$1
+  local id=$2
+  local file name mime
+
+  [[ $id == *.desktop ]] || {
+    echo "Expected a desktop id, got: $id" >&2
+    exit 1
+  }
+  file=$(find_desktop "$id") || {
+    echo "No installed desktop file named $id" >&2
+    exit 1
+  }
+  name=$(desktop_fields "$file" | sed -n '1p')
+  [[ -n $name ]] || name=$id
+
+  while IFS= read -r mime; do
+    xdg-mime default "$id" "$mime"
+  done < <(mimes_for "$category")
+
+  r2-d2-notification-send "Default apps" "$name opens ${category} files"
+  echo "$name opens ${category} files"
+}
+
+if (($# < 2)); then
+  usage
+  exit 1
+fi
+
+command=$1
+category=$2
+
+category_ok "$category" || {
+  usage
+  exit 1
+}
+
+case $command in
+list) list_handlers "$category" ;;
+current) current_handler "$category" ;;
+set)
+  [[ -n ${3:-} ]] || {
+    usage
+    exit 1
+  }
+  set_handler "$category" "$3"
+  ;;
+*)
+  usage
+  exit 1
+  ;;
+esac

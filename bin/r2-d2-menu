@@ -166,10 +166,11 @@ show_toggle_menu() {
 }
 
 show_setup_menu() {
-  local options="  Text size\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="  Text size\n  Default apps\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Text*) show_setup_text_size_menu ;;
+  *Default*) show_setup_default_apps_menu ;;
   *System*) show_setup_system_menu ;;
   *DNS*) present_terminal r2-d2-setup-dns ;;
   *Security*) show_setup_security_menu ;;
@@ -297,6 +298,49 @@ show_setup_lid_menu() {
   *Lock*) present_terminal "r2-d2-system-lid-policy lock" ;;
   *Keep*) present_terminal "r2-d2-system-lid-policy ignore" ;;
   *) back_to show_setup_system_menu ;;
+  esac
+}
+
+show_setup_default_app_choice() {
+  local category=$1
+  local title=$2
+  local options current choice desktop
+
+  options=$(r2-d2-setup-default-apps list "$category")
+  current=$(r2-d2-setup-default-apps current "$category")
+  if [[ -n $current ]] && ! grep -qxF "$current" <<<"$options"; then
+    if [[ -n $options ]]; then
+      options="${current}"$'\n'"${options}"
+    else
+      options=$current
+    fi
+  fi
+
+  if [[ -z $options ]]; then
+    r2-d2-notification-send "Default apps" "No installed app handles ${category} files"
+    back_to show_setup_default_apps_menu
+    return
+  fi
+
+  choice=$(menu "$title" "$options" "" "$current")
+  case $choice in
+  CNCLD | "")
+    back_to show_setup_default_apps_menu
+    ;;
+  *)
+    desktop=${choice%%  *}
+    r2-d2-setup-default-apps set "$category" "$desktop"
+    ;;
+  esac
+}
+
+show_setup_default_apps_menu() {
+  case $(menu "Default apps" "  Text\n  PDF\n  Images\n  Video") in
+  *Text*) show_setup_default_app_choice text "Text" ;;
+  *PDF*) show_setup_default_app_choice pdf "PDF" ;;
+  *Image*) show_setup_default_app_choice images "Images" ;;
+  *Video*) show_setup_default_app_choice video "Video" ;;
+  *) back_to show_setup_menu ;;
   esac
 }
 
@@ -538,6 +582,7 @@ go_to_menu() {
   *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
   *lid*) show_setup_lid_menu ;;
+  *defaults*) show_setup_default_apps_menu ;;
   *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;

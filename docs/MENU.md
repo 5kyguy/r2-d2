@@ -14,7 +14,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 | ----- | ------ |
 | **Apps** | App launcher (Walker), the same list as **Super + Space** |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
-| **Setup** | Text size, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
+| **Setup** | Text size, Default apps, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
 | **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
@@ -179,4 +179,5 @@ Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (n
 - `r2-d2-menu screenrecord` — Screenrecord menu
 - `r2-d2-menu setup` — Setup menu
 - `r2-d2-menu lid` — Lid-close policy
+- `r2-d2-menu defaults` — Default apps
 - `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers

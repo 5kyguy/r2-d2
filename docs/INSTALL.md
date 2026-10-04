@@ -116,7 +116,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
-- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Totem, Nano); terminal order from `default/config/xdg-terminals.list`
+- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Totem, Nano); terminal order from `default/config/xdg-terminals.list`. Change text, PDF, image, and video handlers later from Setup → Default apps
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
 - **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
 - **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad
