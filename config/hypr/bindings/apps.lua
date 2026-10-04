@@ -5,7 +5,7 @@ hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("r2-d2-launch-browser --private"), { 
 hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm-app -- cursor"), { description = "Cursor" })
 hl.bind("SUPER + H", hl.dsp.exec_cmd("uwsm-app -- helium-browser"), { description = "Helium" })
 hl.bind("SUPER + Y", hl.dsp.exec_cmd("r2-d2-launch-or-focus YouTube uwsm-app -- gtk-launch YouTube"), { description = "YouTube" })
-hl.bind("SUPER + CTRL + N", hl.dsp.exec_cmd("uwsm-app -- nautilus --new-window"), { description = "Nautilus" })
+hl.bind("SUPER + CTRL + N", hl.dsp.exec_cmd("uwsm-app -- thunar"), { description = "Thunar" })
 hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd("r2-d2-launch-or-focus WhatsApp uwsm-app -- gtk-launch WhatsApp"), { description = "WhatsApp" })
 hl.bind("SUPER + CTRL + X", hl.dsp.exec_cmd("r2-d2-launch-or-focus X uwsm-app -- gtk-launch X"), { description = "X" })
 hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd("r2-d2-launch-or-focus steam uwsm-app -- gtk-launch steam"), { description = "Steam" })

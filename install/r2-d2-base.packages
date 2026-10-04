@@ -41,7 +41,6 @@ fuse2
 fzf
 git
 github-cli
-gnome-calculator
 gnome-keyring
 gnome-themes-extra
 gpu-screen-recorder
@@ -81,8 +80,6 @@ luarocks
 man-db
 mariadb-libs
 nano
-nautilus
-nautilus-python
 net-tools
 networkmanager
 noto-fonts
@@ -108,9 +105,10 @@ power-profiles-daemon
 python-gobject
 python-pip
 python-poetry-core
-quickshell
+qalculate-gtk
 qrencode
 qt5-wayland
+quickshell
 ripgrep
 satty
 sddm
@@ -119,10 +117,10 @@ snapper
 socat
 starship
 steam
-sushi
 swaybg
 tesseract
 tesseract-data-eng
+thunar
 system-config-printer
 tldr
 tmux
@@ -130,6 +128,7 @@ totem
 tree
 ttf-cascadia-mono-nerd
 ttf-jetbrains-mono-nerd
+tumbler
 ufw
 udiskie
 unzip

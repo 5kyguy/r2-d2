@@ -3,8 +3,8 @@
 r2-d2-refresh-applications
 update-desktop-database ~/.local/share/applications
 
-# Open directories in file manager
-xdg-mime default org.gnome.Nautilus.desktop inode/directory
+# Open directories in the file manager
+xdg-mime default thunar.desktop inode/directory
 
 # Open images with Eye of GNOME
 xdg-mime default org.gnome.eog.desktop image/png

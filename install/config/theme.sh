@@ -3,7 +3,7 @@
 # Apply GNOME/GTK dark theme (file explorer, dialogs, etc.) so it persists across install/update
 bash "${R2D2_PATH:-$HOME/.local/share/r2-d2}/install/first-run/gnome-theme.sh"
 
-# Set links for Nautilus action icons
+# Yaru is missing the back and forward icons Thunar and other GTK apps use
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-previous-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-previous-symbolic.svg
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-next-symbolic.svg
 

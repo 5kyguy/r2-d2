@@ -122,7 +122,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 
 | Keybinding | Action |
 | ---------- | ------ |
-| **Super + Ctrl + N** | Nautilus |
+| **Super + Ctrl + N** | Thunar |
 | **Super + Ctrl + W** | WhatsApp |
 | **Super + Ctrl + X** | X |
 | **Super + Ctrl + G** | Steam |

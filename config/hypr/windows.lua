@@ -35,6 +35,6 @@ hl.window_rule({
   opacity = "0.98 1",
 })
 hl.window_rule({
-  match = { class = "org.gnome.Nautilus" },
+  match = { class = "org.xfce.thunar" },
   opacity = "0.98 1",
 })

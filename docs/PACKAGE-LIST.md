@@ -97,7 +97,7 @@ grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbn
 
 ### File manager and GVfs
 
-nautilus, nautilus-python, sushi, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
+thunar, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
@@ -133,7 +133,7 @@ quickshell draws the bar, panels, on-screen display, notifications, and lock scr
 
 ### Apps and tools (user-facing)
 
-gnome-calculator, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kdenlive, obs-studio, steam
+qalculate-gtk, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kdenlive, obs-studio, steam
 
 ### Firewall and security
 

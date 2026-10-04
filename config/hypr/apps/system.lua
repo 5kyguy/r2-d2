@@ -13,18 +13,18 @@ hl.window_rule({
 })
 
 hl.window_rule({
-  match = { class = "(org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.gnome.NautilusPreviewer|org.gnome.Evince|com.gabm.satty|R2-D2|About|TUI.float|org.gnome.Totem|org.gnome.eog)" },
+  match = { class = "(org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.gnome.Evince|com.gabm.satty|R2-D2|About|TUI.float|org.gnome.Totem|org.gnome.eog)" },
   tag = "+floating-window",
 })
 hl.window_rule({
   match = {
-    class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.gnome.Nautilus)",
+    class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.xfce.thunar)",
     title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)",
   },
   tag = "+floating-window",
 })
 hl.window_rule({
-  match = { class = "org.gnome.Calculator" },
+  match = { class = "qalculate-gtk" },
   float = true,
 })
 
