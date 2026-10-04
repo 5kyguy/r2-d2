@@ -42,7 +42,7 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | r2-d2-launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "$prompt…" "${args[@]}" 2>/dev/null
+  echo -e "$options" | r2-d2-launch-walker --dmenu --width 560 --minheight 1 --maxheight 630 -p "$prompt…" "${args[@]}" 2>/dev/null
 }
 
 terminal() {
