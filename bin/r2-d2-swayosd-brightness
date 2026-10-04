@@ -1,7 +1,0 @@
-#!/bin/bash
-
-# Display brightness level on the shell OSD.
-# Usage: r2-d2-swayosd-brightness <percent>
-
-percent="$1"
-r2-d2-osd -i brightness -p "${percent%.*}"

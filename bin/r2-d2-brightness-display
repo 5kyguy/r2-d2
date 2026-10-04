@@ -79,7 +79,7 @@ flock -n "$lock_fd" || exit 0
 
 if use_ddc_display; then
   brightness="$(r2-d2-brightness-display-ddc "$monitor" "$step")" || exit 1
-  ((no_osd)) || r2-d2-swayosd-brightness "$brightness"
+  ((no_osd)) || r2-d2-osd -i brightness -p "${brightness%.*}"
 else
   device="$(pick_backlight_device)" || exit 1
   current=$(backlight_brightness "$device") || exit 1
@@ -105,5 +105,5 @@ else
   fi
 
   brightnessctl -d "$device" set "$step" >/dev/null
-  ((no_osd)) || r2-d2-swayosd-brightness "$(backlight_brightness "$device")"
+  ((no_osd)) || r2-d2-osd -i brightness -p "$(backlight_brightness "$device")"
 fi

@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# The on-screen display lives in the shell. Nothing separate to reload.
-exit 0
