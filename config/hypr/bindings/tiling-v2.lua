@@ -27,6 +27,10 @@ for i = 1, 10 do
   hl.bind("SUPER + SHIFT + code:" .. code, hl.dsp.window.move({ workspace = i }), { description = "Move window to workspace " .. i })
 end
 
+-- xkbcommon names these keysyms "comma" and "period".
+hl.bind("SUPER + SHIFT + comma", hl.dsp.window.move({ monitor = "-1" }), { description = "Move window to previous monitor" })
+hl.bind("SUPER + SHIFT + period", hl.dsp.window.move({ monitor = "+1" }), { description = "Move window to next monitor" })
+
 -- TAB between workspaces
 hl.bind("SUPER + TAB", hl.dsp.focus({ workspace = "e+1" }), { description = "Next workspace" })
 hl.bind("SUPER + SHIFT + TAB", hl.dsp.focus({ workspace = "e-1" }), { description = "Previous workspace" })

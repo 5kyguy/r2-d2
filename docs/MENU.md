@@ -146,6 +146,8 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Alt + S** | Move window to scratchpad |
 | **Super + 1..0** | Switch workspace |
 | **Super + Shift + 1..0** | Move window to workspace |
+| **Super + Shift + comma** | Move window to the previous monitor |
+| **Super + Shift + period** | Move window to the next monitor |
 | **Super + Tab / Shift+Tab** | Next / previous workspace |
 | **Super + Ctrl + Tab** | Former workspace |
 | **Super + mouse** | Move/resize window; scroll changes workspace |
