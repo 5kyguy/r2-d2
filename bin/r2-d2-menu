@@ -166,11 +166,12 @@ show_toggle_menu() {
 }
 
 show_setup_menu() {
-  local options="  Text size\n  Default apps\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
+  local options="  Text size\n  Default apps\n󰍹  Monitors\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n󰒲  Reset sudo (lockout)"
 
   case $(menu "Setup" "$options") in
   *Text*) show_setup_text_size_menu ;;
   *Default*) show_setup_default_apps_menu ;;
+  *Monitor*) show_setup_monitor_menu ;;
   *System*) show_setup_system_menu ;;
   *DNS*) present_terminal r2-d2-setup-dns ;;
   *Security*) show_setup_security_menu ;;
@@ -340,6 +341,16 @@ show_setup_default_apps_menu() {
   *PDF*) show_setup_default_app_choice pdf "PDF" ;;
   *Image*) show_setup_default_app_choice images "Images" ;;
   *Video*) show_setup_default_app_choice video "Video" ;;
+  *) back_to show_setup_menu ;;
+  esac
+}
+
+show_setup_monitor_menu() {
+  case $(menu "Monitors" "󰍹  Save docked\n󰍹  Save laptop\n󰍺  Apply docked\n󰍺  Apply laptop") in
+  *"Save docked"*) r2-d2-hyprland-monitor-profile save docked ;;
+  *"Save laptop"*) r2-d2-hyprland-monitor-profile save laptop ;;
+  *"Apply docked"*) r2-d2-hyprland-monitor-profile apply docked ;;
+  *"Apply laptop"*) r2-d2-hyprland-monitor-profile apply laptop ;;
   *) back_to show_setup_menu ;;
   esac
 }
@@ -583,6 +594,7 @@ go_to_menu() {
   *setup*) show_setup_menu ;;
   *lid*) show_setup_lid_menu ;;
   *defaults*) show_setup_default_apps_menu ;;
+  *monitors*) show_setup_monitor_menu ;;
   *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;

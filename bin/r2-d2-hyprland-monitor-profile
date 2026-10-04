@@ -1,0 +1,189 @@
+#!/bin/bash
+
+# Save and restore two named monitor layouts: docked and laptop.
+# Login and config reload reapply the last layout that was applied, when every
+# saved output is still connected and no display toggle is holding the session.
+#
+# Usage:
+#   r2-d2-hyprland-monitor-profile save docked|laptop
+#   r2-d2-hyprland-monitor-profile apply docked|laptop
+#   r2-d2-hyprland-monitor-profile apply-active
+
+set -euo pipefail
+
+DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/monitor-layouts"
+ACTIVE="$DIR/active"
+TOGGLES="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/toggles"
+
+usage() {
+  echo "Usage: r2-d2-hyprland-monitor-profile save|apply docked|laptop | apply-active" >&2
+}
+
+profile_ok() {
+  case $1 in
+  docked | laptop) return 0 ;;
+  *) return 1 ;;
+  esac
+}
+
+notify() {
+  r2-d2-notification-send "Monitor layout" "$1"
+}
+
+display_hold() {
+  [[ -f $TOGGLES/builtin-display-disabled || -f $TOGGLES/builtin-display-clamshell || -f $TOGGLES/display-mirror ]]
+}
+
+valid_rule() {
+  local name=$1 mode=$2 position=$3 scale=$4
+
+  [[ $name =~ ^[A-Za-z0-9._-]+$ ]] || return 1
+  [[ $mode =~ ^[0-9]+x[0-9]+@[0-9]+$ ]] || return 1
+  [[ $position =~ ^-?[0-9]+x-?[0-9]+$ ]] || return 1
+  [[ $scale =~ ^[0-9]+([.][0-9]+)?$ ]] || return 1
+}
+
+read_rules() {
+  local file=$1
+  local line name mode position scale
+
+  [[ -f $file ]] || return 1
+  while IFS= read -r line || [[ -n $line ]]; do
+    [[ -z $line || $line == \#* ]] && continue
+    IFS=',' read -r name mode position scale <<<"$line"
+    valid_rule "$name" "$mode" "$position" "$scale" || return 1
+    printf '%s\n' "$line"
+  done <"$file"
+}
+
+output_present() {
+  local name=$1
+  local monitors_json=$2
+
+  jq -e --arg name "$name" 'any(.[]; .name == $name)' <<<"$monitors_json" >/dev/null
+}
+
+save_profile() {
+  local profile=$1
+  local rules
+
+  rules=$(hyprctl monitors -j | jq -r '
+    .[] | select(.disabled != true) |
+    [
+      .name,
+      "\(.width)x\(.height)@\(.refreshRate | floor)",
+      "\(.x)x\(.y)",
+      (.scale | tostring)
+    ] | join(",")
+  ') || {
+    echo "hyprctl failed" >&2
+    exit 1
+  }
+
+  if [[ -z $rules ]]; then
+    notify "No active monitors to save"
+    exit 1
+  fi
+
+  while IFS= read -r line; do
+    IFS=',' read -r name mode position scale <<<"$line"
+    valid_rule "$name" "$mode" "$position" "$scale" || {
+      echo "Refusing to save an unreadable monitor rule: $line" >&2
+      exit 1
+    }
+  done <<<"$rules"
+
+  mkdir -p "$DIR"
+  printf '%s\n' "$rules" >"$DIR/$profile"
+  notify "Saved the ${profile} layout"
+}
+
+apply_rules() {
+  local file=$1
+  local quiet=$2
+  local rules monitors_json line name mode position scale
+  local -a missing=()
+
+  rules=$(read_rules "$file") || {
+    [[ $quiet == quiet ]] || notify "Save the layout before applying it"
+    return 1
+  }
+  [[ -n $rules ]] || {
+    [[ $quiet == quiet ]] || notify "Save the layout before applying it"
+    return 1
+  }
+
+  monitors_json=$(hyprctl monitors all -j) || {
+    echo "hyprctl failed" >&2
+    return 1
+  }
+
+  while IFS= read -r line; do
+    IFS=',' read -r name mode position scale <<<"$line"
+    output_present "$name" "$monitors_json" || missing+=("$name")
+  done <<<"$rules"
+
+  if ((${#missing[@]} > 0)); then
+    [[ $quiet == quiet ]] || notify "Missing ${missing[*]}"
+    return 1
+  fi
+
+  while IFS= read -r line; do
+    IFS=',' read -r name mode position scale <<<"$line"
+    r2-d2-hyprland-monitor-set "$name" "$mode" "$position" "$scale"
+  done <<<"$rules"
+}
+
+apply_profile() {
+  local profile=$1
+
+  if ! apply_rules "$DIR/$profile" loud; then
+    exit 1
+  fi
+  mkdir -p "$DIR"
+  printf '%s\n' "$profile" >"$ACTIVE"
+  notify "Applied the ${profile} layout"
+}
+
+apply_active() {
+  local profile
+
+  [[ -f $ACTIVE ]] || return 1
+  display_hold && return 0
+
+  profile=$(<"$ACTIVE")
+  profile_ok "$profile" || return 1
+  [[ -f $DIR/$profile ]] || return 1
+
+  # Leave the login fallback alone when the dock is not connected.
+  apply_rules "$DIR/$profile" quiet || return 0
+}
+
+if (($# < 1)); then
+  usage
+  exit 1
+fi
+
+case $1 in
+save)
+  profile_ok "${2:-}" || {
+    usage
+    exit 1
+  }
+  save_profile "$2"
+  ;;
+apply)
+  profile_ok "${2:-}" || {
+    usage
+    exit 1
+  }
+  apply_profile "$2"
+  ;;
+apply-active)
+  apply_active
+  ;;
+*)
+  usage
+  exit 1
+  ;;
+esac

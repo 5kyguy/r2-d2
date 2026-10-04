@@ -16,14 +16,15 @@ hl.on("hyprland.start", function()
   -- Reconcile clamshell / docked display state across hotplug
   hl.exec_cmd("uwsm-app -- r2-d2-hyprland-monitor-watch")
 
-  -- Apply external-left monitor layout when 2 monitors (e.g. HDMI left of laptop)
+  -- Reapply the last saved monitor layout, or external-left when none is saved.
   hl.timer(function()
-    hl.exec_cmd("r2-d2-hyprland-monitor-layout external-left 2>/dev/null || true")
+    hl.exec_cmd("r2-d2-hyprland-monitor-profile apply-active || r2-d2-hyprland-monitor-layout external-left 2>/dev/null || true")
   end, { timeout = 2000, type = "oneshot" })
 end)
 
 -- looknfeel.lua is rewritten on every wallpaper change, and Hyprland reloads.
--- That re-applies monitors.lua. Put a manually disabled laptop panel back off.
+-- That re-applies monitors.lua. Put a manually disabled laptop panel back off,
+-- then restore a saved layout when no display toggle is holding the session.
 hl.on("config.reloaded", function()
-  hl.exec_cmd("r2-d2-hyprland-monitors-restore --after-reload")
+  hl.exec_cmd("r2-d2-hyprland-monitors-restore --after-reload; r2-d2-hyprland-monitor-profile apply-active")
 end)
