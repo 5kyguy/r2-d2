@@ -13,10 +13,9 @@ hl.monitor({
   vrr = 1,
 })
 
--- Keep 1–5 visible in Waybar (ext/workspaces has no persistent-workspaces option).
-for i = 1, 5 do
-  hl.workspace_rule({ workspace = tostring(i), persistent = true })
-end
+-- The bar draws workspaces 1–5 itself. Leaving them non-persistent lets an
+-- empty one disappear once it is not on screen, so a three-finger swipe does
+-- not stop on an unused gap.
 
 -- Presets (for reference; use the script for dynamic layout):
 --   r2-d2-hyprland-monitor-layout external-left
