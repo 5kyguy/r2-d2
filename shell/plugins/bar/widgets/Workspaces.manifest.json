@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "id": "r2-d2.workspaces",
   "name": "Workspaces",
-  "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Workspace number indicators",
+  "version": "1.1.0",
+  "author": "R2-D2",
+  "description": "Workspace switcher that shows the apps open on each workspace",
   "kinds": [
     "bar-widget"
   ],
@@ -13,7 +13,7 @@
   },
   "barWidget": {
     "displayName": "Workspaces",
-    "description": "Workspace number indicators",
+    "description": "Workspace switcher that shows the apps open on each workspace",
     "category": "Compositor",
     "allowMultiple": false
   }

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Tells the workspace bar what a coding agent is doing.
+# Usage: workspace-agent <working|waiting|done|end>
+#
+# Claude Code can call this from ~/.claude/settings.json. The hook reads the
+# session id from the JSON Claude writes to stdin. Other agents can report
+# the same states directly:
+#   r2-d2-shell -q r2-d2.workspaces agent <session> <state> <pids>
+
+state=$1
+session=$(jq -r '.session_id // empty' 2>/dev/null || true)
+[[ -n $session ]] || session="pid$PPID"
+
+# The agent's ancestor PIDs. The widget matches them to a terminal window.
+pids=""
+pid=$PPID
+while [[ $pid -gt 1 && -r "/proc/$pid/stat" ]]; do
+  pids+="${pids:+,}$pid"
+  stat=$(<"/proc/$pid/stat")
+  stat=${stat##*) }
+  pid=$(cut -d' ' -f2 <<<"$stat")
+done
+
+r2-d2-shell -q r2-d2.workspaces agent "$session" "$state" "$pids" >/dev/null 2>&1 &
+exit 0
