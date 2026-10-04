@@ -7,7 +7,10 @@
 #
 # Backend:
 #   Default interactive capture uses KMS via slurp (r2-d2-capture-region).
-#   --choose-target asks for a window, the focused screen, or a drawn area.
+#   --choose-target asks for a window, a screen, or a drawn area.
+#   Window lists mapped windows and records the one you pick.
+#   Screen lists monitors and records the one you pick.
+#   Area still uses the region picker.
 #   --fullscreen targets the focused monitor (agent-safe, no picker).
 #   Set R2D2_SCREENRECORD_USE_PORTAL=true for HDR / eGPU / window portal capture.
 
@@ -105,7 +108,7 @@ geometry_target() {
 
 choose_target() {
   local choice
-  choice=$(printf '%s\n' "  Window" "󰍹  Screen" "  Area" | r2-d2-launch-walker --dmenu --width 295 --minheight 1 --maxheight 630 -p "Screenrecord…" 2>/dev/null) || return 1
+  choice=$(printf '%s\n' "  Window" "󰍹  Screen" "  Area" | r2-d2-launch-walker --dmenu --width 560 --minheight 1 --maxheight 630 -p "Screenrecord…" 2>/dev/null) || return 1
 
   case $choice in
   *Window) TARGET_MODE=window ;;
@@ -115,20 +118,136 @@ choose_target() {
   esac
 }
 
+pick_menu() {
+  local prompt=$1
+  local options=$2
+  [[ -n $options ]] || return 1
+  printf '%s\n' "$options" | r2-d2-launch-walker --dmenu --width 560 --minheight 1 --maxheight 630 -p "$prompt…" 2>/dev/null
+}
+
+# address, label, x, y, width, height
+window_rows() {
+  hyprctl clients -j | jq -r '
+    def clean:
+      gsub("[\n\t]"; " ") | gsub(" +"; " ") | sub("^ +"; "") | sub(" +$"; "");
+    def app:
+      ((.class // .initialClass // "window") | split(".") | last);
+    [ .[]
+      | select(.mapped == true and .hidden != true)
+      | select(.size[0] > 1 and .size[1] > 1)
+      | select((.class // "") != "walker")
+      | .label = ((.title // "") | clean)
+      | if .label == "" then .label = app else . end
+    ]
+    | group_by(.label)
+    | map(if length == 1 then . else map(.label = .label + "  ·  " + app) end)
+    | flatten
+    | group_by(.label)
+    | map(
+        if length == 1 then .
+        else to_entries | map(.value.label = .value.label + " " + ((.key + 1) | tostring)) | map(.value)
+        end
+      )
+    | flatten
+    | sort_by(.focusHistoryID // 999999)
+    | .[]
+    | [.address, .label, (.at[0] | tostring), (.at[1] | tostring), (.size[0] | tostring), (.size[1] | tostring)]
+    | @tsv
+  '
+}
+
+focus_window() {
+  local address=$1
+  hyprctl dispatch "hl.dsp.focus({ window = \"address:${address}\" })" >/dev/null 2>&1 || return 0
+  sleep 0.2
+}
+
+window_region() {
+  local address=$1
+  hyprctl clients -j | jq -er --arg address "$address" '
+    .[]
+    | select(.address == $address)
+    | "region:\(.size[0])x\(.size[1])+\(.at[0])+\(.at[1])"
+  '
+}
+
+choose_window_region() {
+  local rows choice address label region
+  local -a lines=()
+  local -A addresses=()
+
+  rows=$(window_rows) || return 1
+  if [[ -z $rows ]]; then
+    r2-d2-notification-send -u critical -t 3000 "No windows to record"
+    return 1
+  fi
+
+  while IFS=$'\t' read -r address label _; do
+    [[ -n $address && -n $label ]] || continue
+    lines+=("  $label")
+    addresses["  $label"]=$address
+  done <<<"$rows"
+
+  choice=$(pick_menu "Window" "$(printf '%s\n' "${lines[@]}")") || return 1
+  address=${addresses[$choice]}
+  [[ -n $address ]] || return 1
+
+  focus_window "$address"
+  region=$(window_region "$address") || return 1
+  printf '%s\n' "$region"
+}
+
+choose_screen() {
+  local rows choice name resolution model label
+  local -a lines=()
+  local -A names=()
+
+  rows=$(hyprctl monitors -j | jq -r '
+    .[]
+    | . as $monitor
+    | [
+        $monitor.name,
+        "\($monitor.width)x\($monitor.height)",
+        (if (($monitor.model // "") == "" or (($monitor.model // "") | test("^0x"))) then "" else $monitor.model end)
+      ]
+    | @tsv
+  ')
+
+  if [[ -z $rows ]]; then
+    r2-d2-notification-send -u critical -t 3000 "No screens to record"
+    return 1
+  fi
+
+  while IFS=$'\t' read -r name resolution model; do
+    [[ -n $name ]] || continue
+    if [[ -n $model ]]; then
+      label="󰍹  ${name}  ${model}  ${resolution}"
+    else
+      label="󰍹  ${name}  ${resolution}"
+    fi
+    lines+=("$label")
+    names[$label]=$name
+  done <<<"$rows"
+
+  choice=$(pick_menu "Screen" "$(printf '%s\n' "${lines[@]}")") || return 1
+  name=${names[$choice]}
+  [[ -n $name ]] || return 1
+  printf 'monitor:%s\n' "$name"
+}
+
 select_capture_target() {
   local target
 
   case $TARGET_MODE in
   window)
-    target=$(r2-d2-capture-region window) || return 1
-    geometry_target "$target"
+    choose_window_region
     ;;
   area)
     target=$(r2-d2-capture-region region) || return 1
     geometry_target "$target"
     ;;
   screen)
-    echo "monitor:$(r2-d2-hyprland-monitor-focused)"
+    choose_screen
     ;;
   *)
     target=$(r2-d2-capture-region smart --match-monitor) || return 1
