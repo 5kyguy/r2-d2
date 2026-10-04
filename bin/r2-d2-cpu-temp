@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# Print the package temperature in whole degrees Celsius.
+# Prefer a CPU sensor. On Ryzen AI Max, k10temp Tctl and the first ACPI zone
+# sit at a constant 100°C while the cores keep boosting. The GPU is on that
+# same die and only exposes an edge sensor, so that edge reading is the one
+# that tracks the chip.
+
+shopt -s nullglob
+
+package=""
+tdie=""
+tctl=""
+apu_edge=""
+
+for hwmon in /sys/class/hwmon/hwmon*; do
+  [[ -r $hwmon/name ]] || continue
+  name=$(<"$hwmon/name")
+
+  case "$name" in
+  coretemp)
+    for input in "$hwmon"/temp*_input; do
+      label_file=${input%_input}_label
+      [[ -r $label_file ]] || continue
+      label=$(<"$label_file")
+      [[ $label == Package* ]] || continue
+      package=$(<"$input")
+    done
+    ;;
+  k10temp)
+    for input in "$hwmon"/temp*_input; do
+      label_file=${input%_input}_label
+      [[ -r $label_file ]] || continue
+      label=$(<"$label_file")
+      case "$label" in
+      Tdie) tdie=$(<"$input") ;;
+      Tctl) tctl=$(<"$input") ;;
+      esac
+    done
+    ;;
+  amdgpu)
+    edge=""
+    junction=""
+    for input in "$hwmon"/temp*_input; do
+      label_file=${input%_input}_label
+      [[ -r $label_file ]] || continue
+      label=$(<"$label_file")
+      case "$label" in
+      edge) edge=$(<"$input") ;;
+      junction) junction=$(<"$input") ;;
+      esac
+    done
+    # A discrete card publishes a junction temperature. An APU does not,
+    # and its edge sensor is the package.
+    if [[ -n $edge && -z $junction ]]; then
+      apu_edge=$edge
+    fi
+    ;;
+  esac
+done
+
+cpu=${package:-${tdie:-$tctl}}
+
+# Frozen Tctl: exactly 100.0°C while the same-die edge sensor is clearly cooler.
+if [[ -z $package && -z $tdie && -n $tctl && -n $apu_edge ]]; then
+  if (( tctl == 100000 && apu_edge + 15000 < tctl )); then
+    cpu=$apu_edge
+  fi
+fi
+
+if [[ -z $cpu ]]; then
+  best=""
+  for zone in /sys/class/thermal/thermal_zone*/temp; do
+    [[ -r $zone ]] || continue
+    t=$(<"$zone")
+    (( t > 1000 && t < 150000 )) || continue
+    (( t == 100000 )) && continue
+    if [[ -z $best ]] || (( t > best )); then
+      best=$t
+    fi
+  done
+  cpu=$best
+fi
+
+if [[ -z $cpu ]]; then
+  echo "--"
+  exit 0
+fi
+
+echo $((cpu / 1000))

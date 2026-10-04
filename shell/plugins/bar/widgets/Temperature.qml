@@ -24,7 +24,7 @@ BarWidget {
 
   Process {
     id: probe
-    command: ["bash", "-c", "for z in /sys/class/thermal/thermal_zone*/temp; do t=$(<\"$z\") || continue; if (( t > 1000 && t < 150000 )); then echo $((t / 1000)); exit 0; fi; done; echo --"]
+    command: ["r2-d2-cpu-temp"]
     stdout: SplitParser {
       onRead: function(line) { root.label = String(line).trim() + "°C" }
     }
