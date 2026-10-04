@@ -2,4 +2,5 @@
 
 # Launch the fastfetch TUI that gives information about the current system.
 
-exec r2-d2-launch-or-focus-tui "bash -c 'fastfetch; read -n 1 -s'"
+launch="bash -c 'fastfetch; read -n 1 -s'"
+exec r2-d2-launch-or-focus "org.r2d2.$(basename "$launch")" "r2-d2-launch-tui $launch"
