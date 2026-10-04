@@ -22,6 +22,8 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 | **About** | About / branding |
 | **System** | Screensaver, Lock, Suspend, Hibernate, Logout, Restart, Shutdown |
 
+On a laptop, Setup → System sleep → Lid is **Suspend**, **Lock**, or **Keep running**. Keep running leaves the machine on with the lid shut. An external screen still uses clamshell and does not suspend. Until a policy is chosen, closing the lid locks when no external screen is connected.
+
 ### Trigger submenu
 
 | Entry | Action |
@@ -176,4 +178,5 @@ Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (n
 - `r2-d2-menu share` — Share (clipboard/file/folder)
 - `r2-d2-menu screenrecord` — Screenrecord menu
 - `r2-d2-menu setup` — Setup menu
+- `r2-d2-menu lid` — Lid-close policy
 - `r2-d2-menu webcam` — Rebuild AMD ISP4 webcam drivers

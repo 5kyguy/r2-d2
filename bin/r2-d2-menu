@@ -265,11 +265,38 @@ show_setup_system_menu() {
     options="$options\n󰤁  Enable Hibernate"
   fi
 
+  r2-d2-hw-laptop && options="$options\n󰌢  Lid"
+
   case $(menu "System" "$options") in
   *Suspend*) r2-d2-toggle-suspend ;;
   *"Enable Hibernate"*) present_terminal r2-d2-hibernation-setup ;;
   *"Disable Hibernate"*) present_terminal r2-d2-hibernation-remove ;;
+  *Lid*) show_setup_lid_menu ;;
   *) show_setup_menu ;;
+  esac
+}
+
+show_setup_lid_menu() {
+  local current="" policy
+
+  if ! r2-d2-hw-laptop; then
+    r2-d2-notification-send "Lid close" "This machine has no lid"
+    back_to show_setup_system_menu
+    return
+  fi
+
+  policy=$(r2-d2-system-lid-policy status)
+  case $policy in
+  suspend) current="󰒲  Suspend" ;;
+  lock) current="  Lock" ;;
+  ignore) current="󰈈  Keep running" ;;
+  esac
+
+  case $(menu "Lid close" "󰒲  Suspend\n  Lock\n󰈈  Keep running" "" "$current") in
+  *Suspend*) present_terminal "r2-d2-system-lid-policy suspend" ;;
+  *Lock*) present_terminal "r2-d2-system-lid-policy lock" ;;
+  *Keep*) present_terminal "r2-d2-system-lid-policy ignore" ;;
+  *) back_to show_setup_system_menu ;;
   esac
 }
 
@@ -510,6 +537,7 @@ go_to_menu() {
   *screenrecord*) show_screenrecord_menu ;;
   *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
+  *lid*) show_setup_lid_menu ;;
   *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
   *restart*) show_restart_menu ;;
   *install*) show_install_menu ;;

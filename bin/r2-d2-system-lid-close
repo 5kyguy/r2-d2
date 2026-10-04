@@ -2,10 +2,18 @@
 
 # Lock and reconcile displays when the laptop lid closes.
 # Port of omarchy-system-lid-close. The shell lock answers r2-d2-lock-screen.
+# r2-d2-system-lid-policy sets whether logind suspends. "ignore" also skips
+# this lock so a closed lid can keep an agent session running.
 
-# A docked lid close does not suspend (HandleLidSwitchDocked defaults to
-# ignore), so it must not lock either: that is clamshell mode.
-if r2-d2-hw-laptop-closed && ! r2-d2-hw-external-monitors; then
+# A docked lid close does not suspend, so it must not lock either: that is
+# clamshell mode.
+policy="unset"
+state_file="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/lid-policy"
+if [[ -f $state_file ]]; then
+  policy=$(<"$state_file")
+fi
+
+if r2-d2-hw-laptop-closed && ! r2-d2-hw-external-monitors && [[ $policy != ignore ]]; then
   r2-d2-lock-screen >/dev/null 2>&1 || true
 fi
 
