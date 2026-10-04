@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -e
+
+BIN="$(dirname "$0")"
+
+echo -e "\e[32m\nUpdate system packages\e[0m"
+sudo pacman -Syyu --noconfirm
+
+# Full updates install newly listed base packages after the official upgrade
+# and before the AUR upgrade. The packages menu does not set this.
+if [[ -n $R2D2_UPDATE_SYNC_BASE_PKGS && -z $R2D2_UPDATE_SKIP_SYNC_PKGS ]]; then
+  "$BIN/r2-d2-update-sync-pkgs"
+fi
+
+if pacman -Qem >/dev/null; then
+  if r2-d2-pkg-aur-accessible; then
+    echo -e "\e[32m\nUpdate AUR packages\e[0m"
+    yay -Sua --noconfirm --cleanafter --ignore gcc14,gcc14-libs
+    echo
+  else
+    echo -e "\e[31m\nAUR is unavailable (so skipping updates)\e[0m"
+    echo
+  fi
+fi

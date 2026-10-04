@@ -13,19 +13,46 @@ exec > >(tee "/tmp/r2-d2-update.log") 2>&1
 
 # Perform all update steps (invoke by path so this works when run from menu without bin in PATH)
 [[ -n $R2D2_UPDATE_SKIP_TIME ]] || "$BIN/r2-d2-update-time"
-[[ -n $R2D2_UPDATE_SKIP_KEYRING ]] || "$BIN/r2-d2-update-keyring"
-[[ -n $R2D2_UPDATE_SKIP_AVAILABLE_RESET ]] || "$BIN/r2-d2-update-available-reset"
+
+if [[ -z $R2D2_UPDATE_SKIP_KEYRING ]]; then
+  echo -e "\e[32m\nUpdate Arch signing keys\e[0m"
+  sudo pacman -Sy --noconfirm archlinux-keyring >/dev/null
+fi
+
 [[ -n $R2D2_UPDATE_SKIP_SYNC_FILES ]] || "$BIN/r2-d2-update-sync-files"
 # Migrations before package upgrades so pacman.conf / repo changes (e.g. drop
 # [omarchy]) take effect before pacman -Syu pulls from stale remotes.
 [[ -n $R2D2_UPDATE_SKIP_MIGRATE ]] || "$BIN/r2-d2-migrate"
-[[ -n $R2D2_UPDATE_SKIP_SYSTEM_PKGS ]] || "$BIN/r2-d2-update-system-pkgs"
-[[ -n $R2D2_UPDATE_SKIP_SYNC_PKGS ]] || "$BIN/r2-d2-update-sync-pkgs"
-[[ -n $R2D2_UPDATE_SKIP_AUR_PKGS ]] || "$BIN/r2-d2-update-aur-pkgs"
-[[ -n $R2D2_UPDATE_SKIP_ORPHAN_PKGS ]] || "$BIN/r2-d2-update-orphan-pkgs"
+
+# Pacman and the AUR upgrade are one step. Either skip flag skips both.
+# Newly listed base packages install between those two upgrades.
+if [[ -z $R2D2_UPDATE_SKIP_SYSTEM_PKGS && -z $R2D2_UPDATE_SKIP_AUR_PKGS ]]; then
+  R2D2_UPDATE_SYNC_BASE_PKGS=1 "$BIN/r2-d2-update-pacman-aur"
+elif [[ -z $R2D2_UPDATE_SKIP_SYNC_PKGS ]]; then
+  "$BIN/r2-d2-update-sync-pkgs"
+fi
+
+if [[ -z $R2D2_UPDATE_SKIP_ORPHAN_PKGS ]]; then
+  orphans=$(pacman -Qtdq || true)
+  if [[ -n $orphans ]]; then
+    echo -e "\e[32m\nRemove orphan system packages\e[0m"
+    for pkg in $orphans; do
+      sudo pacman -Rs --noconfirm "$pkg" || true
+    done
+    echo
+  fi
+fi
+
 [[ -n $R2D2_UPDATE_SKIP_HOOK ]] || "$BIN/r2-d2-hook" post-update
 
-"$BIN/r2-d2-update-analyze-logs"
+update_log="/tmp/r2-d2-update.log"
+if grep -q "Updating linux initcpios" "$update_log"; then
+  if ! grep -q "Initcpio image generation successful" "$update_log"; then
+    echo -e '\e[31mError: Initramfs generation may have failed. Review logs before restart.\e[0m'
+    echo
+  fi
+fi
+
 "$BIN/r2-d2-update-restart"
 
 # Re-enable screensaver/sleep after updates

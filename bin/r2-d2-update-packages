@@ -2,6 +2,8 @@
 
 set -e
 
+r2-d2-update-pacman-aur
+
 echo -e "\e[32m\nUpdate Flatpaks and AppImages\e[0m"
 
 if r2-d2-cmd-missing flatpak; then
@@ -22,3 +24,12 @@ else
     echo "Install appimagelauncher and use ail-cli update, or replace AppImages manually."
   fi
 fi
+
+echo -e "\e[32mUpdate Firmware\e[0m"
+
+if r2-d2-cmd-missing fwupdmgr; then
+  r2-d2-pkg-add fwupd
+fi
+
+fwupdmgr refresh --force
+sudo fwupdmgr update

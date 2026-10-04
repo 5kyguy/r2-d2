@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# The update icon lived on Waybar. The shell has no separate update widget.
-exit 0
