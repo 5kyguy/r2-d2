@@ -83,6 +83,8 @@ function contextFor(p, config, services) {
     windows: services.windows || [],
     launches: services.launches || {},
     commands: (config && config.commands) || [],
+    menuState: services.menuState || {},
+    menuId: services.menuId || "",
     requestProcesses: services.requestProcesses || null,
     requestRates: services.requestRates || null,
     now: services.now || function() { return new Date() },

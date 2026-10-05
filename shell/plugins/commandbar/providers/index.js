@@ -8,6 +8,7 @@
 .import "apps.js" as Apps
 .import "units.js" as Units
 .import "windows.js" as Windows
+.import "menu.js" as Menu
 .import "search.js" as Search
 
 // Every provider the bar knows about. To add a feature: write providers/<name>.js
@@ -23,5 +24,6 @@ var all = [
   Units.provider,
   Windows.provider,
   Apps.provider,
+  Menu.provider,
   Search.provider
 ]

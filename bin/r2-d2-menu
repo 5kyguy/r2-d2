@@ -1,30 +1,13 @@
 #!/bin/bash
 
-# Launch the R2-D2 Menu or takes a parameter to jump straight to a submenu.
+# Open the R2-D2 menu in the command bar, or run one of its actions.
+#
+#   r2-d2-menu                top level
+#   r2-d2-menu <level>        that level (system, screenrecord, setup, …)
+#   r2-d2-menu run <id>       run the action the bar selected
+#   r2-d2-menu state          which rows exist on this machine, as JSON
 
 export PATH="$HOME/.local/share/r2-d2/bin:$PATH"
-
-# Set to true when going directly to a submenu, so we can exit directly
-BACK_TO_EXIT=false
-
-back_to() {
-  local parent_menu="$1"
-
-  if [[ $BACK_TO_EXIT == "true" ]]; then
-    exit 0
-  elif [[ -n $parent_menu ]]; then
-    "$parent_menu"
-  else
-    show_main_menu
-  fi
-}
-
-toggle_existing_menu() {
-  if pgrep -f "walker.*--dmenu" >/dev/null; then
-    walker --close >/dev/null 2>&1
-    exit 0
-  fi
-}
 
 menu() {
   local prompt="$1"
@@ -45,370 +28,22 @@ menu() {
   echo -e "$options" | r2-d2-launch-walker --dmenu --width 560 --minheight 1 --maxheight 630 -p "$prompt…" "${args[@]}" 2>/dev/null
 }
 
-terminal() {
-  xdg-terminal-exec --app-id=org.r2d2.terminal ""
-}
-
 present_terminal() {
-  r2-d2-launch-floating-terminal-with-presentation $1
+  r2-d2-launch-floating-terminal-with-presentation "$1"
 }
 
-open_in_editor() {
-  notify-send "Editing config file" "$1"
-  r2-d2-launch-editor "$1"
+open_menu() {
+  local node=${1:-root}
+  [[ $node =~ ^[a-z0-9.-]+$ ]] || node=root
+  r2-d2-shell shell summon r2-d2.commandbar "{\"menu\":\"$node\"}"
 }
 
-install() {
-  present_terminal "echo 'Installing $1...'; r2-d2-pkg-add $2"
-}
-
-install_and_launch() {
-  present_terminal "echo 'Installing $1...'; r2-d2-pkg-add $2 && setsid uwsm-app -- gtk-launch $3"
-}
-
-aur_install() {
-  present_terminal "echo 'Installing $1 from AUR...'; r2-d2-pkg-aur-add $2"
-}
-
-aur_install_and_launch() {
-  present_terminal "echo 'Installing $1 from AUR...'; r2-d2-pkg-aur-add $2 && setsid uwsm-app -- gtk-launch $3"
-}
-
-show_trigger_menu() {
-  case $(menu "Trigger" "󰔎  Toggle\n  Screenshot\n  Screenrecord\n  Share") in
-  *Toggle*) show_toggle_menu ;;
-  *Screenshot*) r2-d2-cmd-screenshot ;;
-  *Screenrecord*) show_screenrecord_menu ;;
-  *Share*) show_share_menu ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_capture_menu() {
-  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰐲  QR code") in
-  *Screenshot*) r2-d2-cmd-screenshot ;;
-  *Screenrecord*) show_screenrecord_menu ;;
-  *QR*) r2-d2-capture-qr ;;
-  *) show_main_menu ;;
-  esac
-}
-
-get_webcam_list() {
-  v4l2-ctl --list-devices 2>/dev/null | while IFS= read -r line; do
-    if [[ $line != $'\t'* && -n $line ]]; then
-      local name="$line"
-      IFS= read -r device || break
-      device=$(echo "$device" | tr -d '\t' | head -1)
-      [[ -n $device ]] && echo "$device  $name"
-    fi
-  done
-}
-
-show_webcam_select_menu() {
-  local devices
-  devices=$(get_webcam_list)
-  local count
-  count=$(echo "$devices" | grep -c . 2>/dev/null || echo 0)
-
-  if [[ -z $devices ]] || ((count == 0)); then
-    notify-send "No webcam devices found" -u critical -t 3000
-    return 1
-  fi
-
-  if ((count == 1)); then
-    echo "$devices" | awk '{print $1}'
+bool() {
+  if "$@" >/dev/null 2>&1; then
+    echo true
   else
-    menu "Select Webcam" "$devices" | awk '{print $1}'
+    echo false
   fi
-}
-
-show_screenrecord_menu() {
-  r2-d2-cmd-screenrecord --stop-recording && exit 0
-
-  case $(menu "Screenrecord" "  With no audio\n  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
-  *"With no audio") r2-d2-cmd-screenrecord ;;
-  *"With desktop audio") r2-d2-cmd-screenrecord --with-desktop-audio ;;
-  *"With desktop + microphone audio + webcam")
-    local device
-    device=$(show_webcam_select_menu) || {
-      back_to show_trigger_menu
-      return
-    }
-    r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
-    ;;
-  *"With desktop + microphone audio") r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
-  *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_share_menu() {
-  case $(menu "Share" "  Clipboard\n  File \n  Folder") in
-  *Clipboard*) r2-d2-cmd-share clipboard ;;
-  *File*) terminal bash -c "r2-d2-cmd-share file" ;;
-  *Folder*) terminal bash -c "r2-d2-cmd-share folder" ;;
-  *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_toggle_menu() {
-  case $(menu "Toggle" "󰍜  Top bar\n󰍹  Display\n󰍺  Mirror\n󰂵  Notifications\n󱫖  Idle\n󱂬  Layout\n󰍹  Scaling\n󱄄  Screensaver\n󰻌  Crash capture") in
-  *"Top bar"*) r2-d2-toggle-waybar ;;
-  *Display*) r2-d2-toggle-builtin-display ;;
-  *Mirror*) r2-d2-toggle-display-mirror ;;
-  *Notifications*) r2-d2-toggle-notification-silencing ;;
-  *Idle*) r2-d2-toggle-idle ;;
-  *Layout*) r2-d2-hyprland-workspace-layout-toggle ;;
-  *Scaling*) r2-d2-hyprland-monitor-scaling-toggle ;;
-  *Screensaver*) r2-d2-toggle-screensaver ;;
-  *"Crash capture"*) r2-d2-toggle-crash-capture ;;
-  *) back_to show_trigger_menu ;;
-  esac
-}
-
-show_setup_menu() {
-  local options="  Text size\n  Default apps\n󰍹  Monitors\n  System Sleep\n󰱔  DNS\n  Security\n  Dictation (Voxtype)\n📷  Fix webcam (AMD)\n  Dependencies\n󰒲  Reset sudo (lockout)"
-
-  case $(menu "Setup" "$options") in
-  *Text*) show_setup_text_size_menu ;;
-  *Default*) show_setup_default_apps_menu ;;
-  *Monitor*) show_setup_monitor_menu ;;
-  *System*) show_setup_system_menu ;;
-  *DNS*) present_terminal r2-d2-setup-dns ;;
-  *Security*) show_setup_security_menu ;;
-  *Dictation*) show_setup_dictation_menu ;;
-  *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
-  *Depend*) present_terminal r2-d2-cmd-doctor ;;
-  *Reset*) present_terminal r2-d2-reset-sudo ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_setup_text_size_menu() {
-  local current choice
-  current=$(r2-d2-display-text-size 2>/dev/null | awk '/^text size:/{print $3}')
-  choice=$(menu "Text size" "Small (10)\nDefault (12)\nLarge (14)\nLarger (16)\nCustom…" "" "${current:-12}")
-
-  case "$choice" in
-  CNCLD | "")
-    back_to show_setup_menu
-    ;;
-  *10*)
-    r2-d2-display-text-size 10
-    ;;
-  *12*)
-    r2-d2-display-text-size 12
-    ;;
-  *14*)
-    r2-d2-display-text-size 14
-    ;;
-  *16*)
-    r2-d2-display-text-size 16
-    ;;
-  *Custom*)
-    size=$(gum input --placeholder "Text size 9–20" --value "${current:-12}")
-    [[ -n $size && $size != "CNCLD" ]] && r2-d2-display-text-size "$size"
-    ;;
-  esac
-}
-
-show_dictation_model_menu() {
-  local current choice
-  current=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]')
-  choice=$(menu "Dictation model" "tiny.en\nbase.en\nsmall.en\nmedium.en\nlarge-v3-turbo" "" "${current:-small.en}")
-
-  case $choice in
-  CNCLD | "")
-    show_setup_dictation_menu
-    ;;
-  *)
-    present_terminal "r2-d2-voxtype-model $choice"
-    ;;
-  esac
-}
-
-show_setup_dictation_menu() {
-  case $(menu "Dictation" "  Config\n󱚤  Model\n󰒲  Status") in
-  *Config*) present_terminal r2-d2-voxtype-config ;;
-  *Model*) show_dictation_model_menu ;;
-  *Status*) present_terminal r2-d2-voxtype-status ;;
-  *) show_setup_menu ;;
-  esac
-}
-
-show_setup_security_menu() {
-  local options="󰈷  Fingerprint\n  Fido2"
-
-  if r2-d2-sudo-docker --configured; then
-    options="$options\n  Sudoless Docker"
-  else
-    options="$options\n  Disable Sudoless Docker"
-  fi
-
-  case $(menu "Setup" "$options") in
-  *Fingerprint*) present_terminal r2-d2-setup-fingerprint ;;
-  *Fido2*) present_terminal r2-d2-setup-fido2 ;;
-  *"Disable Sudoless Docker"*) present_terminal r2-d2-remove-security-sudoless-docker ;;
-  *"Sudoless Docker"*) present_terminal r2-d2-setup-security-sudoless-docker ;;
-  *) show_setup_menu ;;
-  esac
-}
-
-show_setup_system_menu() {
-  local options=""
-
-  if [[ -f ~/.local/state/r2-d2/toggles/suspend-off ]]; then
-    options="$options󰒲  Enable Suspend"
-  else
-    options="$options󰒲  Disable Suspend"
-  fi
-
-  if r2-d2-hibernation-available; then
-    options="$options\n󰤁  Disable Hibernate"
-  else
-    options="$options\n󰤁  Enable Hibernate"
-  fi
-
-  r2-d2-hw-laptop && options="$options\n󰌢  Lid"
-
-  case $(menu "System" "$options") in
-  *Suspend*) r2-d2-toggle-suspend ;;
-  *"Enable Hibernate"*) present_terminal r2-d2-hibernation-setup ;;
-  *"Disable Hibernate"*) present_terminal r2-d2-hibernation-remove ;;
-  *Lid*) show_setup_lid_menu ;;
-  *) show_setup_menu ;;
-  esac
-}
-
-show_setup_lid_menu() {
-  local current="" policy
-
-  if ! r2-d2-hw-laptop; then
-    r2-d2-notification-send "Lid close" "This machine has no lid"
-    back_to show_setup_system_menu
-    return
-  fi
-
-  policy=$(r2-d2-system-lid-policy status)
-  case $policy in
-  suspend) current="󰒲  Suspend" ;;
-  lock) current="  Lock" ;;
-  ignore) current="󰈈  Keep running" ;;
-  esac
-
-  case $(menu "Lid close" "󰒲  Suspend\n  Lock\n󰈈  Keep running" "" "$current") in
-  *Suspend*) present_terminal "r2-d2-system-lid-policy suspend" ;;
-  *Lock*) present_terminal "r2-d2-system-lid-policy lock" ;;
-  *Keep*) present_terminal "r2-d2-system-lid-policy ignore" ;;
-  *) back_to show_setup_system_menu ;;
-  esac
-}
-
-show_setup_default_app_choice() {
-  local category=$1
-  local title=$2
-  local options current choice desktop
-
-  options=$(r2-d2-setup-default-apps list "$category")
-  current=$(r2-d2-setup-default-apps current "$category")
-  if [[ -n $current ]] && ! grep -qxF "$current" <<<"$options"; then
-    if [[ -n $options ]]; then
-      options="${current}"$'\n'"${options}"
-    else
-      options=$current
-    fi
-  fi
-
-  if [[ -z $options ]]; then
-    r2-d2-notification-send "Default apps" "No installed app handles ${category} files"
-    back_to show_setup_default_apps_menu
-    return
-  fi
-
-  choice=$(menu "$title" "$options" "" "$current")
-  case $choice in
-  CNCLD | "")
-    back_to show_setup_default_apps_menu
-    ;;
-  *)
-    desktop=${choice%%  *}
-    r2-d2-setup-default-apps set "$category" "$desktop"
-    ;;
-  esac
-}
-
-show_setup_default_apps_menu() {
-  case $(menu "Default apps" "  Text\n  PDF\n  Images\n  Video") in
-  *Text*) show_setup_default_app_choice text "Text" ;;
-  *PDF*) show_setup_default_app_choice pdf "PDF" ;;
-  *Image*) show_setup_default_app_choice images "Images" ;;
-  *Video*) show_setup_default_app_choice video "Video" ;;
-  *) back_to show_setup_menu ;;
-  esac
-}
-
-show_setup_monitor_menu() {
-  case $(menu "Monitors" "󰍹  Save docked\n󰍹  Save laptop\n󰍺  Apply docked\n󰍺  Apply laptop") in
-  *"Save docked"*) r2-d2-hyprland-monitor-profile save docked ;;
-  *"Save laptop"*) r2-d2-hyprland-monitor-profile save laptop ;;
-  *"Apply docked"*) r2-d2-hyprland-monitor-profile apply docked ;;
-  *"Apply laptop"*) r2-d2-hyprland-monitor-profile apply laptop ;;
-  *) back_to show_setup_menu ;;
-  esac
-}
-
-show_restart_menu() {
-  case $(menu "Restart" "󰍜  Shell\n󰍜  Walker\n󰍜  Pipewire\n󰍜  Terminal\n󰍜  Wifi\n󰍜  Bluetooth\n󰍜  Hyprctl") in
-  *Shell*) r2-d2-restart-shell ;;
-  *Walker*) r2-d2-restart-walker ;;
-  *Pipewire*) r2-d2-restart-pipewire ;;
-  *Terminal*) r2-d2-restart-terminal ;;
-  *Wifi*) r2-d2-restart-wifi ;;
-  *Bluetooth*) r2-d2-restart-bluetooth ;;
-  *Hyprctl*) r2-d2-restart-hyprctl ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_install_menu() {
-  case $(menu "Install" "󰣇  Package\n󰣇  AUR\n  Web App\n󰣇  AppImage\n󰵮  Development\n󰆼  Editor\n󰚩  K-2SO (companion)\n󰊴  Gaming\n󰒲  Dropbox\n󰒲  Tailscale") in
-  *Package*) terminal r2-d2-pkg-install ;;
-  *AUR*) terminal r2-d2-pkg-aur-install ;;
-  *Web*) present_terminal r2-d2-webapp-install ;;
-  *AppImage*) present_terminal r2-d2-appimage-install ;;
-  *Development*) show_install_development_menu ;;
-  *Editor*) show_install_editor_menu ;;
-  *"K-2SO (companion)"*) present_terminal r2-d2-install-k2so ;;
-  *Gaming*) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
-  *Dropbox*) present_terminal r2-d2-install-dropbox ;;
-  *Tailscale*) present_terminal r2-d2-install-tailscale ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_install_editor_menu() {
-  case $(menu "Install" "󰆾  Cursor\n󰨞  VS Code\n󰆼  T3 Code\n  OpenCode\n󰚩  Hermes") in
-  *Cursor*) present_terminal "r2-d2-install-editor cursor" ;;
-  *"VS Code"*) present_terminal "r2-d2-install-editor vscode" ;;
-  *"T3 Code"*) present_terminal "r2-d2-install-editor t3code" ;;
-  *OpenCode*) present_terminal "r2-d2-install-editor opencode" ;;
-  *Hermes*) present_terminal "r2-d2-install-editor hermes" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-show_install_development_menu() {
-  case $(menu "Install" "  Node.js\n  Go\n  Python\n  Rust") in
-  *Node*) present_terminal "r2-d2-install-dev-env node" ;;
-  *Go*) present_terminal "r2-d2-install-dev-env go" ;;
-  *Python*) present_terminal "r2-d2-install-dev-env python" ;;
-  *Rust*) present_terminal "r2-d2-install-dev-env rust" ;;
-  *) show_install_menu ;;
-  esac
-}
-
-add_option() {
-  [[ -n $options ]] && options+=$'\n'
-  options+="$1"
 }
 
 any_desktop_exec() {
@@ -441,176 +76,301 @@ editor_present() {
   esac
 }
 
-show_remove_menu() {
-  local options=""
-
-  add_option "󰣇  Package"
-  add_option "󰒲  Drop package (by name)"
-
-  if any_desktop_exec '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler)'; then
-    add_option "  Web App"
-    add_option "  Web Apps (all)"
+menu_state() {
+  local text_size model lid dev_on editor_on dictation_on fingerprint_on fido2_on
+  text_size=$(r2-d2-display-text-size 2>/dev/null | awk '/^text size:/{print $3}')
+  [[ -n $text_size ]] || text_size=12
+  model=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]')
+  lid=""
+  if r2-d2-hw-laptop >/dev/null 2>&1; then
+    lid=$(r2-d2-system-lid-policy status 2>/dev/null | tr -d '[:space:]')
   fi
-
   if runtime_present node || runtime_present go || runtime_present python || runtime_present rust; then
-    add_option "󰵮  Development"
+    dev_on=true
+  else
+    dev_on=false
   fi
-
   if editor_present cursor || editor_present vscode || editor_present t3code || editor_present opencode || editor_present hermes; then
-    add_option "󰆼  Editor"
+    editor_on=true
+  else
+    editor_on=false
   fi
-
   if r2-d2-pkg-present voxtype-bin || r2-d2-cmd-present voxtype; then
-    add_option "  Dictation"
+    dictation_on=true
+  else
+    dictation_on=false
   fi
-
   if grep -q pam_fprintd.so /etc/pam.d/sudo 2>/dev/null || r2-d2-pkg-present fprintd; then
-    add_option "󰈷  Fingerprint"
+    fingerprint_on=true
+  else
+    fingerprint_on=false
   fi
-
   if [[ -f /etc/fido2/fido2 ]] || grep -q pam_u2f.so /etc/pam.d/sudo 2>/dev/null; then
-    add_option "  Fido2"
+    fido2_on=true
+  else
+    fido2_on=false
   fi
 
-  if ! r2-d2-sudo-docker --configured; then
-    add_option "  Sudoless Docker"
+  jq -n \
+    --argjson recording "$(bool pgrep -f '[g]pu-screen-recorder')" \
+    --argjson suspendOff "$(bool test -f "$HOME/.local/state/r2-d2/toggles/suspend-off")" \
+    --argjson hibernate "$(bool r2-d2-hibernation-available)" \
+    --argjson laptop "$(bool r2-d2-hw-laptop)" \
+    --argjson dockerSudoless "$(bool r2-d2-sudo-docker --configured)" \
+    --arg textSize "$text_size" \
+    --arg dictationModel "$model" \
+    --arg lid "$lid" \
+    --argjson webapp "$(bool any_desktop_exec '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler)')" \
+    --argjson development "$dev_on" \
+    --argjson editor "$editor_on" \
+    --argjson dictation "$dictation_on" \
+    --argjson fingerprint "$fingerprint_on" \
+    --argjson fido2 "$fido2_on" \
+    --argjson node "$(bool runtime_present node)" \
+    --argjson go "$(bool runtime_present go)" \
+    --argjson python "$(bool runtime_present python)" \
+    --argjson rust "$(bool runtime_present rust)" \
+    --argjson cursor "$(bool editor_present cursor)" \
+    --argjson vscode "$(bool editor_present vscode)" \
+    --argjson t3code "$(bool editor_present t3code)" \
+    --argjson opencode "$(bool editor_present opencode)" \
+    --argjson hermes "$(bool editor_present hermes)" \
+    '{
+      recording: $recording,
+      suspendOff: $suspendOff,
+      hibernate: $hibernate,
+      laptop: $laptop,
+      dockerSudoless: $dockerSudoless,
+      textSize: $textSize,
+      dictationModel: $dictationModel,
+      lid: $lid,
+      remove: {
+        webapp: $webapp,
+        development: $development,
+        editor: $editor,
+        dictation: $dictation,
+        fingerprint: $fingerprint,
+        fido2: $fido2,
+        node: $node,
+        go: $go,
+        python: $python,
+        rust: $rust,
+        cursor: $cursor,
+        vscode: $vscode,
+        t3code: $t3code,
+        opencode: $opencode,
+        hermes: $hermes
+      }
+    }'
+}
+
+get_webcam_list() {
+  v4l2-ctl --list-devices 2>/dev/null | while IFS= read -r line; do
+    if [[ $line != $'\t'* && -n $line ]]; then
+      local name="$line"
+      IFS= read -r device || break
+      device=$(echo "$device" | tr -d '\t' | head -1)
+      [[ -n $device ]] && echo "$device  $name"
+    fi
+  done
+}
+
+show_webcam_select_menu() {
+  local devices
+  devices=$(get_webcam_list)
+  local count
+  count=$(echo "$devices" | grep -c . 2>/dev/null || echo 0)
+
+  if [[ -z $devices ]] || ((count == 0)); then
+    r2-d2-notification-send "No webcam devices found" -u critical -t 3000
+    return 1
   fi
 
-  case $(menu "Remove" "$options") in
-  *Drop*) terminal r2-d2-pkg-drop ;;
-  *Package*) terminal r2-d2-pkg-remove ;;
-  *"Web Apps (all)"*) present_terminal r2-d2-webapp-remove-all ;;
-  *Web*) present_terminal r2-d2-webapp-remove ;;
-  *Development*) show_remove_development_menu ;;
-  *Editor*) show_remove_editor_menu ;;
-  *Dictation*) present_terminal r2-d2-voxtype-remove ;;
-  *Fingerprint*) present_terminal "r2-d2-setup-fingerprint --remove" ;;
-  *Fido2*) present_terminal "r2-d2-setup-fido2 --remove" ;;
-  *"Sudoless Docker"*) present_terminal r2-d2-remove-security-sudoless-docker ;;
-  *) show_main_menu ;;
+  if ((count == 1)); then
+    echo "$devices" | awk '{print $1}'
+  else
+    menu "Select Webcam" "$devices" | awk '{print $1}'
+  fi
+}
+
+pick_default_apps() {
+  local category=$1
+  local title=$2
+  local options current choice desktop
+
+  options=$(r2-d2-setup-default-apps list "$category")
+  current=$(r2-d2-setup-default-apps current "$category")
+  if [[ -n $current ]] && ! grep -qxF "$current" <<<"$options"; then
+    if [[ -n $options ]]; then
+      options="${current}"$'\n'"${options}"
+    else
+      options=$current
+    fi
+  fi
+
+  if [[ -z $options ]]; then
+    r2-d2-notification-send "Default apps" "No installed app handles ${category} files"
+    return
+  fi
+
+  choice=$(menu "$title" "$options" "" "$current")
+  case $choice in
+  CNCLD | "") return ;;
+  *)
+    desktop=${choice%%  *}
+    r2-d2-setup-default-apps set "$category" "$desktop"
+    ;;
   esac
 }
 
-show_remove_editor_menu() {
-  local options=""
+apply_text_size() {
+  local current size
+  current=$(r2-d2-display-text-size 2>/dev/null | awk '/^text size:/{print $3}')
+  size=$(gum input --placeholder "Text size 9–20" --value "${current:-12}")
+  [[ -n $size && $size != "CNCLD" ]] && r2-d2-display-text-size "$size"
+}
 
-  editor_present cursor && add_option "󰆾  Cursor"
-  editor_present vscode && add_option "󰨞  VS Code"
-  editor_present t3code && add_option "󰆼  T3 Code"
-  editor_present opencode && add_option "  OpenCode"
-  editor_present hermes && add_option "󰚩  Hermes"
-
-  case $(menu "Remove" "$options") in
-  *Cursor*) present_terminal "r2-d2-remove-editor cursor" ;;
-  *"VS Code"*) present_terminal "r2-d2-remove-editor vscode" ;;
-  *"T3 Code"*) present_terminal "r2-d2-remove-editor t3code" ;;
-  *OpenCode*) present_terminal "r2-d2-remove-editor opencode" ;;
-  *Hermes*) present_terminal "r2-d2-remove-editor hermes" ;;
-  *) show_remove_menu ;;
+run_action() {
+  case $1 in
+  screenshot) r2-d2-cmd-screenshot ;;
+  share.clipboard) r2-d2-cmd-share clipboard ;;
+  share.file) present_terminal "r2-d2-cmd-share file" ;;
+  share.folder) present_terminal "r2-d2-cmd-share folder" ;;
+  screenrecord.stop) r2-d2-cmd-screenrecord --stop-recording ;;
+  screenrecord.none) r2-d2-cmd-screenrecord ;;
+  screenrecord.desktop) r2-d2-cmd-screenrecord --with-desktop-audio ;;
+  screenrecord.mic) r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio ;;
+  screenrecord.webcam)
+    local device
+    device=$(show_webcam_select_menu) || exit 0
+    r2-d2-cmd-screenrecord --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
+    ;;
+  toggle.bar) r2-d2-toggle-waybar ;;
+  toggle.display) r2-d2-toggle-builtin-display ;;
+  toggle.mirror) r2-d2-toggle-display-mirror ;;
+  toggle.notifications) r2-d2-toggle-notification-silencing ;;
+  toggle.idle) r2-d2-toggle-idle ;;
+  toggle.layout) r2-d2-hyprland-workspace-layout-toggle ;;
+  toggle.scaling) r2-d2-hyprland-monitor-scaling-toggle ;;
+  toggle.screensaver) r2-d2-toggle-screensaver ;;
+  toggle.crash) r2-d2-toggle-crash-capture ;;
+  capture.qr) r2-d2-capture-qr ;;
+  setup.dns) present_terminal r2-d2-setup-dns ;;
+  setup.webcam | webcam) present_terminal r2-d2-fix-amd-webcam ;;
+  setup.doctor | doctor) present_terminal r2-d2-cmd-doctor ;;
+  setup.reset-sudo) present_terminal r2-d2-reset-sudo ;;
+  text.10) r2-d2-display-text-size 10 ;;
+  text.12) r2-d2-display-text-size 12 ;;
+  text.14) r2-d2-display-text-size 14 ;;
+  text.16) r2-d2-display-text-size 16 ;;
+  text.custom) present_terminal "r2-d2-menu run text.apply" ;;
+  text.apply) apply_text_size ;;
+  defaults.text) pick_default_apps text "Text" ;;
+  defaults.pdf) pick_default_apps pdf "PDF" ;;
+  defaults.images) pick_default_apps images "Images" ;;
+  defaults.video) pick_default_apps video "Video" ;;
+  monitors.save.docked) r2-d2-hyprland-monitor-profile save docked ;;
+  monitors.save.laptop) r2-d2-hyprland-monitor-profile save laptop ;;
+  monitors.apply.docked) r2-d2-hyprland-monitor-profile apply docked ;;
+  monitors.apply.laptop) r2-d2-hyprland-monitor-profile apply laptop ;;
+  sleep.suspend) r2-d2-toggle-suspend ;;
+  sleep.hibernate.on) present_terminal r2-d2-hibernation-setup ;;
+  sleep.hibernate.off) present_terminal r2-d2-hibernation-remove ;;
+  lid.suspend) present_terminal "r2-d2-system-lid-policy suspend" ;;
+  lid.lock) present_terminal "r2-d2-system-lid-policy lock" ;;
+  lid.ignore) present_terminal "r2-d2-system-lid-policy ignore" ;;
+  security.fingerprint) present_terminal r2-d2-setup-fingerprint ;;
+  security.fido2) present_terminal r2-d2-setup-fido2 ;;
+  security.docker.on) present_terminal r2-d2-setup-security-sudoless-docker ;;
+  security.docker.off) present_terminal r2-d2-remove-security-sudoless-docker ;;
+  dictation.config) present_terminal r2-d2-voxtype-config ;;
+  dictation.status) present_terminal r2-d2-voxtype-status ;;
+  dictation.model.tiny.en) present_terminal "r2-d2-voxtype-model tiny.en" ;;
+  dictation.model.base.en) present_terminal "r2-d2-voxtype-model base.en" ;;
+  dictation.model.small.en) present_terminal "r2-d2-voxtype-model small.en" ;;
+  dictation.model.medium.en) present_terminal "r2-d2-voxtype-model medium.en" ;;
+  dictation.model.large-v3-turbo) present_terminal "r2-d2-voxtype-model large-v3-turbo" ;;
+  restart.shell) r2-d2-restart-shell ;;
+  restart.walker) r2-d2-restart-walker ;;
+  restart.pipewire) r2-d2-restart-pipewire ;;
+  restart.terminal) r2-d2-restart-terminal ;;
+  restart.wifi) r2-d2-restart-wifi ;;
+  restart.bluetooth) r2-d2-restart-bluetooth ;;
+  restart.hyprctl) r2-d2-restart-hyprctl ;;
+  install.package) present_terminal r2-d2-pkg-install ;;
+  install.aur) present_terminal r2-d2-pkg-aur-install ;;
+  install.webapp) present_terminal r2-d2-webapp-install ;;
+  install.appimage) present_terminal r2-d2-appimage-install ;;
+  install.k2so) present_terminal r2-d2-install-k2so ;;
+  install.gaming) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
+  install.dropbox) present_terminal r2-d2-install-dropbox ;;
+  install.tailscale) present_terminal r2-d2-install-tailscale ;;
+  install.dev.node) present_terminal "r2-d2-install-dev-env node" ;;
+  install.dev.go) present_terminal "r2-d2-install-dev-env go" ;;
+  install.dev.python) present_terminal "r2-d2-install-dev-env python" ;;
+  install.dev.rust) present_terminal "r2-d2-install-dev-env rust" ;;
+  install.editor.cursor) present_terminal "r2-d2-install-editor cursor" ;;
+  install.editor.vscode) present_terminal "r2-d2-install-editor vscode" ;;
+  install.editor.t3code) present_terminal "r2-d2-install-editor t3code" ;;
+  install.editor.opencode) present_terminal "r2-d2-install-editor opencode" ;;
+  install.editor.hermes) present_terminal "r2-d2-install-editor hermes" ;;
+  remove.package) present_terminal r2-d2-pkg-remove ;;
+  remove.drop) present_terminal r2-d2-pkg-drop ;;
+  remove.webapp) present_terminal r2-d2-webapp-remove ;;
+  remove.webapps) present_terminal r2-d2-webapp-remove-all ;;
+  remove.dictation) present_terminal r2-d2-voxtype-remove ;;
+  remove.fingerprint) present_terminal "r2-d2-setup-fingerprint --remove" ;;
+  remove.fido2) present_terminal "r2-d2-setup-fido2 --remove" ;;
+  remove.docker) present_terminal r2-d2-remove-security-sudoless-docker ;;
+  remove.dev.node) present_terminal "r2-d2-remove-dev-env node" ;;
+  remove.dev.go) present_terminal "r2-d2-remove-dev-env go" ;;
+  remove.dev.python) present_terminal "r2-d2-remove-dev-env python" ;;
+  remove.dev.rust) present_terminal "r2-d2-remove-dev-env rust" ;;
+  remove.editor.cursor) present_terminal "r2-d2-remove-editor cursor" ;;
+  remove.editor.vscode) present_terminal "r2-d2-remove-editor vscode" ;;
+  remove.editor.t3code) present_terminal "r2-d2-remove-editor t3code" ;;
+  remove.editor.opencode) present_terminal "r2-d2-remove-editor opencode" ;;
+  remove.editor.hermes) present_terminal "r2-d2-remove-editor hermes" ;;
+  update.full) present_terminal r2-d2-update ;;
+  update.config) present_terminal r2-d2-update-config ;;
+  update.packages) present_terminal r2-d2-update-packages ;;
+  update.webcam) present_terminal r2-d2-fix-amd-webcam ;;
+  update.timezone) present_terminal "r2-d2-tz-select && r2-d2-update-time" ;;
+  update.password.drive) present_terminal r2-d2-drive-set-password ;;
+  update.password.user) present_terminal passwd ;;
+  reinstall.full) present_terminal r2-d2-reinstall ;;
+  reinstall.packages) present_terminal r2-d2-reinstall-pkgs ;;
+  reinstall.configs) present_terminal r2-d2-reinstall-configs ;;
+  reinstall.git) present_terminal r2-d2-reinstall-git ;;
+  about) r2-d2-launch-about ;;
+  system.screensaver) r2-d2-launch-screensaver force ;;
+  system.lock) r2-d2-lock-screen ;;
+  system.suspend) systemctl suspend ;;
+  system.hibernate) systemctl hibernate ;;
+  system.logout) r2-d2-system-logout ;;
+  system.reboot) r2-d2-system-reboot ;;
+  system.shutdown) r2-d2-system-shutdown ;;
+  *) exit 1 ;;
   esac
 }
 
-show_remove_development_menu() {
-  local options=""
-
-  runtime_present node && add_option "  Node.js"
-  runtime_present go && add_option "  Go"
-  runtime_present python && add_option "  Python"
-  runtime_present rust && add_option "  Rust"
-
-  case $(menu "Remove" "$options") in
-  *Node*) present_terminal "r2-d2-remove-dev-env node" ;;
-  *Go*) present_terminal "r2-d2-remove-dev-env go" ;;
-  *Python*) present_terminal "r2-d2-remove-dev-env python" ;;
-  *Rust*) present_terminal "r2-d2-remove-dev-env rust" ;;
-  *) show_remove_menu ;;
-  esac
-}
-
-show_update_menu() {
-  case $(menu "Update" "  R2-D2 (full)\n  Config (user config)\n󰣇  Packages\n📷  Webcam\n  Password\n  Timezone & Time\n󰒲  Reinstall") in
-  *"R2-D2 (full)"*) present_terminal r2-d2-update ;;
-  *Config*) present_terminal r2-d2-update-config ;;
-  *Packages*) present_terminal r2-d2-update-packages ;;
-  *Webcam*) present_terminal r2-d2-fix-amd-webcam ;;
-  *Password*) show_update_password_menu ;;
-  *Timezone*) present_terminal "r2-d2-tz-select && r2-d2-update-time" ;;
-  *Reinstall*) show_reinstall_menu ;;
-  *) show_main_menu ;;
-  esac
-}
-
-show_reinstall_menu() {
-  case $(menu "Reinstall" "󰒲  Reinstall (full)\n󰣇  Reinstall packages only\n󰒲  Reinstall configs only\n󰒲  Reinstall git (re-clone)") in
-  *full*) present_terminal r2-d2-reinstall ;;
-  *packages*) present_terminal r2-d2-reinstall-pkgs ;;
-  *configs*) present_terminal r2-d2-reinstall-configs ;;
-  *git*) present_terminal r2-d2-reinstall-git ;;
-  *) show_update_menu ;;
-  esac
-}
-
-show_update_password_menu() {
-  case $(menu "Update Password" "  Drive Encryption\n  User") in
-  *Drive*) present_terminal r2-d2-drive-set-password ;;
-  *User*) present_terminal passwd ;;
-  *) show_update_menu ;;
-  esac
-}
-
-show_about() {
-  r2-d2-launch-about
-}
-
-show_system_menu() {
-  local options="  Lock\n󱄄  Screensaver"
-  [[ ! -f ~/.local/state/r2-d2/toggles/suspend-off ]] && options="$options\n󰒲  Suspend"
-  r2-d2-hibernation-available && options="$options\n󰤁  Hibernate"
-  options="$options\n󰍃  Logout\n󰜉  Restart\n󰐥  Shutdown"
-
-  case $(menu "System" "$options") in
-  *Screensaver*) r2-d2-launch-screensaver force ;;
-  *Lock*) r2-d2-lock-screen ;;
-  *Suspend*) systemctl suspend ;;
-  *Hibernate*) systemctl hibernate ;;
-  *Logout*) r2-d2-system-logout ;;
-  *Restart*) r2-d2-system-reboot ;;
-  *Shutdown*) r2-d2-system-shutdown ;;
-  *) back_to show_main_menu ;;
-  esac
-}
-
-show_main_menu() {
-  go_to_menu "$(menu "Go" "󰀻  Apps\n󱓞  Trigger\n  Setup\n󰍜  Restart\n󰉉  Install\n  Update\n󰭌  Remove\n  About\n  System")"
-}
-
-go_to_menu() {
-  case "${1,,}" in
-  *apps*) r2-d2-launch-walker ;;
-  *trigger*) show_trigger_menu ;;
-  *capture*) show_capture_menu ;;
-  *share*) show_share_menu ;;
-  *screenrecord*) show_screenrecord_menu ;;
-  *toggle*) show_toggle_menu ;;
-  *setup*) show_setup_menu ;;
-  *lid*) show_setup_lid_menu ;;
-  *defaults*) show_setup_default_apps_menu ;;
-  *monitors*) show_setup_monitor_menu ;;
-  *doctor*) present_terminal r2-d2-cmd-doctor ;;
-  *webcam*) present_terminal r2-d2-fix-amd-webcam ;;
-  *restart*) show_restart_menu ;;
-  *install*) show_install_menu ;;
-  *remove*) show_remove_menu ;;
-  *update*) show_update_menu ;;
-  *about*) show_about ;;
-  *system*) show_system_menu ;;
-  esac
-}
-
-if [[ -n $1 ]]; then
-  BACK_TO_EXIT=true
-  go_to_menu "$1"
-else
-  toggle_existing_menu
-  show_main_menu
-fi
+case ${1:-} in
+state) menu_state ;;
+run)
+  [[ -n ${2:-} ]] || exit 1
+  run_action "$2"
+  ;;
+"")
+  open_menu root
+  ;;
+screenrecord)
+  r2-d2-cmd-screenrecord --stop-recording && exit 0
+  open_menu screenrecord
+  ;;
+doctor | webcam | about)
+  run_action "$1"
+  ;;
+*)
+  open_menu "$1"
+  ;;
+esac

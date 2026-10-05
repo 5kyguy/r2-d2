@@ -1,8 +1,8 @@
 # Menu and keybindings
 
-The **R2-D2 menu** is implemented by `bin/r2-d2-menu`. Open it with **Super + Alt + Space** or by clicking the R2-D2 icon in the shell bar.
+The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` runs the actions). **Super + Alt + Space**, the bar logo, and `r2-d2-menu` show the top level. Type to search every entry. Enter opens a category or runs its action. Backspace on an empty query goes up one level, and closes once it is back at the level you opened. **Super + Space** stays the app and answer bar: a matching app is selected, and a menu action that matches sits below that, above Google and Ask K-2SO.
 
-Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-d2-menu install`, `r2-d2-menu system`, `r2-d2-menu restart`, `r2-d2-menu share`, `r2-d2-menu screenrecord`, `r2-d2-menu toggle`, `r2-d2-menu capture`, `r2-d2-menu webcam`. Audio, Wi-Fi, Bluetooth, and power open from the top bar.
+`r2-d2-menu <submenu>` opens that level (`install`, `system`, `screenrecord`, `setup`, and the rest). `r2-d2-menu doctor` and `r2-d2-menu webcam` still run those actions directly. Audio, Wi-Fi, Bluetooth, and power open from the top bar. Picking a webcam or a default app still uses Walker, because those lists are built when you choose them.
 
 ---
 
@@ -12,7 +12,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 
 | Entry | Action |
 | ----- | ------ |
-| **Apps** | App launcher (Walker) |
+| **Apps** | App search in the command bar |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
@@ -96,7 +96,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | Keybinding | Action |
 | ---------- | ------ |
 | **Super + Space** | Command bar |
-| **Super + Alt + Space** | R2-D2 menu |
+| **Super + Alt + Space** | R2-D2 menu (command bar) |
 | **Super + Escape** | System menu (lock, suspend, reboot, etc.) |
 | **XF86PowerOff** | System menu |
 | **Super + Ctrl + Space** | Background selector (wallpaper + accent theme) |

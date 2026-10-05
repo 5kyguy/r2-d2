@@ -1,6 +1,6 @@
 {
   "hotkey": "",
-  "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "search"],
+  "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "menu", "search"],
   "math": { "precision": 10 },
   "currency": { "home": "USD", "favorites": ["EUR", "GBP"] },
   "emoji": { "onEnter": "paste" },

@@ -8,6 +8,7 @@ import qs.Ui
 import "lib/Engine.js" as Engine
 import "lib/tzcities.js" as Tz
 import "lib/Hotkey.js" as Hotkey
+import "providers/menu.js" as Menu
 
 // Spotlight-style command bar. The UI and the data it needs (config, exchange
 // rates, zone offsets) live here; what a query *means* is decided by the
@@ -21,6 +22,14 @@ Item {
   property bool opened: false
   property int selectedIndex: 0
   property var results: []
+  // Set while Super+Alt+Space (or r2-d2-menu) has the bar on a menu level.
+  // Empty means the normal app and answer search.
+  property string menuId: ""
+  // The level this open started at. Backspace closes once it gets back here,
+  // so Alt+Print on Screenrecord does not walk up into Trigger.
+  property string menuRoot: ""
+  property var menuState: ({})
+  property bool menuStateQueued: false
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string pluginDir: String(Qt.resolvedUrl(".")).replace(/^file:\/\//, "").replace(/\/$/, "")
@@ -92,7 +101,8 @@ Item {
   }
   property int cardWidth: Math.min(Style.space(640), panel.width - Style.gapsOut * 2)
 
-  // Nothing is listed until there's a query, so an empty bar is just the input.
+  // An empty search bar is just the input. An open menu level lists that level
+  // before anything is typed.
   readonly property var rows: results
 
   // ---------------------------------------------------------------- lifecycle
@@ -102,9 +112,25 @@ Item {
   function open(payloadJson) {
     var payload = {}
     try { payload = JSON.parse(payloadJson || "{}") || {} } catch (e) {}
-    if (typeof payload.query === "string") {
-      input.text = payload.query
-      input.cursorPosition = payload.query.length
+    var requested = typeof payload.menu === "string" ? Menu.resolve(payload.menu) : ""
+    if (requested === "apps") {
+      if (root.opened && !root.menuId && !input.text) { root.dismiss(); return }
+      root.menuId = ""
+      root.menuRoot = ""
+      input.text = ""
+    } else if (requested) {
+      if (root.opened && root.menuId === requested && !input.text) { root.dismiss(); return }
+      root.menuId = requested
+      root.menuRoot = requested
+      input.text = ""
+      root.refreshMenuState()
+    } else {
+      root.menuId = ""
+      root.menuRoot = ""
+      if (typeof payload.query === "string") {
+        input.text = payload.query
+        input.cursorPosition = payload.query.length
+      }
     }
     root.opened = true
     root.selectedIndex = 0
@@ -113,8 +139,8 @@ Item {
     root.refreshWindows()
     root.recompute()   // the kept query may be time-sensitive ("time", "3pm to tokyo")
     // Like Spotlight: the last query comes back selected, so typing replaces it
-    // and an arrow key keeps it.
-    var given = typeof payload.query === "string"
+    // and an arrow key keeps it. A menu open starts empty, on the chosen level.
+    var given = typeof payload.query === "string" && !requested
     Qt.callLater(function() { input.forceActiveFocus(); if (!given) input.selectAll() })
   }
 
@@ -134,8 +160,40 @@ Item {
   // plain close (Esc, clicking outside) keeps the query for later.
   function finish() {
     input.text = ""
+    root.menuId = ""
+    root.menuRoot = ""
     root.selectedIndex = 0
     root.dismiss()
+  }
+
+  function menuBack() {
+    if (!root.menuId || root.menuId === "root" || root.menuId === root.menuRoot) { root.dismiss(); return }
+    root.menuId = Menu.parentOf(root.menuId) || "root"
+    root.selectedIndex = 0
+    if (input.text) input.text = ""
+    else root.recompute()
+  }
+
+  function refreshMenuState() {
+    if (menuStateProc.running) { root.menuStateQueued = true; return }
+    menuStateProc.running = true
+  }
+
+  Process {
+    id: menuStateProc
+    command: ["r2-d2-menu", "state"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        try { root.menuState = JSON.parse(text || "{}") } catch (e) { root.menuState = ({}) }
+        if (root.menuStateQueued) {
+          root.menuStateQueued = false
+          menuStateProc.running = true
+        } else if (root.opened) {
+          root.recompute()
+        }
+      }
+    }
   }
 
   function toggle() {
@@ -146,7 +204,7 @@ Item {
   // ---------------------------------------------------------------- queries
 
   function recompute() {
-    root.results = Engine.run(input.text, root.config, {
+    var services = {
       rates: root.rates,
       ratesStatus: root.ratesStatus,
       zones: root.zones,
@@ -157,9 +215,24 @@ Item {
       windows: root.windows,
       launches: root.launches,
       requestProcesses: root.requestProcesses,
-      requestRates: root.refreshRates
-    })
-    root.mode = Engine.mode(input.text, root.config)
+      requestRates: root.refreshRates,
+      menuState: root.menuState,
+      menuId: root.menuId
+    }
+    var query = input.text
+    if (root.menuId && !query.trim()) {
+      root.results = Menu.browse(root.menuId, root.menuState)
+    } else if (root.menuId) {
+      var found = Menu.search(query, root.menuState)
+      root.results = found.length ? found : Engine.run(query, root.config, services)
+    } else {
+      var rows = Engine.run(query, root.config, services)
+      var listed = false
+      for (var i = 0; i < rows.length; i++) if (rows[i].provider === "menu") listed = true
+      if (!listed) rows = Menu.splice(rows, Menu.providerRows(query, root.menuState))
+      root.results = rows
+    }
+    root.mode = root.menuId ? Menu.chip(root.menuId) : Engine.mode(query, root.config)
     if (root.selectedIndex >= root.rows.length) root.selectedIndex = Math.max(0, root.rows.length - 1)
     if (root.rows.length > 0) list.positionViewAtIndex(root.selectedIndex, ListView.Contain)
   }
@@ -188,6 +261,21 @@ Item {
     var row = root.rows[index]
     if (!row) return
     if (row.run) {
+      if (row.run.kind === "menu") {
+        root.menuId = row.run.target || "root"
+        root.selectedIndex = 0
+        root.refreshMenuState()
+        if (input.text) input.text = ""
+        else root.recompute()
+        return
+      }
+      if (row.run.kind === "apps") {
+        root.menuId = ""
+        root.selectedIndex = 0
+        if (input.text) input.text = ""
+        else root.recompute()
+        return
+      }
       root.finish()
       if (row.run.kind === "app") root.launchApp(row.run.target, row.run.action)
       else if (row.run.kind === "window") root.focusWindow(row.run.target)
@@ -616,6 +704,7 @@ Item {
     root.cacheRead("last-query", root.loadLastQuery)
     root.cacheRead("launches.json", root.loadLaunches)
     root.cacheRead("rates.json", root.loadRates)
+    root.refreshMenuState()
   }
 
   FileView {
@@ -839,7 +928,7 @@ Item {
               anchors.fill: parent
               verticalAlignment: Text.AlignVCenter
               visible: !input.text
-              text: "Search apps and windows, or type a sum"
+              text: root.menuId ? ("Search " + Menu.title(root.menuId)) : "Search apps and windows, or type a sum"
               color: root.foreground
               opacity: 0.4
               font: input.font
@@ -852,6 +941,10 @@ Item {
                 if (root.inHelpTopic) root.helpBack()
                 else if (input.text) input.text = ""
                 else root.dismiss()
+                event.accepted = true
+              } else if ((event.key === Qt.Key_Backspace || event.key === Qt.Key_Left)
+                         && root.menuId && !input.text && !input.selectedText) {
+                root.menuBack()
                 event.accepted = true
               } else if (event.key === Qt.Key_Down || (event.key === Qt.Key_N && event.modifiers & Qt.ControlModifier)) {
                 root.move(1); event.accepted = true
@@ -1143,7 +1236,7 @@ Item {
             spacing: Style.space(6)
 
             Text {
-              visible: root.inHelpTopic
+              visible: root.inHelpTopic || root.menuId !== ""
               anchors.verticalCenter: parent.verticalCenter
               text: "Back"
               color: root.foreground
@@ -1152,7 +1245,8 @@ Item {
               font.pixelSize: Style.font.caption
             }
             Keycap { visible: root.inHelpTopic; label: "Esc"; anchors.verticalCenter: parent.verticalCenter; foreground: root.foreground; fontFamily: root.fontFamily; rounded: root.cornerRadius > 0 }
-            Item { visible: root.inHelpTopic; width: Style.space(8); height: 1 }
+            Keycap { visible: !root.inHelpTopic && root.menuId !== ""; label: "⌫"; anchors.verticalCenter: parent.verticalCenter; foreground: root.foreground; fontFamily: root.fontFamily; rounded: root.cornerRadius > 0 }
+            Item { visible: root.inHelpTopic || root.menuId !== ""; width: Style.space(8); height: 1 }
 
             Text {
               visible: root.canComplete(root.selectedRow)
