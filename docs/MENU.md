@@ -20,7 +20,7 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 | **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
 | **About** | About / branding |
-| **System** | Screensaver, Lock, Suspend, Hibernate, Logout, Restart, Shutdown |
+| **System** | Lock, Screensaver, Suspend, Hibernate, Logout, Restart, Shutdown |
 
 ### Setup submenu
 

@@ -206,8 +206,8 @@ var NODES = [
   item("reinstall.configs", "reinstall", "Reinstall configs only", "󰒲", { run: "reinstall.configs" }),
   item("reinstall.git", "reinstall", "Reinstall git (re-clone)", "󰒲", { run: "reinstall.git" }),
 
-  item("system.screensaver", "system", "Screensaver", "󱄄", { run: "system.screensaver" }),
   item("system.lock", "system", "Lock", "", { run: "system.lock", keywords: "lock screen" }),
+  item("system.screensaver", "system", "Screensaver", "󱄄", { run: "system.screensaver" }),
   item("system.suspend", "system", "Suspend", "󰒲", { run: "system.suspend", when: "!suspendOff", keywords: "sleep" }),
   item("system.hibernate", "system", "Hibernate", "󰤁", { run: "system.hibernate", when: "hibernate" }),
   item("system.logout", "system", "Logout", "󰍃", { run: "system.logout" }),
