@@ -20,7 +20,7 @@ var COMMON = ["USD", "EUR", "GBP", "JPY", "CNY", "INR", "LKR", "AUD", "CAD", "CH
 
 // "rupee"/"rs" mean your home currency when it's a rupee, else INR.
 var RUPEES = ["INR", "LKR", "PKR", "NPR", "MUR", "SCR"]
-var homeCurrency = "USD"
+var homeCurrency = "INR"
 
 var TARGET_SEP = /\s+(?:to|in|into|as|->|=>|=)\s*$/
 
@@ -100,7 +100,7 @@ var provider = {
   name: "Currency",
   icon: "󰁰",
   commands: function(ctx) {
-    var home = String((ctx.settings && ctx.settings.home) || "USD").toLowerCase()
+    var home = String((ctx.settings && ctx.settings.home) || "INR").toLowerCase()
     var example = home === "usd" ? "100 eur to usd" : "100 usd to " + home
     return [{ title: "Convert currency", keywords: "currency exchange rate rates money forex fx", text: "Daily rates, saved for offline use", complete: example, select: true }]
   },
@@ -110,7 +110,7 @@ var provider = {
   ],
   match: function(query, ctx) {
     var settings = ctx.settings || {}
-    homeCurrency = String(settings.home || "USD").toUpperCase()
+    homeCurrency = String(settings.home || "INR").toUpperCase()
     var data = ctx.rates
     var rates = data && data.rates
     var q = parse(query, rates)

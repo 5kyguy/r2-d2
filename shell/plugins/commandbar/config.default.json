@@ -2,7 +2,7 @@
   "hotkey": "",
   "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "menu", "search"],
   "math": { "precision": 10 },
-  "currency": { "home": "USD", "favorites": ["EUR", "GBP"] },
+  "currency": { "home": "INR", "favorites": ["EUR", "GBP"] },
   "emoji": { "onEnter": "paste" },
   "time": { "zones": ["UTC", "America/New_York", "Europe/London"], "clock24": true },
   "commands": [
