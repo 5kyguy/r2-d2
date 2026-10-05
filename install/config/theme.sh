@@ -10,7 +10,7 @@ sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr
 # Set default background once
 BACKGROUND_DIR="$R2D2_PATH/backgrounds"
 mkdir -p "$BACKGROUND_DIR"
-ln -nsf "$BACKGROUND_DIR/dark_limits.jpg" "$BACKGROUND_DIR/@background"
+ln -nsf "$BACKGROUND_DIR/dark_white.png" "$BACKGROUND_DIR/@background"
 
 r2-d2-theme-apply --from-background
 
