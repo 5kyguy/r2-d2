@@ -120,7 +120,7 @@ menu_state() {
     --arg textSize "$text_size" \
     --arg dictationModel "$model" \
     --arg lid "$lid" \
-    --argjson webapp "$(bool any_desktop_exec '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler)')" \
+    --argjson webapp "$(bool any_desktop_exec '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler|helium(-browser)? --app)')" \
     --argjson development "$dev_on" \
     --argjson editor "$editor_on" \
     --argjson dictation "$dictation_on" \

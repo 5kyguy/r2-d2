@@ -24,7 +24,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 | ------ | ---- |
 | **fonts.sh** | Copies **r2-d2.ttf** and **manrope-variable.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
-| **webapps.sh** | Web app shortcuts via Helium when available: **WhatsApp**, **YouTube**, **X**. |
+| **webapps.sh** | Web app shortcuts in the default browser (Brave Origin): **WhatsApp**, **YouTube**, **X**. |
 | **tuis.sh** | Installs no TUI shortcuts. |
 
 ### 1.4 Config – keyboard (keyd)
@@ -101,7 +101,7 @@ thunar, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
-chromium (fallback). Default browser is **Brave Origin** (AUR package `brave-origin-nightly-bin`); **Helium** is used for web apps when available.
+**Brave Origin** (AUR package `brave-origin-nightly-bin`) is the default browser, including web apps. Chromium stays installed as a spare and is not used by the desktop.
 
 ### Containers and Docker
 
@@ -153,7 +153,7 @@ plocate, whois, unzip, exfatprogs, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, helium-browser-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
 
 ---
 

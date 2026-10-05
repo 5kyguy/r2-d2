@@ -1,6 +1,6 @@
 -- Browser types
 hl.window_rule({
-  match = { class = "((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[bB]rave-origin|com.brave.Origin|[mM]icrosoft-edge|Vivaldi-stable|helium)" },
+  match = { class = "((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[bB]rave-origin|com.brave.Origin|[mM]icrosoft-edge|Vivaldi-stable)" },
   tag = "+chromium-based-browser",
 })
 hl.window_rule({

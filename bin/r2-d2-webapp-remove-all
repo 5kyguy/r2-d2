@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Remove all web apps installed via r2-d2-webapp-install.
-# Identifies web apps by their Exec pattern (r2-d2-launch-webapp or r2-d2-webapp-handler).
+# Identifies web apps by their Exec line (the launcher, or an older Helium --app line).
 
 set -e
 
@@ -12,7 +12,7 @@ echo "Scanning for web apps in $APP_DIR..."
 
 webapp_desktop_files=()
 while IFS= read -r -d '' file; do
-  if grep -q "Exec=r2-d2-launch-webapp\|Exec=r2-d2-webapp-handler" "$file" 2>/dev/null; then
+  if grep -qE '^Exec=.*(r2-d2-launch-webapp|r2-d2-webapp-handler|helium(-browser)? --app)' "$file" 2>/dev/null; then
     webapp_desktop_files+=("$file")
   fi
 done < <(find "$APP_DIR" -maxdepth 1 -name "*.desktop" -print0 2>/dev/null)

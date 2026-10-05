@@ -114,7 +114,6 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + B** | Browser |
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | Cursor |
-| **Super + H** | Helium |
 | **Super + Y** | YouTube |
 | **Super + C / V / X** | Copy / paste / cut |
 

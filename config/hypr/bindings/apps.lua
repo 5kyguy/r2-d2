@@ -3,7 +3,6 @@ hl.bind("SUPER + RETURN", hl.dsp.exec_cmd('uwsm-app -- xdg-terminal-exec --dir="
 hl.bind("SUPER + B", hl.dsp.exec_cmd("r2-d2-launch-browser"), { description = "Browser" })
 hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("r2-d2-launch-browser --private"), { description = "Browser (private)" })
 hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm-app -- cursor"), { description = "Cursor" })
-hl.bind("SUPER + H", hl.dsp.exec_cmd("uwsm-app -- helium-browser"), { description = "Helium" })
 hl.bind("SUPER + Y", hl.dsp.exec_cmd("r2-d2-launch-or-focus YouTube uwsm-app -- gtk-launch YouTube"), { description = "YouTube" })
 hl.bind("SUPER + CTRL + N", hl.dsp.exec_cmd("uwsm-app -- thunar"), { description = "Thunar" })
 hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd("r2-d2-launch-or-focus WhatsApp uwsm-app -- gtk-launch WhatsApp"), { description = "WhatsApp" })

@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Launch the passed in URL as a web app in the default browser (or chromium if the default doesn't support --app).
+# Open the URL as an app window in the default browser. Brave Origin is that
+# default. Chromium is only the spare when the default browser has no --app flag.
 
 browser=$(xdg-settings get default-web-browser)
 
 case $browser in
-google-chrome* | brave-browser* | brave-origin* | microsoft-edge* | opera* | vivaldi* | helium*) ;;
+google-chrome* | brave-browser* | brave-origin* | microsoft-edge* | opera* | vivaldi*) ;;
 *) browser="chromium.desktop" ;;
 esac
 

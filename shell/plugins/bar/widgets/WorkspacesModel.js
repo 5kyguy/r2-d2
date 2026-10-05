@@ -369,7 +369,7 @@ function fallbackLetter(name, appId) {
 // "chrome-web.whatsapp.com__-Default" or "brave-app.hey.com__-Profile_1".
 // Returns the host ("web.whatsapp.com") or "" when the class is not one.
 function webAppHost(appId) {
-  var m = /^(?:chrome|chromium|brave|msedge|vivaldi|helium|opera)-([^_]+?)(?:__|_).*-(?:Default|Profile_\d+)$/i.exec(String(appId || ""))
+  var m = /^(?:chrome|chromium|brave|msedge|vivaldi|opera)-([^_]+?)(?:__|_).*-(?:Default|Profile_\d+)$/i.exec(String(appId || ""))
   return m ? m[1] : ""
 }
 
