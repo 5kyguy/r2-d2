@@ -1,0 +1,15 @@
+{
+  "hotkey": "",
+  "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "search"],
+  "math": { "precision": 10 },
+  "currency": { "home": "USD", "favorites": ["EUR", "GBP"] },
+  "emoji": { "onEnter": "paste" },
+  "time": { "zones": ["UTC", "America/New_York", "Europe/London"], "clock24": true },
+  "commands": [
+    { "keyword": "g", "title": "Search Google", "open": "https://www.google.com/search?q={q}" },
+    { "keyword": "yt", "title": "Search YouTube", "open": "https://www.youtube.com/results?search_query={q}" },
+    { "keyword": "gh", "title": "Search GitHub", "open": "https://github.com/search?q={q}" },
+    { "keyword": "wiki", "title": "Wikipedia", "open": "https://en.wikipedia.org/w/index.php?search={q}" },
+    { "keyword": "lock", "title": "Lock screen", "run": "r2-d2-lock-screen" }
+  ]
+}

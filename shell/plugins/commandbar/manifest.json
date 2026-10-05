@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.commandbar",
+  "name": "Command Bar",
+  "version": "1.2.0",
+  "author": "Saikomantisu",
+  "license": "MIT",
+  "description": "Spotlight-style command bar: app launcher, calculator, currency, time zones, date maths, emoji, kill process and your own keyword commands",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "CommandBar.qml"
+  },
+  "homepage": "https://github.com/Saikomantisu/omarchy-commandbar"
+}

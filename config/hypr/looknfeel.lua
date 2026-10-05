@@ -124,7 +124,7 @@ hl.animation({ leaf = "borderangle", enabled = true, speed = 3.5, bezier = "flow
 hl.layer_rule({ match = { namespace = "^r2-d2-bar$" }, no_anim = true, animation = "none" })
 hl.layer_rule({
   name = "blur_with_ignore_alpha",
-  match = { namespace = "^(walker|r2-d2-notifications|r2-d2-osd)$" },
+  match = { namespace = "^(walker|r2-d2-commandbar|r2-d2-notifications|r2-d2-osd)$" },
   blur = true,
   ignore_alpha = 0.1,
 })

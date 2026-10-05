@@ -12,7 +12,7 @@ Jump to a submenu directly: `r2-d2-menu <submenu>`, e.g. `r2-d2-menu apps`, `r2-
 
 | Entry | Action |
 | ----- | ------ |
-| **Apps** | App launcher (Walker), the same list as **Super + Space** |
+| **Apps** | App launcher (Walker) |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
@@ -95,7 +95,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 
 | Keybinding | Action |
 | ---------- | ------ |
-| **Super + Space** | App launcher (Walker) |
+| **Super + Space** | Command bar |
 | **Super + Alt + Space** | R2-D2 menu |
 | **Super + Escape** | System menu (lock, suspend, reboot, etc.) |
 | **XF86PowerOff** | System menu |
