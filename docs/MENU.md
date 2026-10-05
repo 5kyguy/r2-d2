@@ -102,7 +102,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Ctrl + Space** | Background selector (wallpaper + accent theme) |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker (Walker symbols) |
-| **Super + Ctrl + V** | Clipboard history |
+| **Super + \\** | Clipboard history |
 | **Super + A** | Ask K-2SO (text prompt) |
 | **Super + Alt + A** | K-2SO voice (Voxtype) |
 
@@ -114,14 +114,14 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + B** | Browser |
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | Cursor |
-| **Super + Y** | YouTube |
+| **Super + N** | Thunar |
 | **Super + C / V / X** | Copy / paste / cut |
 
 ### Apps (Super + Ctrl + letter)
 
 | Keybinding | Action |
 | ---------- | ------ |
-| **Super + Ctrl + N** | Thunar |
+| **Super + Ctrl + Y** | YouTube |
 | **Super + Ctrl + W** | WhatsApp |
 | **Super + Ctrl + X** | X |
 | **Super + Ctrl + G** | Steam |
@@ -159,8 +159,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Shift + 1..0** | Move window to workspace |
 | **Super + Shift + comma** | Move window to the previous monitor |
 | **Super + Shift + period** | Move window to the next monitor |
-| **Super + Tab / Shift+Tab** | Next / previous workspace |
-| **Super + Ctrl + Tab** | Former workspace |
+| **Super + Page Down / Page Up** | Next / previous workspace |
 | **Super + mouse** | Move/resize window; scroll changes workspace |
 | **Ctrl + Alt + Delete** | Close all windows |
 
@@ -170,7 +169,8 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | ---------- | ------ |
 | **Print** | Screenshot |
 | **Alt + Print** | Screenrecord menu |
-| **Super + Ctrl + D** | Dictate into the focused text field (hold, then release) |
+| **Super + Print** | Extract text (OCR) from the screen |
+| **Super + D** | Dictate into the focused text field (hold, then release) |
 | **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
 | **Super + XF86AudioMute** | Switch audio output |
 

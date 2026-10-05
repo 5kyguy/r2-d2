@@ -31,10 +31,8 @@ end
 hl.bind("SUPER + SHIFT + comma", hl.dsp.window.move({ monitor = "-1" }), { description = "Move window to previous monitor" })
 hl.bind("SUPER + SHIFT + period", hl.dsp.window.move({ monitor = "+1" }), { description = "Move window to next monitor" })
 
--- TAB between workspaces
-hl.bind("SUPER + TAB", hl.dsp.focus({ workspace = "e+1" }), { description = "Next workspace" })
-hl.bind("SUPER + SHIFT + TAB", hl.dsp.focus({ workspace = "e-1" }), { description = "Previous workspace" })
-hl.bind("SUPER + CTRL + TAB", hl.dsp.focus({ workspace = "previous" }), { description = "Former workspace" })
+hl.bind("SUPER + PAGE_DOWN", hl.dsp.focus({ workspace = "e+1" }), { description = "Next workspace" })
+hl.bind("SUPER + PAGE_UP", hl.dsp.focus({ workspace = "e-1" }), { description = "Previous workspace" })
 
 -- Scroll through existing workspaces with SUPER + scroll
 hl.bind("SUPER + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Scroll active workspace forward" })

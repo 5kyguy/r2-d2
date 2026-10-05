@@ -27,7 +27,7 @@ hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("r2-d2-hyprland-monitor-layout exte
 -- Captures (hardware keys)
 hl.bind("PRINT", hl.dsp.exec_cmd("r2-d2-cmd-screenshot"), { description = "Screenshot" })
 hl.bind("ALT + PRINT", hl.dsp.exec_cmd("r2-d2-menu screenrecord"), { description = "Screenrecording" })
-hl.bind("SUPER + CTRL + PRINT", hl.dsp.exec_cmd("r2-d2-capture-text-extraction"), { description = "Extract text (OCR) from screen" })
+hl.bind("SUPER + PRINT", hl.dsp.exec_cmd("r2-d2-capture-text-extraction"), { description = "Extract text (OCR) from screen" })
 
 -- Keyboard control for the slurp region picker (see r2-d2-capture-region).
 -- The binds live exactly as long as a selection layer is on screen (slurp
@@ -69,7 +69,7 @@ hl.on("layer.closed", function(layer)
   end
 end)
 
--- Hold Super + Ctrl + D to dictate into whatever text field is focused.
+-- Hold Super + D to dictate into whatever text field is focused.
 -- The release bind is universal so it still stops recording if a submap is active.
 hl.define_submap("voxtype_suppress", function()
   hl.bind("Super_L", hl.dsp.no_op())
@@ -83,8 +83,8 @@ hl.define_submap("voxtype_suppress", function()
   hl.bind("F12", hl.dsp.submap("reset"), { description = "Leave dictation output" })
 end)
 
-hl.bind("SUPER + CTRL + D", hl.dsp.exec_cmd("voxtype record start"), { description = "Dictate into the focused text field" })
-hl.bind("SUPER + CTRL + D", hl.dsp.exec_cmd("voxtype record stop"), { release = true, submap_universal = true, description = "Insert dictation" })
+hl.bind("SUPER + D", hl.dsp.exec_cmd("voxtype record start"), { description = "Dictate into the focused text field" })
+hl.bind("SUPER + D", hl.dsp.exec_cmd("voxtype record stop"), { release = true, submap_universal = true, description = "Insert dictation" })
 
 -- Lid switch: lock when undocked; always reconcile clamshell display state.
 hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("r2-d2-system-lid-close"), { locked = true })
