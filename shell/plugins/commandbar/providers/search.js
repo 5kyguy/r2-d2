@@ -23,10 +23,15 @@ var provider = {
   id: "search",
   name: "Search",
   icon: "󰍉",
-  help: [
-    { id: "search", title: "Search", about: "A query that names no app opens Google, with K-2SO on the next row",
-      examples: ["weather tomorrow"] }
-  ],
+  help: function(ctx) {
+    return [
+      { id: "search", title: "Search",
+        about: ctx && ctx.k2soPresent
+          ? "A query that names no app opens Google, with K-2SO on the next row"
+          : "A query that names no app opens Google",
+        examples: ["weather tomorrow"] }
+    ]
+  },
   match: function(query, ctx) {
     var q = String(query || "").trim()
     if (!q || keywordQuery(query, ctx.commands)) return []
@@ -34,12 +39,15 @@ var provider = {
     if (Apps.provider.match(query, ctx).length > 0) return []
 
     var google = "https://www.google.com/search?q=" + encodeURIComponent(q)
-    var ask = "if k2so ask " + shellQuote(q) + "; then "
-      + "r2-d2-notification-send -g '󰚩' 'K-2SO' 'Task queued' -t 3000; "
-      + "else r2-d2-notification-send -g '󰚩' --urgency critical 'K-2SO' 'Failed to queue task — is k2so serve running?' -t 5000; exit 1; fi"
-    return [
-      { title: "Google", subtitle: q, score: 40, icon: "󰖟", copy: q, run: { kind: "open", target: google, label: "search" } },
-      { title: "Ask K-2SO", subtitle: q, score: 39, icon: "󰚩", copy: q, run: { kind: "run", target: ask, label: "ask" } }
+    var rows = [
+      { title: "Google", subtitle: q, score: 40, icon: "󰖟", copy: q, run: { kind: "open", target: google, label: "search" } }
     ]
+    if (ctx && ctx.k2soPresent) {
+      var ask = "if k2so ask " + shellQuote(q) + "; then "
+        + "r2-d2-notification-send -g '󰚩' 'K-2SO' 'Task queued' -t 3000; "
+        + "else r2-d2-notification-send -g '󰚩' --urgency critical 'K-2SO' 'Failed to queue task — is k2so serve running?' -t 5000; exit 1; fi"
+      rows.push({ title: "Ask K-2SO", subtitle: q, score: 39, icon: "󰚩", copy: q, run: { kind: "run", target: ask, label: "ask" } })
+    }
+    return rows
   }
 }

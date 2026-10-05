@@ -85,6 +85,7 @@ function contextFor(p, config, services) {
     commands: (config && config.commands) || [],
     menuState: services.menuState || {},
     menuId: services.menuId || "",
+    k2soPresent: !!services.k2soPresent,
     requestProcesses: services.requestProcesses || null,
     requestRates: services.requestRates || null,
     now: services.now || function() { return new Date() },
@@ -303,7 +304,7 @@ function commandRows(query, config, services, existing) {
   return rows
 }
 
-// services: { rates, ratesStatus, zones, emojis, processes, apps, windows, launches, requestProcesses(), requestRates(), now() }
+// services: { rates, ratesStatus, zones, emojis, processes, apps, windows, launches, k2soPresent, requestProcesses(), requestRates(), now() }
 function run(query, config, services) {
   var q = String(query || "")
   if (!q.trim()) return []

@@ -30,6 +30,8 @@ Item {
   property string menuRoot: ""
   property var menuState: ({})
   property bool menuStateQueued: false
+  // Ask K-2SO is a row only when the k2so binary is on PATH.
+  property bool k2soPresent: false
 
   readonly property string home: Quickshell.env("HOME")
   readonly property string pluginDir: String(Qt.resolvedUrl(".")).replace(/^file:\/\//, "").replace(/\/$/, "")
@@ -137,6 +139,7 @@ Item {
     root.lastPointer = Qt.point(-1, -1)
     root.refreshZones()
     root.refreshWindows()
+    root.refreshK2so()
     root.recompute()   // the kept query may be time-sensitive ("time", "3pm to tokyo")
     // Like Spotlight: the last query comes back selected, so typing replaces it
     // and an arrow key keeps it. A menu open starts empty, on the chosen level.
@@ -217,7 +220,8 @@ Item {
       requestProcesses: root.requestProcesses,
       requestRates: root.refreshRates,
       menuState: root.menuState,
-      menuId: root.menuId
+      menuId: root.menuId,
+      k2soPresent: root.k2soPresent
     }
     var query = input.text
     if (root.menuId && !query.trim()) {
@@ -699,12 +703,28 @@ Item {
     function onValuesChanged() { appsDebounce.restart() }
   }
 
+  function refreshK2so() {
+    if (!k2soProc.running) k2soProc.running = true
+  }
+
+  Process {
+    id: k2soProc
+    command: ["bash", "-c", "command -v k2so >/dev/null"]
+    onExited: function(exitCode) {
+      var present = exitCode === 0
+      if (root.k2soPresent === present) return
+      root.k2soPresent = present
+      if (root.opened) root.recompute()
+    }
+  }
+
   Component.onCompleted: {
     appsDebounce.restart()
     root.cacheRead("last-query", root.loadLastQuery)
     root.cacheRead("launches.json", root.loadLaunches)
     root.cacheRead("rates.json", root.loadRates)
     root.refreshMenuState()
+    root.refreshK2so()
   }
 
   FileView {
