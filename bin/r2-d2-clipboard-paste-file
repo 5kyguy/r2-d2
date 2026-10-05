@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Copy a file onto the clipboard as a mime type, then paste it.
+# Usage: r2-d2-clipboard-paste-file [--copy-only] <mime-type> <path>
+
+copy_only=false
+
+if [[ ${1:-} == "--copy-only" ]]; then
+  copy_only=true
+  shift
+fi
+
+mime=${1:-}
+path=${2:-}
+
+if [[ -z $mime || -z $path ]]; then
+  echo "Usage: r2-d2-clipboard-paste-file [--copy-only] <mime-type> <path>" >&2
+  exit 1
+fi
+
+[[ -r $path ]] || exit 1
+
+wl-copy --type "$mime" < "$path"
+
+if [[ $copy_only == "true" ]]; then
+  exit
+fi
+
+sleep 0.15
+wtype -M shift -k Insert -m shift 2>/dev/null || true

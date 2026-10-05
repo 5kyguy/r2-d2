@@ -102,7 +102,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Ctrl + Space** | Background selector (wallpaper + accent theme) |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker (Walker symbols) |
-| **Super + Ctrl + V** | Clipboard manager |
+| **Super + Ctrl + V** | Clipboard history |
 | **Super + A** | Ask K-2SO (text prompt) |
 | **Super + Alt + A** | K-2SO voice (Voxtype) |
 
