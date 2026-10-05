@@ -28,7 +28,7 @@ This will:
 1. **Bootstrap (boot.sh)** — Set a working mirror (`geo.mirror.pkgbuild.com`, Arch's official geoIP mirror), update pacman, install git, remove any existing `~/.local/share/r2-d2/`, clone `5kyguy/r2-d2` from the `master` branch, then source `install.sh`
 2. **Run the installer** — Execute the full pipeline (preflight → packaging → config → login → post-install)
 
-The installer does **not** verify prerequisites (Arch Linux, x86_64, Btrfs root, Limine, Secure Boot off, no GNOME/KDE). Ensure they are met before running.
+`install/preflight/guard.sh` checks vanilla Arch, not root, x86_64, Secure Boot off, no GNOME or KDE, Limine, and a Btrfs root, and asks before continuing if one fails.
 
 ## In-session update
 
@@ -91,6 +91,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 **Phase 1 — Preflight** (`install/preflight/all.sh`)
 
+- **guard.sh** — Check vanilla Arch, not root, x86_64, Secure Boot off, no GNOME or KDE, Limine, and a Btrfs root
 - **begin.sh** — Clear screen, show “Installing…”, start install log
 - **pacman.sh** — Install base-devel; copy pacman.conf and mirrorlist; full sync and upgrade (`pacman -Syyuu`)
 - **migrations.sh** — Prepare migration state directory; migrations run at end of install (r2-d2-migrate)
@@ -100,7 +101,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 **Phase 2 — Packaging** (`install/packaging/all.sh`)
 
 - **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
-- **fonts.sh** — Copy R2-D2 font (r2-d2.ttf) to `~/.local/share/fonts`, run fc-cache
+- **fonts.sh** — Copy `r2-d2.ttf` and `manrope-variable.ttf` to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
 - **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X) in the default browser (Brave Origin)
 - **tuis.sh** — Installs no TUI shortcuts
@@ -108,18 +109,25 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 **Phase 3 — Config** (`install/config/all.sh`)
 
 - **config.sh** — Copy repo `config/*` user config to `~/.config/`, default bashrc to `~/.bashrc`
+- **voxtype.sh** — Download the `small.en` model and enable the user service
 - **default-config.sh** — Copy repo `default/config/*` support assets into their live `~/.config` locations
 - **theme.sh** — Wallpaper symlink, accent theme apply (`r2-d2-theme-apply`), sync themed config to `~/.config/` (`r2-d2-theme-sync-live`), Chromium policy dirs
 - **keyd.sh** — Deploy Caps Lock → Left Super via keyd (`default/keyd/default.conf` → `/etc/keyd/`); Caps Lock disabled
 - **branding.sh** — Copy the icon for fastfetch and the screensaver
 - **git, gpg, timezones** — User/config defaults
+- **sudoers-helpers.sh** — Passwordless sudoers for DNS presets and timezone changes
 - **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
 - **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Totem, Nano); terminal order from `default/config/xdg-terminals.list`. Change text, PDF, image, and video handlers later from Setup → Default apps
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
-- **kernel-modules-hook.sh, powerprofilesctl-rules.sh, wifi-powersave-rules.sh**
-- **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad
+- **oomd.sh** — Enable systemd-oomd for `app.slice` only
+- **zram.sh** — zram drop-in, and disable zswap in front of zram
+- **makima.sh** — Remap the Copilot key with makima
+- **kernel-modules-hook.sh, wifi-powersave-rules.sh**
+- **plocate-ac-only.sh** — Run the plocate database update only on AC power
+- **hardware/** — network, wireless regdom, Bluetooth, printer, USB autosuspend, power button, Vulkan (AMD), Synaptics touchpad, AMD ISP4 webcam
+- **unmount-fuse.sh** — Unmount gvfs FUSE before suspend or hibernate
 
 **Phase 4 — Login** (`install/login/all.sh`)
 
@@ -130,6 +138,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 **Phase 5 — Post-install** (`install/post-install/all.sh`)
 
+- **hibernation.sh** — Enable hibernation
 - **pacman.sh** — Final pacman.conf and mirrorlist
 - **r2-d2-migrate** — Run pending migrations (idempotent; safe on first install and re-run)
 - **allow-reboot.sh** — Sudoers for reboot

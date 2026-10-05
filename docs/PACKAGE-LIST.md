@@ -53,7 +53,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **150** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -61,7 +61,7 @@ base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, li
 
 ### Compositor and session
 
-hyprland, hypridle, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, quickshell, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell
+hyprland, hypridle, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, quickshell, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell, qt5-wayland
 
 ### Shell and CLI
 
@@ -81,7 +81,7 @@ networkmanager, avahi, nss-mdns, inetutils, net-tools, qrencode
 
 ### Fonts and icons
 
-fontconfig, noto-fonts, noto-fonts-emoji, ttf-cascadia-mono-nerd, ttf-jetbrains-mono-nerd, woff2-font-awesome
+fontconfig, noto-fonts, noto-fonts-cjk, noto-fonts-emoji, ttf-cascadia-mono-nerd, ttf-jetbrains-mono-nerd, woff2-font-awesome
 
 ### Secrets and session
 
@@ -93,7 +93,7 @@ xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland
 
 ### Screenshot, capture, sharing
 
-grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer, zbar
+grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer, zbar, tesseract, tesseract-data-eng
 
 ### File manager and GVfs
 
@@ -101,7 +101,7 @@ thunar, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
-**Brave Origin** (AUR package `brave-origin-nightly-bin`) is the default browser, including web apps. Chromium stays installed as a spare and is not used by the desktop.
+**Brave Origin** (AUR package `brave-origin-nightly-bin`) is the default browser, including web apps. `chromium` stays installed as a spare and is not used by the desktop.
 
 ### Containers and Docker
 
@@ -109,7 +109,7 @@ docker, docker-buildx, docker-compose
 
 ### Development and runtimes (base list)
 
-git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, luarocks, pnpm, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate
+git, github-cli, clang, llvm, python-pip, python-poetry-core, python-gobject, luarocks, pnpm, yarn, just, tree, jq, libyaml, xmlstarlet, mariadb-libs, postgresql-libs, libqalculate
 
 ### System info and monitoring
 
@@ -149,11 +149,13 @@ flatpak
 
 ### Misc
 
-plocate, whois, unzip, exfatprogs, wtype
+plocate, whois, unzip, exfatprogs, fuse2, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, walker, elephant (+ elephant-* providers), hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, walker, elephant, hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
+
+elephant-desktopapplications, elephant-websearch, elephant-menus, elephant-symbols, elephant-clipboard, elephant-calc, elephant-providerlist, elephant-files, elephant-runner, elephant-bluetooth, elephant-todo, elephant-unicode
 
 ---
 
@@ -166,10 +168,13 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
 | **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
+| **AppImage** | `r2-d2-appimage-install` |
 | **Development** | Node.js, Go, Python, Rust. |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes. Cursor is installed by default. Remove lists only editors that are installed. Removing Cursor or Voxtype stays off on later updates until you install that one again. Installing K-2SO still installs OpenCode when it is missing. |
 | **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
 | **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
+| **Dropbox** | `r2-d2-install-dropbox` |
+| **Tailscale** | `r2-d2-install-tailscale` |
 
 Background/wallpaper and accent theme are set via the background selector (**Super + Ctrl + Space**), not via the Install menu.
 
@@ -177,12 +182,12 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** 29 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Base pacman packages:** 150 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
 - **Default editors:** Cursor (AUR).
-- **Menu-installable:** Package (any), AUR (any), Web App, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), Gaming (Steam, Xbox controllers).
+- **Menu-installable:** Package (any), AUR (any), Web App, AppImage, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), K-2SO, Gaming (Steam, Xbox controllers), Dropbox, Tailscale.
 
 Use this list to adjust `install/r2-d2-base.packages` and menu entries when moving items between defaults and optionals.

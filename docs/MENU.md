@@ -17,7 +17,7 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
-| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
+| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, AppImages, firmware), Webcam, Password, Timezone & Time, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
 | **About** | About / branding |
 | **System** | Lock, Screensaver, Suspend, Hibernate, Logout, Restart, Shutdown |
@@ -30,7 +30,12 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 | **Default apps** | Choose the installed handler for text, PDF, images, or video |
 | **Monitors** | Save or apply a docked layout and a laptop layout |
 | **System sleep** | Suspend, hibernate, and on a laptop the lid-close policy |
+| **DNS** | DNS presets |
+| **Security** | Fingerprint, Fido2, Sudoless Docker |
+| **Dictation** | Config, model, status |
+| **Fix webcam (AMD)** | Rebuild AMD ISP4 webcam drivers |
 | **Dependencies** | Report missing base and AUR packages (`r2-d2-cmd-doctor`). Does not install them |
+| **Reset sudo** | Recover from a sudo lockout |
 
 Lid close is **Suspend**, **Lock**, or **Keep running**. Keep running leaves the machine on with the lid shut. An external screen still uses clamshell and does not suspend. Until a policy is chosen, closing the lid locks when no external screen is connected.
 
@@ -40,9 +45,9 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 
 | Entry | Action |
 | ----- | ------ |
-| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Scaling, Screensaver |
+| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Scaling, Screensaver, Crash capture |
 | **Screenshot** | `r2-d2-cmd-screenshot` |
-| **Screenrecord** | Screenrecord options (audio / webcam) |
+| **Screenrecord** | Stop, or record with no audio, desktop audio, a microphone, or a webcam |
 | **Share** | Clipboard, file, or folder |
 
 ---
@@ -87,7 +92,7 @@ Package and Drop package are always listed. Every other entry appears only when 
 
 ## Hyprland keybindings
 
-Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
+Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
 
 **Caps Lock → Super:** keyd maps Caps Lock to Super system-wide (`default/keyd/default.conf`). Hyprland **Super** bindings use the **Caps Lock** key (Left Win is also Super). Caps Lock lock state is disabled — use Shift for capitals.
 
@@ -151,7 +156,10 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Super + Ctrl + F** | Tiled fullscreen |
 | **Super + Alt + F** | Full width |
 | **Super + O** | Pop window (float & pin) |
+| **Super + J** | Toggle split orientation |
 | **Super + Arrow** | Move window focus |
+| **Super + Minus / Equal** | Decrease / increase window width |
+| **Super + Shift + Minus / Equal** | Decrease / increase window height |
 | **Super + W** | Close window |
 | **Super + S** | Toggle scratchpad |
 | **Super + Alt + S** | Move window to scratchpad |
@@ -171,7 +179,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.conf`).
 | **Alt + Print** | Screenrecord menu |
 | **Super + Print** | Extract text (OCR) from the screen |
 | **Super + D** | Dictate into the focused text field (hold, then release) |
-| **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `media.conf`) |
+| **XF86Audio\*** / **XF86MonBrightness\*** | Volume, mic, display brightness (see `bindings/media.lua`) |
 | **Super + XF86AudioMute** | Switch audio output |
 
 Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (no dedicated keybindings). **Share** is menu-only (**Trigger → Share**). Dictation models live in **Setup → Dictation → Model**. Nightlight, zoom, and per-window transparency shortcuts were removed from the default binding set.
@@ -182,7 +190,7 @@ Layout, scaling, idle, and screensaver toggles live in **Trigger → Toggle** (n
 
 - `r2-d2-menu trigger` — Trigger menu
 - `r2-d2-menu toggle` — Toggle submenu
-- `r2-d2-menu capture` — Screenshot + Screenrecord
+- `r2-d2-menu capture` — Screenshot, Screenrecord, QR code
 - `r2-d2-menu install` — Install menu
 - `r2-d2-menu update` — Update menu
 - `r2-d2-menu remove` — Remove menu

@@ -51,8 +51,8 @@ The daemon listens on a Unix socket (`~/.local/state/k2so/k2so.sock`) — only l
 
 **R2-D2** tools are registered in OpenCode as `r2d2_*` via the `mcp.r2d2` block in your `opencode.json`. Enabled tools are controlled by `config/r2-d2/mcp.toml`:
 
-- `lock_screen`, `screenshot`, `battery_remaining`
-- `toggle_nightlight`, `toggle_waybar`, `toggle_notification_silencing`
+- `lock_screen`, `screenshot`, `ocr`, `battery_remaining`
+- `toggle_nightlight`, `toggle_waybar`, `toggle_notification_silencing`, `notification_dismiss`
 - `theme_set_background`, `theme_set_accent`, `desktop_windows`
 - `open_application`, `volume_set`, `volume_toggle_mute`, `media_play_pause`, `clipboard_set`
 - `system_reboot`, `system_shutdown` (require `confirm: true`)
