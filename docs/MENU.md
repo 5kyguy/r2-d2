@@ -63,7 +63,7 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 | **Development** | Node.js, Go, Python, Rust |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes (`r2-d2-install-editor`). Cursor is installed by default. |
 | **K-2SO (companion)** | Install K-2SO background agent + `r2d2-mcp` (`r2-d2-install-k2so`) |
-| **Brook** | Offline music player (`r2-d2-install-brook`). **Super + M** starts it with no window |
+| **Brook** | Offline music player (`r2-d2-install-brook`). **Super + M** starts it with no window, and quits it when it is already running |
 | **Dropbox** | Install Dropbox |
 | **Tailscale** | Install Tailscale |
 
@@ -119,7 +119,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
 | **Super + B** | Browser |
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | Cursor |
-| **Super + M** | Brook, with no window, when it is installed |
+| **Super + M** | Brook with no window, or quit it when it is running |
 | **Super + N** | Thunar |
 | **Super + C / V / X** | Copy / paste / cut |
 

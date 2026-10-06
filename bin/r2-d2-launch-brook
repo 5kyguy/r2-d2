@@ -1,10 +1,14 @@
 #!/bin/bash
 
-# Start Brook with no window when it is installed.
+# Start Brook with no window, or quit it when that session is already running.
 
 if r2-d2-cmd-missing brook; then
   notify-send "Brook" "Not installed. Install it from the R2-D2 menu." -t 4000
   exit 0
+fi
+
+if pgrep -x brook >/dev/null; then
+  exec brook --quit
 fi
 
 exec setsid uwsm-app -- brook --headless

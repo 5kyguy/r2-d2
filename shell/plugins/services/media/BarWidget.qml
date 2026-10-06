@@ -1,5 +1,4 @@
 import QtQuick
-import Quickshell.Services.Mpris
 import qs.Ui
 import qs.Commons
 
@@ -14,8 +13,7 @@ BarWidget {
   readonly property string artist: activePlayer ? (activePlayer.trackArtist || "") : ""
   readonly property string artUrl: activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : ""
   readonly property bool shuffleOn: activePlayer ? activePlayer.shuffle === true : false
-  readonly property bool repeatOn: activePlayer && activePlayer.loopState !== MprisLoopState.None
-  readonly property string repeatIcon: activePlayer && activePlayer.loopState === MprisLoopState.Track ? "󰑘" : "󰑖"
+  readonly property color ink: bar ? bar.barForeground : Color.foreground
   property bool cardOpen: false
   property real playbackRatio: 0
 
@@ -31,16 +29,8 @@ BarWidget {
 
   function close() { cardOpen = false }
 
-  function cycleRepeat() {
-    var player = activePlayer
-    if (!player || !player.loopSupported) return
-    if (player.loopState === MprisLoopState.None) player.loopState = MprisLoopState.Playlist
-    else if (player.loopState === MprisLoopState.Playlist) player.loopState = MprisLoopState.Track
-    else player.loopState = MprisLoopState.None
-  }
-
   visible: hasMedia
-  implicitWidth: hasMedia ? row.implicitWidth : 0
+  implicitWidth: hasMedia ? row.implicitWidth + Style.space(16) : 0
   implicitHeight: barSize
 
   onHasMediaChanged: if (!hasMedia) cardOpen = false
@@ -53,10 +43,38 @@ BarWidget {
     onTriggered: root.refreshProgress()
   }
 
+  Rectangle {
+    anchors.fill: parent
+    radius: Math.min(height / 2, Style.cornerRadius)
+    color: Qt.rgba(root.ink.r, root.ink.g, root.ink.b, 0.1)
+  }
+
+  Rectangle {
+    anchors.left: parent.left
+    anchors.top: parent.top
+    anchors.bottom: parent.bottom
+    width: parent.width * root.playbackRatio
+    radius: Math.min(height / 2, Style.cornerRadius)
+    color: Qt.rgba(root.ink.r, root.ink.g, root.ink.b, 0.28)
+  }
+
   Row {
     id: row
+    anchors.left: parent.left
+    anchors.leftMargin: Style.space(8)
     anchors.verticalCenter: parent.verticalCenter
     spacing: Style.space(2)
+    z: 1
+
+    WidgetButton {
+      bar: root.bar
+      text: "󰒮"
+      horizontalMargin: 4
+      tooltipText: ""
+      dimmed: !root.activePlayer || !root.activePlayer.canGoPrevious
+      interactive: root.activePlayer && root.activePlayer.canGoPrevious
+      onPressed: if (root.mediaService) root.mediaService.runAction("previous", false)
+    }
 
     WidgetButton {
       bar: root.bar
@@ -78,16 +96,6 @@ BarWidget {
 
     WidgetButton {
       bar: root.bar
-      text: "󰒮"
-      horizontalMargin: 4
-      tooltipText: ""
-      dimmed: !root.activePlayer || !root.activePlayer.canGoPrevious
-      interactive: root.activePlayer && root.activePlayer.canGoPrevious
-      onPressed: if (root.mediaService) root.mediaService.runAction("previous", false)
-    }
-
-    WidgetButton {
-      bar: root.bar
       text: "󰒝"
       horizontalMargin: 4
       tooltipText: ""
@@ -100,46 +108,15 @@ BarWidget {
       }
     }
 
-    WidgetButton {
-      bar: root.bar
-      text: root.repeatIcon
-      horizontalMargin: 4
-      tooltipText: ""
-      active: root.repeatOn
-      dimmed: !root.activePlayer || !root.activePlayer.loopSupported
-      interactive: root.activePlayer && root.activePlayer.loopSupported
-      onPressed: root.cycleRepeat()
-    }
-
     Text {
       textFormat: Text.PlainText
       anchors.verticalCenter: parent.verticalCenter
       text: root.title + (root.artist ? "  ·  " + root.artist : "")
-      color: root.bar ? root.bar.barForeground : Color.foreground
+      color: root.ink
       font.family: root.bar ? root.bar.fontFamily : Style.font.family
       font.pixelSize: Style.font.body
       elide: Text.ElideRight
-      width: Math.min(implicitWidth, Style.space(160))
-    }
-
-    Item {
-      width: Style.space(72)
-      height: parent.height
-
-      Rectangle {
-        anchors.verticalCenter: parent.verticalCenter
-        width: parent.width
-        height: Style.space(3)
-        radius: height / 2
-        color: root.bar ? Qt.rgba(root.bar.barForeground.r, root.bar.barForeground.g, root.bar.barForeground.b, 0.28) : Color.foreground
-
-        Rectangle {
-          width: parent.width * root.playbackRatio
-          height: parent.height
-          radius: parent.radius
-          color: root.bar ? root.bar.barForeground : Color.foreground
-        }
-      }
+      width: Style.space(360)
     }
   }
 
