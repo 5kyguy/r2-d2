@@ -172,7 +172,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Development** | Node.js, Go, Python, Rust. |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes. Cursor is installed by default. Remove lists only editors that are installed. Removing Cursor or Voxtype stays off on later updates until you install that one again. Installing K-2SO still installs OpenCode when it is missing. |
 | **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
-| **Gaming** | Install Steam and Xbox controllers (`r2-d2-install-steam`, `r2-d2-install-xbox-controllers`). Steam is in base packages. |
+| **Brook** | `r2-d2-install-brook` — offline music player from GitHub releases. **Super + M** starts it with no window. |
 | **Dropbox** | `r2-d2-install-dropbox` |
 | **Tailscale** | `r2-d2-install-tailscale` |
 
@@ -188,6 +188,6 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 3 (WhatsApp, YouTube, X).
 - **Default editors:** Cursor (AUR).
-- **Menu-installable:** Package (any), AUR (any), Web App, AppImage, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), K-2SO, Gaming (Steam, Xbox controllers), Dropbox, Tailscale.
+- **Menu-installable:** Package (any), AUR (any), Web App, AppImage, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), K-2SO, Brook, Dropbox, Tailscale.
 
 Use this list to adjust `install/r2-d2-base.packages` and menu entries when moving items between defaults and optionals.

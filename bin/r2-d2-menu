@@ -302,7 +302,7 @@ run_action() {
   install.webapp) present_terminal r2-d2-webapp-install ;;
   install.appimage) present_terminal r2-d2-appimage-install ;;
   install.k2so) present_terminal r2-d2-install-k2so ;;
-  install.gaming) present_terminal "r2-d2-install-steam; r2-d2-install-xbox-controllers" ;;
+  install.brook) present_terminal r2-d2-install-brook ;;
   install.dropbox) present_terminal r2-d2-install-dropbox ;;
   install.tailscale) present_terminal r2-d2-install-tailscale ;;
   install.dev.node) present_terminal "r2-d2-install-dev-env node" ;;

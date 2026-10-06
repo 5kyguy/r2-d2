@@ -692,7 +692,7 @@ Item {
     var candidates = []
     for (var i = 0; i < moduleSlots.length; i++) {
       var slot = moduleSlots[i]
-      if (!slot || slot === sourceSlot || !slot.visible || slot.width <= 0 || slot.height <= 0) continue
+      if (!slot || slot === sourceSlot || slot.reorderable === false || !slot.visible || slot.width <= 0 || slot.height <= 0) continue
       if (sourceWindow && !root.sameWindow(root.slotWindow(slot), sourceWindow)) continue
 
       var slotPoint = { x: slot.x, y: slot.y }
@@ -1132,7 +1132,19 @@ Item {
         }
 
         RightModules {
+          id: rightCluster
           anchors.right: parent.right
+          anchors.rightMargin: Style.space(8)
+          anchors.verticalCenter: parent.verticalCenter
+        }
+
+        // Fixed in the gap between the clock cluster and the right cluster.
+        // Not a layout entry, so it is not dragged into shell.json.
+        ModuleSlot {
+          entry: ({ id: "r2-d2.media" })
+          region: "gap"
+          reorderable: false
+          anchors.right: rightCluster.left
           anchors.rightMargin: Style.space(8)
           anchors.verticalCenter: parent.verticalCenter
         }
@@ -1545,6 +1557,7 @@ Item {
 
     required property var entry
     property string region: ""
+    property bool reorderable: true
     readonly property string moduleName: root.entryId(entry)
     readonly property var moduleSettings: root.entrySettings(entry)
     readonly property string customType: root.customModuleType(entry)
@@ -1673,7 +1686,7 @@ Item {
       property bool suppressClick: false
       property real pressedX: 0
       property real pressedY: 0
-      readonly property bool canReorder: root.shell && typeof root.shell.mutateShellConfig === "function"
+      readonly property bool canReorder: slot.reorderable && root.shell && typeof root.shell.mutateShellConfig === "function"
       readonly property real dragThreshold: Style.space(4)
 
       anchors.fill: parent

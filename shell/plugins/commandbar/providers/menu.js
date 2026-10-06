@@ -153,7 +153,7 @@ var NODES = [
   item("install.dev", "install", "Development", "󰵮"),
   item("install.editor", "install", "Editor", "󰆼"),
   item("install.k2so", "install", "K-2SO (companion)", "󰚩", { run: "install.k2so", keywords: "agent" }),
-  item("install.gaming", "install", "Gaming", "󰊴", { run: "install.gaming", keywords: "steam xbox" }),
+  item("install.brook", "install", "Brook", "󰝚", { run: "install.brook", keywords: "music player" }),
   item("install.dropbox", "install", "Dropbox", "󰒲", { run: "install.dropbox" }),
   item("install.tailscale", "install", "Tailscale", "󰒲", { run: "install.tailscale" }),
 

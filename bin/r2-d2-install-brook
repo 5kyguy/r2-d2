@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Install Brook from GitHub releases into ~/.local/bin.
+
+if ! gum confirm "Install Brook, the offline music player?"; then
+  exit 0
+fi
+
+installer="$(mktemp)"
+if ! curl -fsSL https://raw.githubusercontent.com/5kyguy/brook/main/scripts/install.sh -o "$installer"; then
+  rm -f "$installer"
+  echo "Could not download the Brook installer." >&2
+  exit 1
+fi
+
+bash "$installer"
+status=$?
+rm -f "$installer"
+
+if (( status == 0 )); then
+  notify-send "Brook" "Installed. Super+M starts playback with no window." -t 8000
+fi
+
+exit "$status"

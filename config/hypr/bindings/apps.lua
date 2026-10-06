@@ -4,6 +4,7 @@ hl.bind("SUPER + B", hl.dsp.exec_cmd("r2-d2-launch-browser"), { description = "B
 hl.bind("SUPER + ALT + B", hl.dsp.exec_cmd("r2-d2-launch-browser --private"), { description = "Browser (private)" })
 hl.bind("SUPER + I", hl.dsp.exec_cmd("uwsm-app -- cursor"), { description = "Cursor" })
 hl.bind("SUPER + N", hl.dsp.exec_cmd("uwsm-app -- thunar"), { description = "Thunar" })
+hl.bind("SUPER + M", hl.dsp.exec_cmd("r2-d2-launch-brook"), { description = "Brook" })
 hl.bind("SUPER + CTRL + Y", hl.dsp.exec_cmd("r2-d2-launch-or-focus YouTube uwsm-app -- gtk-launch YouTube"), { description = "YouTube" })
 hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd("r2-d2-launch-or-focus WhatsApp uwsm-app -- gtk-launch WhatsApp"), { description = "WhatsApp" })
 hl.bind("SUPER + CTRL + X", hl.dsp.exec_cmd("r2-d2-launch-or-focus X uwsm-app -- gtk-launch X"), { description = "X" })
