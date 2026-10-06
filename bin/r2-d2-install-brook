@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Install Brook from GitHub releases into ~/.local/bin.
+# Install Brook from GitHub releases. The AppImage goes in ~/Applications.
 
 if ! gum confirm "Install Brook, the offline music player?"; then
   exit 0

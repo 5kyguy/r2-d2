@@ -168,11 +168,11 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
 | **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
-| **AppImage** | `r2-d2-appimage-install` |
+| **AppImage** | `r2-d2-appimage-install` — name and URL. Saves to `~/Applications` and uses the icon inside the AppImage. |
 | **Development** | Node.js, Go, Python, Rust. |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes. Cursor is installed by default. Remove lists only editors that are installed. Removing Cursor or Voxtype stays off on later updates until you install that one again. Installing K-2SO still installs OpenCode when it is missing. |
 | **K-2SO (companion)** | Install K-2SO background agent, clone/build from GitHub, enable `k2so.service` (`r2-d2-install-k2so`). |
-| **Brook** | `r2-d2-install-brook` — offline music player from GitHub releases. **Super + M** starts it with no window. |
+| **Brook** | `r2-d2-install-brook` — offline music player from GitHub releases. The AppImage goes in `~/Applications`. **Super + M** starts it with no window. |
 | **Dropbox** | `r2-d2-install-dropbox` |
 | **Tailscale** | `r2-d2-install-tailscale` |
 

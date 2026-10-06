@@ -17,7 +17,7 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
-| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, AppImages, firmware), Webcam, Password, Timezone & Time, Reinstall |
+| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
 | **About** | About / branding |
 | **System** | Lock, Screensaver, Suspend, Hibernate, Logout, Restart, Shutdown |
@@ -59,7 +59,7 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 | **Package** | Install from official repos (`r2-d2-pkg-install`) |
 | **AUR** | Install from AUR (`r2-d2-pkg-aur-install`) |
 | **Web App** | Create a web app shortcut (`r2-d2-webapp-install`) |
-| **AppImage** | Install an AppImage (`r2-d2-appimage-install`) |
+| **AppImage** | Download an AppImage from a URL into `~/Applications` and add a launcher. The icon comes from the file (`r2-d2-appimage-install`) |
 | **Development** | Node.js, Go, Python, Rust |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes (`r2-d2-install-editor`). Cursor is installed by default. |
 | **K-2SO (companion)** | Install K-2SO background agent + `r2d2-mcp` (`r2-d2-install-k2so`) |

@@ -8,54 +8,71 @@ DESKTOP_DIR="$HOME/.local/share/applications"
 
 mkdir -p "$APP_DIR" "$ICON_DIR" "$DESKTOP_DIR"
 
+extract_icon() {
+  local appimage=$1
+  local name=$2
+  local tmp resolved ext dest
+
+  tmp=$(mktemp -d)
+  if ! (cd "$tmp" && "$appimage" --appimage-extract >/dev/null 2>&1); then
+    rm -rf "$tmp"
+    echo "Warning: could not read an icon from the AppImage." >&2
+    return 1
+  fi
+
+  if [[ -e $tmp/squashfs-root/.DirIcon ]]; then
+    resolved=$(readlink -f "$tmp/squashfs-root/.DirIcon")
+  else
+    resolved=$(find "$tmp/squashfs-root" -type f \( -name '*.png' -o -name '*.svg' \) -printf '%s %p\n' | sort -nr | awk 'NR==1 { print $2 }')
+  fi
+
+  if [[ -z $resolved || ! -f $resolved ]]; then
+    rm -rf "$tmp"
+    echo "Warning: AppImage has no icon." >&2
+    return 1
+  fi
+
+  ext=${resolved##*.}
+  if [[ $ext != "png" && $ext != "svg" && $ext != "svgz" && $ext != "xpm" ]]; then
+    ext="png"
+  fi
+  dest="$ICON_DIR/$name.$ext"
+  cp "$resolved" "$dest"
+  rm -rf "$tmp"
+  printf '%s\n' "$dest"
+}
+
 INTERACTIVE_MODE=false
 
-if (($# < 3)); then
+if (($# < 2)); then
   echo -e "\e[32mLet's create an AppImage shortcut you can start with the app launcher.\n\e[0m"
   APP_NAME=$(gum input --prompt "Name> " --placeholder "My AppImage app")
-  APP_SOURCE=$(gum input --prompt "AppImage URL or local path> " --placeholder "https://example.com/app.AppImage or /path/to/app.AppImage")
-  ICON_REF=$(gum input --prompt "Icon URL or local path (optional)> " --placeholder "Leave blank for no custom icon")
-  EXTRA_ARGS=$(gum input --prompt "Extra arguments (optional)> " --placeholder "--flag1 --flag2")
+  APP_URL=$(gum input --prompt "URL> " --placeholder "https://example.com/app.AppImage")
   INTERACTIVE_MODE=true
 else
   APP_NAME="$1"
-  APP_SOURCE="$2"
-  ICON_REF="$3"
-  EXTRA_ARGS="${4:-}"
+  APP_URL="$2"
 fi
 
-if [[ -z $APP_NAME || -z $APP_SOURCE ]]; then
-  echo "You must set app name and AppImage URL or path!"
+if [[ -z $APP_NAME || -z $APP_URL ]]; then
+  echo "You must set a name and an AppImage URL."
+  exit 1
+fi
+
+if [[ ! $APP_URL =~ ^https?:// ]]; then
+  echo "Give an http or https URL."
   exit 1
 fi
 
 APP_TARGET="$APP_DIR/$APP_NAME.AppImage"
 
-if [[ -f $APP_SOURCE ]]; then
-  cp "$APP_SOURCE" "$APP_TARGET"
-else
-  echo "Downloading AppImage..."
-  curl -fsSL -o "$APP_TARGET" "$APP_SOURCE"
-fi
-
+echo "Downloading AppImage..."
+curl -fsSL -o "$APP_TARGET" "$APP_URL"
 chmod +x "$APP_TARGET"
 
 ICON_PATH=""
-if [[ -n $ICON_REF ]]; then
-  if [[ -f $ICON_REF && ! $ICON_REF =~ ^https?:// ]]; then
-    ICON_PATH="$ICON_REF"
-  else
-    ICON_PATH="$ICON_DIR/$APP_NAME.png"
-    if ! curl -fsSL -o "$ICON_PATH" "$ICON_REF"; then
-      echo "Warning: Failed to download icon; continuing without icon."
-      ICON_PATH=""
-    fi
-  fi
-fi
-
-EXEC_COMMAND="\"$APP_TARGET\""
-if [[ -n $EXTRA_ARGS ]]; then
-  EXEC_COMMAND="$EXEC_COMMAND $EXTRA_ARGS"
+if icon=$(extract_icon "$APP_TARGET" "$APP_NAME"); then
+  ICON_PATH=$icon
 fi
 
 DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
@@ -65,7 +82,7 @@ DESKTOP_FILE="$DESKTOP_DIR/$APP_NAME.desktop"
   echo "Version=1.0"
   echo "Name=$APP_NAME"
   echo "Comment=$APP_NAME"
-  echo "Exec=$EXEC_COMMAND"
+  echo "Exec=\"$APP_TARGET\""
   echo "Terminal=false"
   echo "Type=Application"
   if [[ -n $ICON_PATH ]]; then
