@@ -17,7 +17,7 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
 | **Install** | See [Install submenu](#install-submenu) |
-| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Webcam, Password, Timezone & Time, Reinstall |
+| **Update** | R2-D2 (full), Config, Packages (pacman, AUR, Flatpaks, firmware), Brook (when installed), Webcam, Password, Timezone & Time, Reinstall |
 | **Remove** | See [Remove submenu](#remove-submenu) |
 | **About** | About / branding |
 | **System** | Lock, Screensaver, Suspend, Hibernate, Logout, Restart, Shutdown |

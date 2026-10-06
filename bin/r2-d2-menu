@@ -135,12 +135,14 @@ menu_state() {
     --argjson t3code "$(bool editor_present t3code)" \
     --argjson opencode "$(bool editor_present opencode)" \
     --argjson hermes "$(bool editor_present hermes)" \
+    --argjson brook "$(bool test -x "$HOME/.local/bin/brook")" \
     '{
       recording: $recording,
       suspendOff: $suspendOff,
       hibernate: $hibernate,
       laptop: $laptop,
       dockerSudoless: $dockerSudoless,
+      brook: $brook,
       textSize: $textSize,
       dictationModel: $dictationModel,
       lid: $lid,
@@ -334,6 +336,7 @@ run_action() {
   update.full) present_terminal r2-d2-update ;;
   update.config) present_terminal r2-d2-update-config ;;
   update.packages) present_terminal r2-d2-update-packages ;;
+  update.brook) present_terminal "brook --update" ;;
   update.webcam) present_terminal r2-d2-fix-amd-webcam ;;
   update.timezone) present_terminal "r2-d2-tz-select && r2-d2-update-time" ;;
   update.password.drive) present_terminal r2-d2-drive-set-password ;;

@@ -193,6 +193,7 @@ var NODES = [
   item("update.full", "update", "R2-D2 (full)", "", { run: "update.full" }),
   item("update.config", "update", "Config (user config)", "", { run: "update.config" }),
   item("update.packages", "update", "Packages", "󰣇", { run: "update.packages" }),
+  item("update.brook", "update", "Brook", "󰝚", { run: "update.brook", when: "brook", keywords: "music player" }),
   item("update.webcam", "update", "Webcam", "📷", { run: "update.webcam" }),
   item("update.password", "update", "Password", ""),
   item("update.timezone", "update", "Timezone & Time", "", { run: "update.timezone" }),
