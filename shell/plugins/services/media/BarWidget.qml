@@ -1,4 +1,6 @@
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import qs.Ui
 import qs.Commons
 
@@ -14,7 +16,19 @@ BarWidget {
   readonly property string artUrl: activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : ""
   readonly property bool shuffleOn: activePlayer ? activePlayer.shuffle === true : false
   readonly property color ink: bar ? bar.barForeground : Color.foreground
+  readonly property bool brookPlayer: {
+    var player = activePlayer
+    if (!player) return false
+    var identity = String(player.identity || "").toLowerCase()
+    var entry = String(player.desktopEntry || "").toLowerCase()
+    return identity === "brook" || entry === "brook" || entry === "dev.skyguy.brook"
+  }
   property bool cardOpen: false
+  property bool pickerOpen: false
+  property var results: []
+  property string searchError: ""
+  property bool searchQueued: false
+  property bool searchSettled: false
   property real playbackRatio: 0
 
   function refreshProgress() {
@@ -27,13 +41,92 @@ BarWidget {
     playbackRatio = Math.max(0, Math.min(1, ratio))
   }
 
-  function close() { cardOpen = false }
+  function close() {
+    cardOpen = false
+    pickerOpen = false
+  }
+
+  function openPicker() {
+    if (!brookPlayer) return
+    cardOpen = false
+    results = []
+    searchError = ""
+    searchSettled = false
+    pickerOpen = true
+    searchField.text = ""
+    searchField.forceActiveFocus()
+    scheduleSearch()
+  }
+
+  function scheduleSearch() {
+    searchDebounce.restart()
+  }
+
+  function runSearch() {
+    if (!pickerOpen) return
+    if (searchProc.running) {
+      searchQueued = true
+      return
+    }
+    searchError = ""
+    searchProc.command = ["brook", "--search", searchField.text]
+    searchProc.running = true
+  }
+
+  function applySearch(raw) {
+    if (!pickerOpen) return
+    searchSettled = true
+    var parsed
+    try {
+      parsed = JSON.parse(String(raw || ""))
+    } catch (e) {
+      results = []
+      searchError = "Couldn't search the library"
+      return
+    }
+    searchError = ""
+    var rows = []
+    var playlists = parsed.playlists || []
+    var tracks = parsed.tracks || []
+    if (playlists.length) {
+      rows.push({ kind: "header", label: "Playlists" })
+      for (var i = 0; i < playlists.length; i++) {
+        rows.push({ kind: "playlist", id: playlists[i].id, label: playlists[i].name || "Playlist", detail: "" })
+      }
+    }
+    if (tracks.length) {
+      rows.push({ kind: "header", label: "Tracks" })
+      for (var j = 0; j < tracks.length; j++) {
+        var track = tracks[j]
+        var detail = track.artist || ""
+        if (track.album) detail = detail ? detail + "  ·  " + track.album : track.album
+        rows.push({ kind: "track", id: track.id, label: track.title || track.id, detail: detail })
+      }
+    }
+    results = rows
+  }
+
+  function playFirst() {
+    for (var i = 0; i < results.length; i++) {
+      if (results[i].kind === "playlist" || results[i].kind === "track") {
+        playRow(results[i])
+        return
+      }
+    }
+  }
+
+  function playRow(row) {
+    if (!row || (row.kind !== "playlist" && row.kind !== "track")) return
+    var flag = row.kind === "playlist" ? "--play-playlist" : "--play-track"
+    Quickshell.execDetached(["brook", "--headless", flag, row.id])
+    pickerOpen = false
+  }
 
   visible: hasMedia
   implicitWidth: hasMedia ? row.implicitWidth + Style.space(16) : 0
   implicitHeight: barSize
 
-  onHasMediaChanged: if (!hasMedia) cardOpen = false
+  onHasMediaChanged: if (!hasMedia) close()
   onActivePlayerChanged: refreshProgress()
 
   Timer {
@@ -63,13 +156,14 @@ BarWidget {
     anchors.left: parent.left
     anchors.leftMargin: Style.space(8)
     anchors.verticalCenter: parent.verticalCenter
-    spacing: Style.space(2)
+    spacing: Style.space(6)
     z: 1
 
     WidgetButton {
       bar: root.bar
       text: "󰒮"
-      horizontalMargin: 4
+      fontSize: Style.font.display
+      horizontalMargin: 6
       tooltipText: ""
       dimmed: !root.activePlayer || !root.activePlayer.canGoPrevious
       interactive: root.activePlayer && root.activePlayer.canGoPrevious
@@ -79,7 +173,8 @@ BarWidget {
     WidgetButton {
       bar: root.bar
       text: root.activePlayer && root.activePlayer.isPlaying ? "󰏤" : "󰐊"
-      horizontalMargin: 4
+      fontSize: Style.font.display
+      horizontalMargin: 6
       tooltipText: ""
       onPressed: if (root.mediaService) root.mediaService.runAction("playPause", false)
     }
@@ -87,7 +182,8 @@ BarWidget {
     WidgetButton {
       bar: root.bar
       text: "󰒭"
-      horizontalMargin: 4
+      fontSize: Style.font.display
+      horizontalMargin: 6
       tooltipText: ""
       dimmed: !root.activePlayer || !root.activePlayer.canGoNext
       interactive: root.activePlayer && root.activePlayer.canGoNext
@@ -97,7 +193,8 @@ BarWidget {
     WidgetButton {
       bar: root.bar
       text: "󰒝"
-      horizontalMargin: 4
+      fontSize: Style.font.display
+      horizontalMargin: 6
       tooltipText: ""
       active: root.shuffleOn
       dimmed: !root.activePlayer || !root.activePlayer.shuffleSupported
@@ -109,6 +206,7 @@ BarWidget {
     }
 
     Text {
+      id: titleLabel
       textFormat: Text.PlainText
       anchors.verticalCenter: parent.verticalCenter
       text: root.title + (root.artist ? "  ·  " + root.artist : "")
@@ -117,12 +215,23 @@ BarWidget {
       font.pixelSize: Style.font.body
       elide: Text.ElideRight
       width: Style.space(360)
+
+      MouseArea {
+        anchors.fill: parent
+        enabled: root.brookPlayer
+        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: root.openPicker()
+      }
     }
   }
 
   HoverHandler {
     id: islandHover
     onHoveredChanged: {
+      if (root.pickerOpen) {
+        root.cardOpen = false
+        return
+      }
       if (hovered) {
         cardClose.stop()
         root.cardOpen = root.hasMedia
@@ -149,6 +258,7 @@ BarWidget {
     contentHeight: card.fittedContentHeight(cardRow.implicitHeight)
 
     onContainsMouseChanged: {
+      if (root.pickerOpen) return
       if (containsMouse) {
         cardClose.stop()
         root.cardOpen = true
@@ -213,6 +323,133 @@ BarWidget {
           elide: Text.ElideRight
           width: parent.width
           visible: text !== ""
+        }
+      }
+    }
+  }
+
+  Timer {
+    id: searchDebounce
+    interval: 150
+    onTriggered: root.runSearch()
+  }
+
+  Process {
+    id: searchProc
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        root.applySearch(text)
+        if (root.searchQueued) {
+          root.searchQueued = false
+          root.runSearch()
+        }
+      }
+    }
+  }
+
+  PopupCard {
+    id: picker
+    anchorItem: root
+    bar: root.bar
+    owner: root
+    triggerMode: "click"
+    open: root.pickerOpen && root.hasMedia
+    padding: Style.space(8)
+    contentWidth: picker.fittedContentWidth(Style.space(360))
+    contentHeight: picker.fittedContentHeight(pickerCol.implicitHeight, Style.space(420))
+    onOpenChanged: if (open) searchField.forceActiveFocus()
+
+    Column {
+      id: pickerCol
+      width: parent.width
+      spacing: Style.space(6)
+
+      TextField {
+        id: searchField
+        width: parent.width
+        foreground: root.ink
+        accent: Color.accent
+        placeholderText: "Playlist or track"
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        verticalPadding: Style.space(4)
+        onTextChanged: if (root.pickerOpen) root.scheduleSearch()
+        Keys.onReturnPressed: root.playFirst()
+        Keys.onEscapePressed: root.pickerOpen = false
+      }
+
+      Text {
+        textFormat: Text.PlainText
+        width: parent.width
+        visible: root.searchError !== "" || (root.searchSettled && root.results.length === 0)
+        text: root.searchError !== "" ? root.searchError : (searchField.text !== "" ? "Nothing matches" : "No playlists")
+        color: Qt.darker(root.ink, 1.3)
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.bodySmall
+        wrapMode: Text.WordWrap
+      }
+
+      Repeater {
+        model: root.results
+
+        delegate: Item {
+          required property var modelData
+          width: pickerCol.width
+          implicitHeight: modelData.kind === "header" ? headerLabel.implicitHeight : rowLabel.implicitHeight + Style.space(8)
+
+          Text {
+            id: headerLabel
+            visible: modelData.kind === "header"
+            text: modelData.label || ""
+            color: Qt.darker(root.ink, 1.4)
+            font.family: root.bar ? root.bar.fontFamily : Style.font.family
+            font.pixelSize: Style.font.bodySmall
+          }
+
+          Rectangle {
+            visible: modelData.kind !== "header"
+            anchors.fill: parent
+            radius: Style.cornerRadius
+            color: rowMouse.containsMouse ? Qt.rgba(root.ink.r, root.ink.g, root.ink.b, 0.12) : "transparent"
+
+            Column {
+              id: rowLabel
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              anchors.leftMargin: Style.space(6)
+              anchors.rightMargin: Style.space(6)
+
+              Text {
+                textFormat: Text.PlainText
+                width: parent.width
+                text: modelData.label || ""
+                color: root.ink
+                font.family: root.bar ? root.bar.fontFamily : Style.font.family
+                font.pixelSize: Style.font.body
+                elide: Text.ElideRight
+              }
+
+              Text {
+                textFormat: Text.PlainText
+                width: parent.width
+                visible: (modelData.detail || "") !== ""
+                text: modelData.detail || ""
+                color: Qt.darker(root.ink, 1.3)
+                font.family: root.bar ? root.bar.fontFamily : Style.font.family
+                font.pixelSize: Style.font.bodySmall
+                elide: Text.ElideRight
+              }
+            }
+
+            MouseArea {
+              id: rowMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              cursorShape: Qt.PointingHandCursor
+              onClicked: root.playRow(modelData)
+            }
+          }
         }
       }
     }
