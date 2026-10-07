@@ -31,15 +31,50 @@ BarWidget {
   property bool searchQueued: false
   property bool searchSettled: false
   property real playbackRatio: 0
+  property string progressTrack: ""
+  property bool progressHeld: false
+  property real progressHeldElapsed: 0
+  property double progressHeldAt: 0
+  property real progressLastReported: 0
+  readonly property int artBasisWidth: Style.space(280)
+  readonly property int artBasisCover: Style.space(64)
+  readonly property real artScale: artBasisWidth > 0 ? titleSlot.width / artBasisWidth : 1
+  readonly property int artCoverSide: Math.max(artBasisCover, card.contentHeight - card.verticalContentInset)
 
   function refreshProgress() {
     var player = activePlayer
-    if (!player || !player.length || player.length <= 0) {
+    var key = title + "\n" + artist
+    var now = Date.now()
+    if (key !== progressTrack) {
+      var hadTrack = progressTrack !== ""
+      progressTrack = key
+      progressLastReported = player ? player.position : 0
+      progressHeld = hadTrack && progressLastReported > 1.5
+      progressHeldElapsed = 0
+      progressHeldAt = now
       playbackRatio = 0
+      if (progressHeld) return
+    }
+    if (!player || !(player.length > 0)) {
+      playbackRatio = 0
+      progressHeldAt = now
       return
     }
-    var ratio = player.position / player.length
-    playbackRatio = Math.max(0, Math.min(1, ratio))
+    var reported = player.position
+    if (progressHeld) {
+      var jumpedBack = progressLastReported > 2 && reported + 1 < progressLastReported
+      if (jumpedBack || reported < 1.5) {
+        progressHeld = false
+      } else {
+        if (player.isPlaying) progressHeldElapsed += Math.max(0, (now - progressHeldAt) / 1000)
+        progressHeldAt = now
+        progressLastReported = reported
+        playbackRatio = Math.max(0, Math.min(1, progressHeldElapsed / player.length))
+        return
+      }
+    }
+    progressLastReported = reported
+    playbackRatio = Math.max(0, Math.min(1, reported / player.length))
   }
 
   function close() {
@@ -129,6 +164,8 @@ BarWidget {
 
   onHasMediaChanged: if (!hasMedia) close()
   onActivePlayerChanged: refreshProgress()
+  onTitleChanged: refreshProgress()
+  onArtistChanged: refreshProgress()
 
   Timer {
     interval: 500
@@ -314,13 +351,17 @@ BarWidget {
 
   PopupCard {
     id: card
-    anchorItem: root
+    anchorItem: titleSlot
     bar: root.bar
     owner: root
     triggerMode: "hover"
     open: root.cardOpen && root.hasMedia
-    contentWidth: card.fittedContentWidth(Style.space(280))
-    contentHeight: card.fittedContentHeight(cardRow.implicitHeight)
+    contentWidth: card.fittedContentWidth(titleSlot.width)
+    contentHeight: {
+      var scaled = Math.round(card.fittedContentHeight(root.artBasisCover) * root.artScale)
+      var cap = card.availableCardHeight > 0 ? card.availableCardHeight : scaled
+      return Math.round(Math.min(scaled, cap))
+    }
 
     onContainsMouseChanged: {
       if (root.pickerOpen) return
@@ -338,8 +379,9 @@ BarWidget {
       spacing: Style.space(10)
 
       BorderSurface {
-        width: Style.space(64)
-        height: Style.space(64)
+        id: artCover
+        width: root.artCoverSide
+        height: root.artCoverSide
         radius: Style.spacing.labelGap
         color: Style.normalFillFor(root.bar ? root.bar.foreground : Color.foreground, Color.accent)
         borderSpec: Border.controlSpec("normal", root.bar ? root.bar.foreground : Color.foreground, Color.accent)
@@ -364,7 +406,7 @@ BarWidget {
       }
 
       Column {
-        width: parent.width - Style.space(74)
+        width: Math.max(0, parent.width - artCover.width - parent.spacing)
         spacing: Style.space(4)
         anchors.verticalCenter: parent.verticalCenter
 
