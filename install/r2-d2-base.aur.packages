@@ -7,6 +7,7 @@ limine-mkinitcpio-hook
 limine-snapper-sync
 localsend
 makima-bin
+matugen-bin
 python-terminaltexteffects
 tzupdate
 ufw-docker
