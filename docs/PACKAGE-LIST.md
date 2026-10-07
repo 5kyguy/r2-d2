@@ -53,7 +53,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **150** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -133,7 +133,7 @@ quickshell draws the bar, panels, on-screen display, notifications, and lock scr
 
 ### Apps and tools (user-facing)
 
-qalculate-gtk, gnome-themes-extra, kvantum-qt5, evince, eog, pinta, totem, kdenlive, obs-studio, steam
+qalculate-gtk, gnome-themes-extra, kvantum-qt5, zathura, zathura-pdf-mupdf, eog, pinta, totem, kdenlive, obs-studio, steam
 
 ### Firewall and security
 
@@ -182,7 +182,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 150 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.

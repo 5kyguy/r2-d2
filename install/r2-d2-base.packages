@@ -28,7 +28,6 @@ docker-buildx
 docker-compose
 egl-wayland
 eog
-evince
 exfatprogs
 expac
 eza
@@ -147,6 +146,8 @@ xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xmlstarlet
 yarn
+zathura
+zathura-pdf-mupdf
 zbar
 zoxide
 zram-generator

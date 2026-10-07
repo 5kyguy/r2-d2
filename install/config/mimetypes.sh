@@ -17,8 +17,8 @@ xdg-mime default org.gnome.eog.desktop image/tiff
 # Open editable images with Pinta
 xdg-mime default com.github.PintaProject.Pinta.desktop image/x-xcf
 
-# Open PDFs with the Document Viewer
-xdg-mime default org.gnome.Evince.desktop application/pdf
+# Open PDFs with Zathura
+xdg-mime default org.pwmt.zathura-pdf-mupdf.desktop application/pdf
 
 # Use Brave Origin as the default browser
 xdg-settings set default-web-browser brave-origin-nightly.desktop
