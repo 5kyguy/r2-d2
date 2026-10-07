@@ -2,13 +2,17 @@
 
 # Render theme templates into the R2-D2 repo only ($R2D2_PATH/config and default/config).
 # Live ~/.config/ is updated by r2-d2-update-sync-files, not by this script.
+#
+# The engine is matugen (Material You). A single matugen run renders every
+# template listed in config/theme/matugen/config.toml into repo-relative paths.
+# R2-D2 stays dark, so templates render in dark mode. The published theme
+# document (dark + light) is built by r2-d2-theme-state, which runs matugen
+# again for the light palette.
 
 set -euo pipefail
 
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-THEME_DIR="$R2D2_ROOT/config/theme"
-TEMPLATE_DIR="$THEME_DIR/templates"
-PALETTE="$THEME_DIR/palette.toml"
+MATUGEN_CONFIG="$R2D2_ROOT/config/theme/matugen/config.toml"
 STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
 if [[ ! -f $STATE_FILE && -f $HOME/.local/state/r2-d2/theme-accent ]]; then
   STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
@@ -21,11 +25,6 @@ flock 9
 usage() {
   echo "Usage: r2-d2-theme-apply [--accent #RRGGBB | --from-background | --from-state]" >&2
   exit 1
-}
-
-read_palette() {
-  local key="$1"
-  grep -E "^${key}[[:space:]]*=" "$PALETTE" | head -1 | sed -E 's/^[^"]*"([^"]+)".*/\1/'
 }
 
 accent=""
@@ -57,7 +56,7 @@ done
 
 if [[ -n $mode ]]; then
   case "$mode" in
-  background) accent="$(r2-d2-theme-accent-from-bg --print-only)" ;;
+    background) accent="$(r2-d2-theme-accent-from-bg --print-only)" ;;
   state)
     if [[ -f $STATE_FILE ]]; then
       accent="$(<"$STATE_FILE")"
@@ -72,209 +71,28 @@ if [[ -z $accent && $mode != "accent" ]]; then
   if [[ -f $STATE_FILE ]]; then
     accent="$(<"$STATE_FILE")"
   else
-    accent="$(read_palette fallback_accent)"
+    accent="#EAEAEA"
   fi
 fi
 
+# Validate the source before changing any output. r2-d2-theme-state build
+# normalizes and rejects anything that is not a full #RRGGBB token.
 accent="${accent^^}"
-
-# Validate all input and derive the complete document before changing outputs.
 pending="$(mktemp "$R2D2_ROOT/.theme-state.XXXXXX")"
 trap 'rm -f "$pending"' EXIT
-"$R2D2_ROOT/bin/r2-d2-theme-state" build "$accent" >"$pending"
-
-eval "$(
-  python3 - "$accent" "$PALETTE" "$pending" <<'PY'
-import json
-import re
-import sys
-
-accent = sys.argv[1].lstrip("#").upper()
-palette_path = sys.argv[2]
-pending_path = sys.argv[3]
-
-values = {}
-for line in open(palette_path, encoding="utf-8"):
-    match = re.match(r'^([a-z_]+)\s*=\s*"([^"]+)"', line)
-    if match:
-        values[match.group(1)] = match.group(2)
-
-def rgb(hex_color: str):
-    hex_color = hex_color.lstrip("#")
-    return (
-        int(hex_color[0:2], 16),
-        int(hex_color[2:4], 16),
-        int(hex_color[4:6], 16),
-    )
-
-def hex_color(r, g, b):
-    return f"#{r:02X}{g:02X}{b:02X}"
-
-def rgba_hex(r, g, b, alpha):
-    a = int(round(alpha * 255))
-    return f"{r:02x}{g:02x}{b:02x}{a:02x}"
-
-def mix(r, g, b, factor, target=255):
-    return tuple(int(c + (target - c) * factor) for c in (r, g, b))
-
-def shade(r, g, b, factor):
-    return tuple(int(c * (1 - factor)) for c in (r, g, b))
-
-ar, ag, ab = rgb(accent)
-br, bg, bb = mix(ar, ag, ab, 0.25)
-dr, dg, db = shade(ar, ag, ab, 0.25)
-
-pairs = {
-    "ACCENT": hex_color(ar, ag, ab),
-    "ACCENT_RGB": f"{ar:02X}{ag:02X}{ab:02X}",
-    "ACCENT_RGBA_22": rgba_hex(ar, ag, ab, 0.22),
-    "ACCENT_RGBA_55": rgba_hex(ar, ag, ab, 0.55),
-    "ACCENT_RGBA_88": rgba_hex(ar, ag, ab, 0.88),
-    "ACCENT_R": str(ar),
-    "ACCENT_G": str(ag),
-    "ACCENT_B": str(ab),
-    "ACCENT_BRIGHT": hex_color(br, bg, bb),
-    "ACCENT_DIM": hex_color(dr, dg, db),
-    "BACKGROUND": values.get("background", "#121212"),
-    "FOREGROUND": values.get("foreground", "#D4D4D4"),
-    "INACTIVE": values.get("inactive", "#606060"),
-    "DIM_FOREGROUND": values.get("dim_foreground", "#8a8a8d"),
-    "CRITICAL": values.get("critical", "#C73838"),
-    "CRITICAL_DARK": values.get("critical_dark", "#862020"),
-    "WARNING": values.get("warning", "#E07924"),
-    "MAGENTA": values.get("magenta", "#932A37"),
-    "R2D2_BACKGROUND": "~/.local/share/r2-d2/backgrounds/@background",
-    "RAISED": "#1A1A1A",
-    "PAGE": "#0A0A0A",
-    "PAGE_TEXT": "#EDEDED",
-    "CRITICAL_TEXT": "#D25E5E",
-}
-
-dark = json.load(open(pending_path, encoding="utf-8"))["accent"]["dark"]
-pairs["ACCENT_TEXT"] = dark["text"]
-pairs["ACCENT_BORDER"] = dark["border"]
-pairs["ACCENT_CONTROL"] = dark["control"]
-pairs["ACCENT_ON_CONTROL"] = dark["on_control"]
-
-def channels(name, hex_color):
-    red, green, blue = rgb(hex_color)
-    pairs[f"{name}_R"] = str(red)
-    pairs[f"{name}_G"] = str(green)
-    pairs[f"{name}_B"] = str(blue)
-    pairs[f"{name}_RGB"] = f"{red:02X}{green:02X}{blue:02X}"
-
-channels("ACCENT_TEXT", pairs["ACCENT_TEXT"])
-channels("ACCENT_BORDER", pairs["ACCENT_BORDER"])
-channels("RAISED", pairs["RAISED"])
-channels("CRITICAL_TEXT", pairs["CRITICAL_TEXT"])
-
-bg = pairs["BACKGROUND"].lstrip("#")
-pairs["BACKGROUND_R"] = str(int(bg[0:2], 16))
-pairs["BACKGROUND_G"] = str(int(bg[2:4], 16))
-pairs["BACKGROUND_B"] = str(int(bg[4:6], 16))
-pairs["BACKGROUND_RGBA"] = f"rgba({pairs['BACKGROUND_R']}, {pairs['BACKGROUND_G']}, {pairs['BACKGROUND_B']}, 1.0)"
-pairs["BACKGROUND_HEX_ALPHA"] = pairs["BACKGROUND"]
-pairs["INACTIVE_RGB"] = pairs["INACTIVE"].lstrip("#").upper()
-
-for key, value in pairs.items():
-    safe = value.replace("'", "'\\''")
-    print(f"export {key}='{safe}'")
-PY
-)"
-
-render_template() {
-  local template="$1"
-  local output="$2"
-  local tmp
-  tmp="$(mktemp)"
-
-  sed \
-    -e "s|{{ACCENT}}|${ACCENT}|g" \
-    -e "s|{{ACCENT_RGB}}|${ACCENT_RGB}|g" \
-    -e "s|{{ACCENT_RGBA_22}}|${ACCENT_RGBA_22}|g" \
-    -e "s|{{ACCENT_RGBA_55}}|${ACCENT_RGBA_55}|g" \
-    -e "s|{{ACCENT_RGBA_88}}|${ACCENT_RGBA_88}|g" \
-    -e "s|{{ACCENT_R}}|${ACCENT_R}|g" \
-    -e "s|{{ACCENT_G}}|${ACCENT_G}|g" \
-    -e "s|{{ACCENT_B}}|${ACCENT_B}|g" \
-    -e "s|{{ACCENT_BRIGHT}}|${ACCENT_BRIGHT}|g" \
-    -e "s|{{ACCENT_DIM}}|${ACCENT_DIM}|g" \
-    -e "s|{{ACCENT_TEXT_RGB}}|${ACCENT_TEXT_RGB}|g" \
-    -e "s|{{ACCENT_TEXT_R}}|${ACCENT_TEXT_R}|g" \
-    -e "s|{{ACCENT_TEXT_G}}|${ACCENT_TEXT_G}|g" \
-    -e "s|{{ACCENT_TEXT_B}}|${ACCENT_TEXT_B}|g" \
-    -e "s|{{ACCENT_TEXT}}|${ACCENT_TEXT}|g" \
-    -e "s|{{ACCENT_BORDER_RGB}}|${ACCENT_BORDER_RGB}|g" \
-    -e "s|{{ACCENT_BORDER_R}}|${ACCENT_BORDER_R}|g" \
-    -e "s|{{ACCENT_BORDER_G}}|${ACCENT_BORDER_G}|g" \
-    -e "s|{{ACCENT_BORDER_B}}|${ACCENT_BORDER_B}|g" \
-    -e "s|{{ACCENT_BORDER}}|${ACCENT_BORDER}|g" \
-    -e "s|{{ACCENT_CONTROL}}|${ACCENT_CONTROL}|g" \
-    -e "s|{{ACCENT_ON_CONTROL}}|${ACCENT_ON_CONTROL}|g" \
-    -e "s|{{RAISED_R}}|${RAISED_R}|g" \
-    -e "s|{{RAISED_G}}|${RAISED_G}|g" \
-    -e "s|{{RAISED_B}}|${RAISED_B}|g" \
-    -e "s|{{RAISED}}|${RAISED}|g" \
-    -e "s|{{PAGE_TEXT}}|${PAGE_TEXT}|g" \
-    -e "s|{{PAGE}}|${PAGE}|g" \
-    -e "s|{{CRITICAL_TEXT_R}}|${CRITICAL_TEXT_R}|g" \
-    -e "s|{{CRITICAL_TEXT_G}}|${CRITICAL_TEXT_G}|g" \
-    -e "s|{{CRITICAL_TEXT_B}}|${CRITICAL_TEXT_B}|g" \
-    -e "s|{{CRITICAL_TEXT}}|${CRITICAL_TEXT}|g" \
-    -e "s|{{BACKGROUND}}|${BACKGROUND}|g" \
-    -e "s|{{BACKGROUND_R}}|${BACKGROUND_R}|g" \
-    -e "s|{{BACKGROUND_G}}|${BACKGROUND_G}|g" \
-    -e "s|{{BACKGROUND_B}}|${BACKGROUND_B}|g" \
-    -e "s|{{BACKGROUND_RGBA}}|${BACKGROUND_RGBA}|g" \
-    -e "s|{{BACKGROUND_HEX_ALPHA}}|${BACKGROUND_HEX_ALPHA}|g" \
-    -e "s|{{FOREGROUND}}|${FOREGROUND}|g" \
-    -e "s|{{DIM_FOREGROUND}}|${DIM_FOREGROUND}|g" \
-    -e "s|{{INACTIVE}}|${INACTIVE}|g" \
-    -e "s|{{INACTIVE_RGB}}|${INACTIVE_RGB}|g" \
-    -e "s|{{CRITICAL}}|${CRITICAL}|g" \
-    -e "s|{{CRITICAL_DARK}}|${CRITICAL_DARK}|g" \
-    -e "s|{{WARNING}}|${WARNING}|g" \
-    -e "s|{{MAGENTA}}|${MAGENTA}|g" \
-    -e "s|{{R2D2_BACKGROUND}}|${R2D2_BACKGROUND}|g" \
-    "$template" >"$tmp"
-
-  mkdir -p "$(dirname "$output")"
-  mv "$tmp" "$output"
-}
-
-declare -a OUTPUTS=()
 
 # A partial render must never leave an older document eligible for activation.
 rm -f "$R2D2_ROOT/.theme-state.json"
 
-apply_mapping() {
-  local template_name="$1"
-  local relative_output="$2"
-  local template="$TEMPLATE_DIR/$template_name"
+"$R2D2_ROOT/bin/r2-d2-theme-state" build "$accent" >"$pending"
 
-  [[ -f $template ]] || {
-    echo "Missing template: $template" >&2
-    exit 1
-  }
-
-  local repo_output="$R2D2_ROOT/$relative_output"
-  render_template "$template" "$repo_output"
-  OUTPUTS+=("$relative_output")
-}
-
-apply_mapping "hypr-looknfeel.lua.in" "config/hypr/looknfeel.lua"
-apply_mapping "shell-colors.toml.in" "config/r2-d2/colors.toml"
-apply_mapping "shell.toml.in" "config/r2-d2/shell.toml"
-apply_mapping "gtk.css.in" "config/gtk-3.0/gtk.css"
-apply_mapping "gtk4.css.in" "config/gtk-4.0/gtk.css"
-apply_mapping "alacritty.toml.in" "config/alacritty/alacritty.toml"
-apply_mapping "btop.theme.in" "config/btop/themes/current.theme"
-apply_mapping "starship.toml.in" "config/starship.toml"
-apply_mapping "walker.css.in" "default/config/walker/themes/default/style.css"
-apply_mapping "share-picker.css.in" "default/config/hyprland-preview-share-picker/style.css"
-apply_mapping "hermes-skin.yaml.in" "config/theme/accent-apps/hermes-skin.yaml"
-apply_mapping "opencode-theme.json.in" "config/theme/accent-apps/opencode.json"
-apply_mapping "cursor-accent.json.in" "config/theme/accent-apps/cursor.json"
+# Render every template in the matugen config into $R2D2_PATH. Paths in
+# config.toml resolve relative to the config file's own directory, so this
+# works from any working directory.
+if ! matugen color hex "${accent#\#}" --mode dark -c "$MATUGEN_CONFIG" -q; then
+  echo "matugen render failed for accent $accent" >&2
+  exit 1
+fi
 
 # Preserve user text size across theme/accent re-renders (repo templates only).
 if [[ -x $R2D2_ROOT/bin/r2-d2-display-text-size ]]; then
@@ -289,4 +107,4 @@ fi
 
 "$R2D2_ROOT/bin/r2-d2-theme-state" stage "$pending"
 
-echo "Applied R2-D2 theme accent to repo: $ACCENT"
+echo "Applied R2-D2 theme accent to repo: $accent"

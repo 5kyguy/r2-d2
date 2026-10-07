@@ -25,34 +25,34 @@ bindings = [
 
 [colors]
 [colors.primary]
-background = "#121212"
-foreground = "#D4D4D4"
-dim_foreground = "#8a8a8d"
+background = "#0e1415"
+foreground = "#dee3e5"
+dim_foreground = "#bfc8ca"
 
 [colors.cursor]
-text = "#121212"
-cursor = "#EAEAEA"
+text = "#0e1415"
+cursor = "#82d3e0"
 
 [colors.selection]
 text = "CellForeground"
-background = "#AFAFAF"
+background = "#004f58"
 
 [colors.normal]
-black = "#333333"
+black = "#171d1e"
 red = "#862020"
-green = "#AFAFAF"
-yellow = "#EAEAEA"
-blue = "#EAEAEA"
+green = "#004f58"
+yellow = "#82d3e0"
+blue = "#82d3e0"
 magenta = "#932A37"
-cyan = "#AFAFAF"
-white = "#bebebe"
+cyan = "#004f58"
+white = "#dee3e5"
 
 [colors.bright]
-black = "#8a8a8d"
+black = "#bfc8ca"
 red = "#C73838"
-green = "#EAEAEA"
+green = "#82d3e0"
 yellow = "#E07924"
-blue = "#EFEFEF"
+blue = "#82d3e0"
 magenta = "#C73838"
-cyan = "#EAEAEA"
-white = "#eaeaea"
+cyan = "#82d3e0"
+white = "#dee3e5"

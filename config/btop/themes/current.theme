@@ -1,26 +1,26 @@
 # Main background, empty for terminal default, need to be empty if you want transparent background
-theme[main_bg]="#121212"
+theme[main_bg]="#0e1415"
 
 # Main text color
-theme[main_fg]="#EAEAEA"
+theme[main_fg]="#dee3e5"
 
 # Title color for boxes
-theme[title]="#AFAFAF"
+theme[title]="#00363d"
 
 # Highlight color for keyboard shortcuts
-theme[hi_fg]="#EAEAEA"
+theme[hi_fg]="#00363d"
 
 # Background color of selected item in processes box
-theme[selected_bg]="#AFAFAF"
+theme[selected_bg]="#82d3e0"
 
 # Foreground color of selected item in processes box
-theme[selected_fg]="#EAEAEA"
+theme[selected_fg]="#00363d"
 
 # Color of inactive/disabled text
-theme[inactive_fg]="#333333"
+theme[inactive_fg]="#3f484a"
 
 # Misc colors for processes box including mini cpu graphs, details memory graph and details status text
-theme[proc_misc]="#8a8a8d"
+theme[proc_misc]="#bfc8ca"
 
 # Cpu box outline color
 theme[cpu_box]="#932A37"
@@ -38,41 +38,41 @@ theme[proc_box]="#932A37"
 theme[div_line]="#932A37"
 
 # Temperature graph colors
-theme[temp_start]="#AFAFAF"
-theme[temp_mid]="#EAEAEA"
+theme[temp_start]="#004f58"
+theme[temp_mid]="#82d3e0"
 theme[temp_end]="#862020"
 
 # CPU graph colors
-theme[cpu_start]="#AFAFAF"
-theme[cpu_mid]="#EAEAEA"
+theme[cpu_start]="#004f58"
+theme[cpu_mid]="#82d3e0"
 theme[cpu_end]="#862020"
 
 # Mem/Disk free meter
-theme[free_start]="#AFAFAF"
-theme[free_mid]="#EAEAEA"
+theme[free_start]="#004f58"
+theme[free_mid]="#82d3e0"
 theme[free_end]="#862020"
 
 # Mem/Disk cached meter
-theme[cached_start]="#AFAFAF"
-theme[cached_mid]="#EAEAEA"
+theme[cached_start]="#004f58"
+theme[cached_mid]="#82d3e0"
 theme[cached_end]="#862020"
 
 # Mem/Disk available meter
-theme[available_start]="#AFAFAF"
-theme[available_mid]="#EAEAEA"
+theme[available_start]="#004f58"
+theme[available_mid]="#82d3e0"
 theme[available_end]="#862020"
 
 # Mem/Disk used meter
-theme[used_start]="#AFAFAF"
-theme[used_mid]="#EAEAEA"
+theme[used_start]="#004f58"
+theme[used_mid]="#82d3e0"
 theme[used_end]="#862020"
 
 # Download graph colors
-theme[download_start]="#AFAFAF"
-theme[download_mid]="#EAEAEA"
+theme[download_start]="#004f58"
+theme[download_mid]="#82d3e0"
 theme[download_end]="#862020"
 
 # Upload graph colors
-theme[upload_start]="#AFAFAF"
-theme[upload_mid]="#EAEAEA"
+theme[upload_start]="#004f58"
+theme[upload_mid]="#82d3e0"
 theme[upload_end]="#862020"

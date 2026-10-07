@@ -1,25 +1,26 @@
-/* R2-D2 companion theme: dark base + wallpaper-driven accent */
-@define-color background     #121212;
-@define-color foreground     #D4D4D4;
-@define-color black          #121212;
+/* R2-D2 companion theme: Material You palette from the wallpaper accent */
+@define-color background     #0e1415;
+@define-color foreground     #dee3e5;
+@define-color black          #0e1415;
 @define-color red            #C73838;
-@define-color green          #EAEAEA;
+@define-color green          #82d3e0;
 @define-color yellow         #E07924;
-@define-color blue           #EAEAEA;
+@define-color blue           #82d3e0;
 @define-color magenta        #932A37;
-@define-color cyan           #EAEAEA;
-@define-color white          #eaeaea;
-@define-color bright_black   #606060;
+@define-color cyan           #82d3e0;
+@define-color white          #dee3e5;
+@define-color accent_on      #00363d;
+@define-color bright_black   #3f484a;
 @define-color bright_red     #C73838;
-@define-color bright_green   #EAEAEA;
-@define-color bright_yellow  #EFEFEF;
-@define-color bright_blue    #EFEFEF;
-@define-color bright_magenta #932A37;
-@define-color bright_cyan    #EAEAEA;
-@define-color bright_white   #eaeaea;
+@define-color bright_green   #82d3e0;
+@define-color bright_yellow  #82d3e0;
+@define-color bright_blue    #82d3e0;
+@define-color bright_magenta  #932A37;
+@define-color bright_cyan    #82d3e0;
+@define-color bright_white   #dee3e5;
 
 @define-color accent_bg_color @blue;
-@define-color accent_fg_color @background;
+@define-color accent_fg_color @accent_on;
 @define-color accent_color @cyan;
 
 @define-color window_bg_color @background;

@@ -23,6 +23,7 @@ declare -a THEME_PATHS=(
   config/alacritty/alacritty.toml
   config/btop/themes/current.theme
   config/starship.toml
+  config/zathura/zathurarc
 )
 
 for relative_path in "${THEME_PATHS[@]}"; do
