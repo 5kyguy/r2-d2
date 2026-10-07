@@ -1,0 +1,5 @@
+foreground = "{{colors.on_background.default.hex}}"
+background = "{{colors.background.default.hex}}"
+accent = "{{colors.primary.default.hex}}"
+muted = "{{colors.outline_variant.default.hex}}"
+red = "#C73838"

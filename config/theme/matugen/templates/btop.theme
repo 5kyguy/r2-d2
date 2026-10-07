@@ -1,0 +1,78 @@
+# Main background, empty for terminal default, need to be empty if you want transparent background
+theme[main_bg]="{{colors.background.default.hex}}"
+
+# Main text color
+theme[main_fg]="{{colors.on_background.default.hex}}"
+
+# Title color for boxes
+theme[title]="{{colors.on_primary.default.hex}}"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="{{colors.on_primary.default.hex}}"
+
+# Background color of selected item in processes box
+theme[selected_bg]="{{colors.primary.default.hex}}"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="{{colors.on_primary.default.hex}}"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="{{colors.outline_variant.default.hex}}"
+
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="{{colors.on_surface_variant.default.hex}}"
+
+# Cpu box outline color
+theme[cpu_box]="#932A37"
+
+# Memory/disks box outline color
+theme[mem_box]="#932A37"
+
+# Net up/down box outline color
+theme[net_box]="#932A37"
+
+# Processes box outline color
+theme[proc_box]="#932A37"
+
+# Box divider line and small boxes line color
+theme[div_line]="#932A37"
+
+# Temperature graph colors
+theme[temp_start]="{{colors.primary_container.default.hex}}"
+theme[temp_mid]="{{colors.primary.default.hex}}"
+theme[temp_end]="#862020"
+
+# CPU graph colors
+theme[cpu_start]="{{colors.primary_container.default.hex}}"
+theme[cpu_mid]="{{colors.primary.default.hex}}"
+theme[cpu_end]="#862020"
+
+# Mem/Disk free meter
+theme[free_start]="{{colors.primary_container.default.hex}}"
+theme[free_mid]="{{colors.primary.default.hex}}"
+theme[free_end]="#862020"
+
+# Mem/Disk cached meter
+theme[cached_start]="{{colors.primary_container.default.hex}}"
+theme[cached_mid]="{{colors.primary.default.hex}}"
+theme[cached_end]="#862020"
+
+# Mem/Disk available meter
+theme[available_start]="{{colors.primary_container.default.hex}}"
+theme[available_mid]="{{colors.primary.default.hex}}"
+theme[available_end]="#862020"
+
+# Mem/Disk used meter
+theme[used_start]="{{colors.primary_container.default.hex}}"
+theme[used_mid]="{{colors.primary.default.hex}}"
+theme[used_end]="#862020"
+
+# Download graph colors
+theme[download_start]="{{colors.primary_container.default.hex}}"
+theme[download_mid]="{{colors.primary.default.hex}}"
+theme[download_end]="#862020"
+
+# Upload graph colors
+theme[upload_start]="{{colors.primary_container.default.hex}}"
+theme[upload_mid]="{{colors.primary.default.hex}}"
+theme[upload_end]="#862020"

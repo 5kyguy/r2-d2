@@ -5,7 +5,9 @@ Rectangle {
     id: root
     width: 640
     height: 480
-    color: "#000000"
+    color: palette.background
+
+    Palette { id: palette }
 
     property string currentUser: userModel.lastUser
     property int sessionIndex: {
@@ -48,7 +50,7 @@ Rectangle {
 
             Text {
                 text: "\uf023"
-                color: "#ffffff"
+                color: palette.foreground
                 font.family: "JetBrainsMono Nerd Font"
                 font.pixelSize: root.height * 0.025
                 anchors.verticalCenter: parent.verticalCenter
@@ -57,8 +59,8 @@ Rectangle {
             Rectangle {
                 width: root.width * 0.17
                 height: root.height * 0.04
-                color: "#000000"
-                border.color: "#ffffff"
+                color: palette.surface
+                border.color: palette.outline
                 border.width: 1
                 clip: true
 
@@ -72,7 +74,7 @@ Rectangle {
                     font.pixelSize: root.height * 0.02
                     font.letterSpacing: root.height * 0.004
                     passwordCharacter: "\u2022"
-                    color: "#ffffff"
+                    color: palette.foreground
                     focus: true
 
                     Keys.onPressed: {
@@ -88,7 +90,7 @@ Rectangle {
         Text {
             id: errorMessage
             text: ""
-            color: "#f7768e"
+            color: palette.error
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: root.height * 0.018
             anchors.horizontalCenter: parent.horizontalCenter

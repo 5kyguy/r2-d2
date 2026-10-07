@@ -1,0 +1,58 @@
+[env]
+TERM = "xterm-256color"
+
+[terminal]
+osc52 = "CopyPaste"
+
+[font]
+normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
+size = 9
+
+[window]
+padding.x = 14
+padding.y = 14
+decorations = "None"
+opacity = 0.75
+
+[keyboard]
+bindings = [
+  { key = "Insert", mods = "Shift", action = "Paste" },
+  { key = "Insert", mods = "Control", action = "Copy" },
+  { key = "Return", mods = "Shift", chars = "\u001B\r" },
+]
+
+[colors]
+[colors.primary]
+background = "{{colors.background.default.hex}}"
+foreground = "{{colors.on_background.default.hex}}"
+dim_foreground = "{{colors.on_surface_variant.default.hex}}"
+
+[colors.cursor]
+text = "{{colors.background.default.hex}}"
+cursor = "{{colors.primary.default.hex}}"
+
+[colors.selection]
+text = "CellForeground"
+background = "{{colors.primary_container.default.hex}}"
+
+[colors.normal]
+black = "{{colors.surface_container_low.default.hex}}"
+red = "#862020"
+green = "{{colors.primary_container.default.hex}}"
+yellow = "{{colors.primary.default.hex}}"
+blue = "{{colors.primary.default.hex}}"
+magenta = "#932A37"
+cyan = "{{colors.primary_container.default.hex}}"
+white = "{{colors.on_background.default.hex}}"
+
+[colors.bright]
+black = "{{colors.on_surface_variant.default.hex}}"
+red = "#C73838"
+green = "{{colors.primary.default.hex}}"
+yellow = "#E07924"
+blue = "{{colors.primary.default.hex}}"
+magenta = "#C73838"
+cyan = "{{colors.primary.default.hex}}"
+white = "{{colors.on_surface.default.hex}}"

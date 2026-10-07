@@ -1,0 +1,18 @@
+{
+  "focusBorder": "{{colors.primary.default.hex}}",
+  "tab.activeBorderTop": "{{colors.primary.default.hex}}",
+  "activityBar.activeBorder": "{{colors.primary.default.hex}}",
+  "activityBarBadge.background": "{{colors.primary.default.hex}}",
+  "activityBarBadge.foreground": "{{colors.on_primary.default.hex}}",
+  "badge.background": "{{colors.primary.default.hex}}",
+  "badge.foreground": "{{colors.on_primary.default.hex}}",
+  "progressBar.background": "{{colors.primary.default.hex}}",
+  "button.background": "{{colors.primary.default.hex}}",
+  "button.foreground": "{{colors.on_primary.default.hex}}",
+  "textLink.foreground": "{{colors.primary.default.hex}}",
+  "editorCursor.foreground": "{{colors.primary.default.hex}}",
+  "editor.selectionBackground": "#{{colors.primary.default.hex_stripped}}8c",
+  "list.activeSelectionBackground": "#{{colors.primary.default.hex_stripped}}8c",
+  "list.inactiveSelectionBackground": "#{{colors.primary.default.hex_stripped}}38",
+  "panelTitle.activeBorder": "{{colors.primary.default.hex}}"
+}

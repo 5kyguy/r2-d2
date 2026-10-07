@@ -1,0 +1,81 @@
+# Matugen (Material You) theme engine for R2-D2.
+#
+# r2-d2-theme-apply renders every template below with:
+#   matugen color hex <SOURCE> --mode dark -c config/theme/matugen/config.toml
+# Paths resolve relative to this file's directory (config/theme/matugen/),
+# so outputs climb out of matugen/ to reach the rest of the repo. R2-D2 stays
+# dark; the light palette is generated only for the published theme document
+# and the portfolio, not for live desktop config.
+#
+# Scheme is the matugen default (scheme-tonal-spot). Contrast is left at the
+# matugen default (standard). Changing either changes every rendered color
+# and the v2 fixture; regenerate docs/fixtures/contrast-v2.json with
+# tests/generate-theme-fixture.py after any change here.
+
+[config]
+
+# config/hypr, config/r2-d2, config/gtk-*, config/alacritty, config/btop,
+# config/starship sit two levels up (config/theme/matugen -> config/theme -> config).
+[templates.hypr-looknfeel]
+input_path = "templates/hypr-looknfeel.lua"
+output_path = "../../hypr/looknfeel.lua"
+
+[templates.shell-colors]
+input_path = "templates/shell-colors.toml"
+output_path = "../../r2-d2/colors.toml"
+
+[templates.shell]
+input_path = "templates/shell.toml"
+output_path = "../../r2-d2/shell.toml"
+
+[templates.gtk]
+input_path = "templates/gtk.css"
+output_path = "../../gtk-3.0/gtk.css"
+
+[templates.gtk4]
+input_path = "templates/gtk4.css"
+output_path = "../../gtk-4.0/gtk.css"
+
+[templates.alacritty]
+input_path = "templates/alacritty.toml"
+output_path = "../../alacritty/alacritty.toml"
+
+[templates.btop]
+input_path = "templates/btop.theme"
+output_path = "../../btop/themes/current.theme"
+
+[templates.starship]
+input_path = "templates/starship.toml"
+output_path = "../../starship.toml"
+
+# default/config/* sits three levels up (config/theme/matugen -> config/theme
+# -> config -> default).
+[templates.walker]
+input_path = "templates/walker.css"
+output_path = "../../../default/config/walker/themes/default/style.css"
+
+[templates.share-picker]
+input_path = "templates/share-picker.css"
+output_path = "../../../default/config/hyprland-preview-share-picker/style.css"
+
+# config/theme/accent-apps is one level up (config/theme/matugen -> config/theme).
+[templates.hermes-skin]
+input_path = "templates/hermes-skin.yaml"
+output_path = "../accent-apps/hermes-skin.yaml"
+
+[templates.opencode-theme]
+input_path = "templates/opencode-theme.json"
+output_path = "../accent-apps/opencode.json"
+
+[templates.cursor-accent]
+input_path = "templates/cursor-accent.json"
+output_path = "../accent-apps/cursor.json"
+
+# Unified appearances: zathura and the live SDDM palette follow the wallpaper.
+[templates.zathura]
+input_path = "templates/zathurarc"
+output_path = "../../zathura/zathurarc"
+
+[templates.sddm-palette]
+input_path = "templates/sddm-palette.qml"
+output_path = "../../../default/sddm/r2-d2/Palette.qml"
