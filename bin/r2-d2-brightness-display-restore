@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Restore DDC/CI brightness on every external display after Hyprland
+# re-initialized its outputs. Hyprland reloads on every wallpaper change and
+# every update, and many DDC/CI monitors reset their brightness to 0 on a
+# modeset. r2-d2-brightness-display-ddc persists the last-known percentage;
+# this script re-applies it for each active external monitor.
+#
+# Internal backlights (amdgpu_bl / acpi_video) are kernel devices and are not
+# affected by a Hyprland reload, so they are intentionally skipped.
+#
+# Usage: r2-d2-brightness-display-restore
+
+set -uo pipefail
+
+monitors_json="$(hyprctl monitors -j 2>/dev/null)" || exit 0
+# External = not eDP/LVDS/DSI and currently enabled.
+externals="$(printf '%s\n' "$monitors_json" | jq -r '
+  .[] | select(.disabled == false) | select(.name | test("^(eDP|LVDS|DSI)-") | not) | .name
+' 2>/dev/null)" || exit 0
+
+[[ -n $externals ]] || exit 0
+
+for monitor in $externals; do
+  r2-d2-brightness-display-ddc "$monitor" restore >/dev/null 2>&1 || true
+done

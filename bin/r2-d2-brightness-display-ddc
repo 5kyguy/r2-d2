@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Show or adjust DDC/CI display brightness for a Hyprland monitor.
-# Usage: r2-d2-brightness-display-ddc <monitor> [+N%|N%-|N%]
-# Port of omarchy-brightness-display-ddc.
+# Usage: r2-d2-brightness-display-ddc <monitor> [+N%|N%-|N%|restore]
+# Port of omarchy-brightness-display-ddc. `restore` re-applies the last
+# persisted percentage after Hyprland re-initializes the output.
 
 monitor="${1:-}"
 step="${2:-}"
@@ -12,8 +13,21 @@ step="${2:-}"
 cache_dir="${XDG_RUNTIME_DIR:-/tmp}/r2-d2-brightness-display-ddc"
 cache_name="${monitor//[^[:alnum:]_.-]/_}"
 cache_file="$cache_dir/$cache_name.bus"
+# Durable, per-monitor brightness percentage. External DDC/CI displays reset
+# their brightness to 0 when Hyprland re-initializes the output (every config
+# reload, e.g. on wallpaper change or update). We persist the last-known
+# percentage so it can be restored after the reload.
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/brightness"
+state_file="$state_dir/$cache_name"
 unavailable_cache_seconds=60
 range_cache_seconds=10
+restore_attempts=10
+restore_sleep=0.5
+
+persist_percent() {
+  mkdir -p "$state_dir" 2>/dev/null || true
+  printf '%s\n' "$1" >"$state_file" 2>/dev/null || true
+}
 
 cache_unavailable() {
   mkdir -p "$cache_dir" 2>/dev/null || true
@@ -107,10 +121,42 @@ maximum=""
 percent=""
 range_cached_at=""
 
+if [[ $step == "restore" ]]; then
+  # Re-apply the persisted percentage after Hyprland re-initialized the
+  # output. DDC/CI is briefly unavailable right after a modeset, so retry.
+  persisted=""
+  [[ -r $state_file ]] && read -r persisted <"$state_file" 2>/dev/null || true
+  if [[ ! $persisted =~ ^[0-9]+$ ]] || ((persisted < 1 || persisted > 100)); then
+    exit 1
+  fi
+  for _ in $(seq 1 $restore_attempts); do
+    if read -r bus current maximum < <(read_brightness) 2>/dev/null; then
+      ((raw_target = (persisted * maximum + 50) / 100))
+      if ddcutil --bus "$bus" --skip-ddc-checks --noverify setvcp 10 "$raw_target" >/dev/null 2>&1; then
+        printf '%s\n' "$persisted"
+        exit 0
+      fi
+    fi
+    sleep "$restore_sleep"
+  done
+  exit 1
+fi
+
 if [[ -z $step ]]; then
   read -r bus current maximum < <(read_brightness) || exit 1
   [[ -n ${bus:-} && -n ${current:-} && -n ${maximum:-} ]] || exit 1
   ((percent = (current * 100 + maximum / 2) / maximum))
+  # Self-heal the saved level from a read, but never let a post-reload reset
+  # clobber it: a DDC reset reads low (0, or sometimes 1), and an explicit set
+  # clamps to a minimum of 1, so any read below the saved level is a reset.
+  # Persist when there is no saved level yet (bootstrap) or the read raised it.
+  if ((percent > 0)); then
+    saved=""
+    [[ -r $state_file ]] && read -r saved <"$state_file" 2>/dev/null || true
+    if [[ ! $saved =~ ^[0-9]+$ ]] || ((percent > saved)); then
+      persist_percent "$percent"
+    fi
+  fi
   printf '%s\n' "$percent"
   exit 0
 fi
@@ -165,4 +211,5 @@ if ! ddcutil --bus "$bus" --skip-ddc-checks --noverify setvcp 10 "$raw_target" >
   exit 1
 fi
 
+persist_percent "$target"
 printf '%s\n' "$target"
