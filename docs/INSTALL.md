@@ -103,7 +103,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
 - **fonts.sh** — Copy `r2-d2.ttf` and `manrope-variable.ttf` to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
-- **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X) in the default browser (Brave Origin)
+- **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X, Telegram) in the default browser (Brave Origin)
 - **tuis.sh** — Installs no TUI shortcuts
 
 **Phase 3 — Config** (`install/config/all.sh`)

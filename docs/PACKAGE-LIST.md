@@ -24,7 +24,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 | ------ | ---- |
 | **fonts.sh** | Copies **r2-d2.ttf** and **manrope-variable.ttf** from `default/config/` to `~/.local/share/fonts`, runs `fc-cache`. |
 | **icons.sh** | Copies bundled PNG icons to `~/.local/share/applications/icons`. |
-| **webapps.sh** | Web app shortcuts in the default browser (Brave Origin): **WhatsApp**, **YouTube**, **X**. |
+| **webapps.sh** | Web app shortcuts in the default browser (Brave Origin): **WhatsApp**, **YouTube**, **X**, **Telegram**. |
 | **tuis.sh** | Installs no TUI shortcuts. |
 
 ### 1.4 Config – keyboard (keyd)
@@ -167,7 +167,7 @@ Everything below is **optional** from the menu (Install → …). No pacman pack
 | ---------- | ---- |
 | **Package** | `r2-d2-pkg-install` — pick any package from official repos. |
 | **AUR** | `r2-d2-pkg-aur-install` — pick any package from AUR. |
-| **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X. |
+| **Web App** | `r2-d2-webapp-install` — create a web app shortcut (any URL). Default install already adds WhatsApp, YouTube, X, Telegram. |
 | **AppImage** | `r2-d2-appimage-install` — name and URL. Saves to `~/Applications` and uses the icon inside the AppImage. |
 | **Development** | Node.js, Go, Python, Rust. |
 | **Editor** | Cursor, VS Code, T3 Code, OpenCode, Hermes. Cursor is installed by default. Remove lists only editors that are installed. Removing Cursor or Voxtype stays off on later updates until you install that one again. Installing K-2SO still installs OpenCode when it is missing. |
@@ -186,7 +186,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 - **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
-- **Default web apps:** 3 (WhatsApp, YouTube, X).
+- **Default web apps:** 4 (WhatsApp, YouTube, X, Telegram).
 - **Default editors:** Cursor (AUR).
 - **Menu-installable:** Package (any), AUR (any), Web App, AppImage, Development runtimes, Editor (Cursor, VS Code, T3 Code, OpenCode, Hermes), K-2SO, Brook, Dropbox, Tailscale.
 

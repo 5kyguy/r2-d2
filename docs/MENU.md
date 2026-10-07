@@ -130,6 +130,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
 | **Super + Ctrl + Y** | YouTube |
 | **Super + Ctrl + W** | WhatsApp |
 | **Super + Ctrl + X** | X |
+| **Super + Ctrl + T** | Telegram |
 | **Super + Ctrl + G** | Steam |
 
 ### System settings (Super + Shift + letter)

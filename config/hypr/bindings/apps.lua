@@ -8,4 +8,5 @@ hl.bind("SUPER + M", hl.dsp.exec_cmd("r2-d2-launch-brook"), { description = "Bro
 hl.bind("SUPER + CTRL + Y", hl.dsp.exec_cmd("r2-d2-launch-or-focus YouTube uwsm-app -- gtk-launch YouTube"), { description = "YouTube" })
 hl.bind("SUPER + CTRL + W", hl.dsp.exec_cmd("r2-d2-launch-or-focus WhatsApp uwsm-app -- gtk-launch WhatsApp"), { description = "WhatsApp" })
 hl.bind("SUPER + CTRL + X", hl.dsp.exec_cmd("r2-d2-launch-or-focus X uwsm-app -- gtk-launch X"), { description = "X" })
+hl.bind("SUPER + CTRL + T", hl.dsp.exec_cmd("r2-d2-launch-or-focus Telegram uwsm-app -- gtk-launch Telegram"), { description = "Telegram" })
 hl.bind("SUPER + CTRL + G", hl.dsp.exec_cmd("r2-d2-launch-or-focus steam uwsm-app -- gtk-launch steam"), { description = "Steam" })
