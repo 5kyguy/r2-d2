@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.pomodoro",
+  "name": "Pomodoro",
+  "version": "1.0.0",
+  "author": "Omarchy",
+  "description": "Focus timer with focus, short break, and long break phases",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "Panel.qml"
+  }
+}
