@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.screentime",
+  "name": "Screen Time",
+  "version": "1.0.0",
+  "author": "Omarchy",
+  "description": "App-usage heatmap and top apps from the r2-d2-screentime sampler",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "Panel.qml"
+  }
+}

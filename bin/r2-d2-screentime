@@ -1,0 +1,156 @@
+#!/bin/bash
+
+# Screen Time: sample the focused window every 10s into SQLite, and export
+# per-app usage and a 7-day x 24-hour heatmap for the shell panel.
+#
+#   r2-d2-screentime [daemon]   long-running sampler (default; runs as a user service)
+#   r2-d2-screentime sample      take one sample and exit (for a timer-driven setup)
+#   r2-d2-screentime --export all    JSON: 7x24 heatmap + per-day totals + today total
+#   r2-d2-screentime --export today  JSON: today's per-app seconds + today total
+#
+# A "sample" records the currently focused Hyprland window and credits INTERVAL
+# seconds to its app class. Idle time (no focused window) is not counted, so the
+# numbers reflect active app usage, not wall-clock uptime. History is pruned to
+# KEEP_DAYS.
+
+set -uo pipefail
+
+export R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+
+python3 - "$@" <<'PY'
+import json
+import os
+import sqlite3
+import subprocess
+import sys
+import time
+from datetime import datetime, timedelta
+
+HOME = os.path.expanduser("~")
+STATE = os.environ.get("XDG_STATE_HOME") or os.path.join(HOME, ".local", "state")
+DATA = os.path.join(STATE, "r2-d2", "screentime")
+DB = os.path.join(DATA, "screentime.db")
+
+INTERVAL = 10      # seconds credited per sample
+KEEP_DAYS = 7
+
+
+def connect():
+    os.makedirs(DATA, exist_ok=True)
+    c = sqlite3.connect(DB)
+    c.execute(
+        "CREATE TABLE IF NOT EXISTS focus("
+        " ts INTEGER NOT NULL,"
+        " day TEXT NOT NULL,"
+        " hour INTEGER NOT NULL,"
+        " app TEXT NOT NULL,"
+        " secs INTEGER NOT NULL)"
+    )
+    c.execute("CREATE INDEX IF NOT EXISTS focus_day ON focus(day)")
+    c.execute("CREATE INDEX IF NOT EXISTS focus_app_day ON focus(app, day)")
+    return c
+
+
+def focused_app():
+    """Return the app class of the focused Hyprland window, or '' when idle."""
+    try:
+        out = subprocess.check_output(["hyprctl", "activewindow", "-j"],
+                                      text=True, stderr=subprocess.DEVNULL)
+    except Exception:
+        return ""
+    try:
+        w = json.loads(out)
+    except ValueError:
+        return ""
+    if not w or not isinstance(w, dict):
+        return ""
+    cls = (w.get("class") or "").strip()
+    return cls
+
+
+def sample_once(c):
+    cls = focused_app()
+    if not cls:
+        return  # idle: no focused window, do not credit any app
+    now = datetime.now()
+    c.execute(
+        "INSERT INTO focus(ts, day, hour, app, secs) VALUES(?,?,?,?,?)",
+        (int(now.timestamp()), now.strftime("%Y-%m-%d"), now.hour, cls, INTERVAL),
+    )
+    c.commit()
+
+
+def prune(c):
+    cutoff = (datetime.now() - timedelta(days=KEEP_DAYS)).strftime("%Y-%m-%d")
+    c.execute("DELETE FROM focus WHERE day < ?", (cutoff,))
+    c.commit()
+
+
+def export_all(c):
+    today = datetime.now().date()
+    days = [(today - timedelta(days=6 - d)) for d in range(7)]
+    day_strs = [d.strftime("%Y-%m-%d") for d in days]
+    # heatmap[d][h] = seconds focused on that calendar day during hour h
+    heatmap = [[0] * 24 for _ in range(7)]
+    day_totals = [0] * 7
+    for d, ds in enumerate(day_strs):
+        rows = c.execute(
+            "SELECT hour, SUM(secs) FROM focus WHERE day=? GROUP BY hour", (ds,)
+        ).fetchall()
+        for hour, secs in rows:
+            heatmap[d][hour] = int(secs or 0)
+            day_totals[d] += int(secs or 0)
+    total = sum(day_totals)
+    today_total = day_totals[6]
+    days_out = [
+        {"label": days[i].strftime("%a"), "secs": day_totals[i], "is_today": i == 6}
+        for i in range(7)
+    ]
+    return {
+        "heatmap": heatmap,
+        "days": days_out,
+        "total_secs": total,
+        "today_secs": today_total,
+    }
+
+
+def export_today(c):
+    today = datetime.now().strftime("%Y-%m-%d")
+    rows = c.execute(
+        "SELECT app, SUM(secs) AS s FROM focus WHERE day=? GROUP BY app ORDER BY s DESC",
+        (today,),
+    ).fetchall()
+    apps = [{"name": name, "secs": int(secs or 0)} for name, secs in rows if name]
+    total = sum(a["secs"] for a in apps)
+    return {"apps": apps, "total_secs": total}
+
+
+def main():
+    args = sys.argv[1:]
+    c = connect()
+    if args and args[0] == "sample":
+        sample_once(c)
+        return
+    if args and args[0] == "--export" and len(args) > 1:
+        if args[1] == "all":
+            print(json.dumps(export_all(c)))
+        elif args[1] == "today":
+            print(json.dumps(export_today(c)))
+        return
+    # default: daemon loop
+    last_prune = 0
+    while True:
+        sample_once(c)
+        t = time.time()
+        if t - last_prune > 3600:
+            prune(c)
+            last_prune = t
+        time.sleep(INTERVAL)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)
+PY

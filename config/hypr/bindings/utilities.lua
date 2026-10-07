@@ -22,6 +22,7 @@ hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("r2-d2-toggle-builtin-display"), { 
 hl.bind("SUPER + SHIFT + M", hl.dsp.exec_cmd("r2-d2-toggle-display-mirror"), { description = "Toggle display mirror" })
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("r2-d2-toggle-notification-silencing"), { description = "Toggle notification silencing" })
 hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.power"), { description = "Power panel" })
+hl.bind("SUPER + ALT + T", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.screentime"), { description = "Screen time panel" })
 hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("r2-d2-hyprland-monitor-layout external-left"), { description = "Apply monitor layout (external left)" })
 
 -- Captures (hardware keys)
