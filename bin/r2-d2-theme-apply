@@ -81,10 +81,13 @@ accent="${accent^^}"
 pending="$(mktemp "$R2D2_ROOT/.theme-state.XXXXXX")"
 trap 'rm -f "$pending"' EXIT
 
+# Build (and validate) the document before touching the staged state. A failed
+# validation must leave the previously staged document intact; only a render
+# failure after a successful build clears the staged document.
+"$R2D2_ROOT/bin/r2-d2-theme-state" build "$accent" >"$pending"
+
 # A partial render must never leave an older document eligible for activation.
 rm -f "$R2D2_ROOT/.theme-state.json"
-
-"$R2D2_ROOT/bin/r2-d2-theme-state" build "$accent" >"$pending"
 
 # Render every template in the matugen config into $R2D2_PATH. Paths in
 # config.toml resolve relative to the config file's own directory, so this

@@ -1,4 +1,11 @@
-"""Isolated integration tests: never use the real home or running desktop."""
+"""Isolated integration tests: never use the real home or running desktop.
+
+These tests exercise the v2 skyguy-visual theme contract: matugen (Material You)
+is the color engine, the desktop renders templates in dark mode only, and the
+published theme document carries the full dark + light role set plus a SHA-256
+revision over the canonical body. matugen must be installed to run the suite
+(the desktop is the authority; the fixture pins the expected palettes).
+"""
 import json
 import os
 from pathlib import Path
@@ -41,10 +48,14 @@ class ThemeStateTests(unittest.TestCase):
         staged = self.repo / '.theme-state.json'
         self.assertTrue(staged.is_file(), 'Successful render must stage a versioned document')
         data = json.loads(staged.read_text())
-        self.assertEqual(data['version'], 1)
-        self.assertEqual(data['accent']['source'], '#1D4ED8')
-        self.assertEqual(data['accent']['dark']['text'], '#5A7EE3')
-        self.assertEqual(data['palette']['background'], '#121212')
+        self.assertEqual(data['version'], 2)
+        self.assertEqual(data['contract'], 'skyguy-visual')
+        self.assertEqual(data['contract_version'], 2)
+        self.assertEqual(data['source'], '#1D4ED8')
+        self.assertEqual(data['scheme'], 'scheme-tonal-spot')
+        self.assertEqual(data['colors']['dark']['primary'], '#B7C4FF')
+        self.assertEqual(data['colors']['dark']['background'], '#121318')
+        self.assertEqual(data['colors']['light']['primary'], '#4E5B92')
         self.assertRegex(data['revision'], r'^[0-9a-f]{64}$')
         self.assertEqual((self.state / 'theme-accent').read_text().strip(), '#1D4ED8')
         self.assertFalse((self.state / 'theme.json').exists())
@@ -69,7 +80,7 @@ class ThemeStateTests(unittest.TestCase):
         self.apply()
         self.assertEqual(self.run_script('r2-d2-theme-sync-live').returncode, 0)
         before = (self.state / 'theme.json').read_bytes()
-        (self.repo / 'config/theme/templates/share-picker.css.in').unlink()
+        (self.repo / 'config/theme/matugen/templates/share-picker.css').unlink()
         result = self.run_script('r2-d2-theme-apply', '--from-background')
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual((self.state / 'theme-accent').read_text().strip(), '#1D4ED8')
@@ -108,7 +119,7 @@ class ThemeStateTests(unittest.TestCase):
         result = self.run_script('r2-d2-theme-apply', '--from-state')
         self.assertEqual(result.returncode, 0, result.stderr)
         data = json.loads((self.repo / '.theme-state.json').read_text())
-        self.assertEqual(data['accent']['source'], '#0B3D2E')
+        self.assertEqual(data['source'], '#0B3D2E')
         self.assertEqual((self.state / 'theme-accent').read_text(), '#0B3D2E\n')
 
     def test_sync_rejects_tampered_schema_and_missing_outputs_before_copying(self):
@@ -131,14 +142,15 @@ class ThemeStateTests(unittest.TestCase):
         self.assertFalse((self.state / 'theme.json').exists())
 
     def test_fixture_parity_for_every_supported_sample(self):
-        fixture = json.loads((REPO / 'docs/fixtures/contrast-v1.json').read_text())
+        fixture = json.loads((REPO / 'docs/fixtures/contrast-v2.json').read_text())
         for name, modes in fixture['samples'].items():
             with self.subTest(sample=name):
-                result = self.run_script('r2-d2-theme-state', 'build', modes['dark']['source'])
+                result = self.run_script('r2-d2-theme-state', 'build', modes['source'])
                 self.assertEqual(result.returncode, 0, result.stderr)
-                accent = json.loads(result.stdout)['accent']
+                doc = json.loads(result.stdout)
+                self.assertEqual(doc['source'], modes['source'])
                 for mode in ('dark', 'light'):
-                    self.assertEqual(accent[mode], modes[mode])
+                    self.assertEqual(doc['colors'][mode], modes[mode])
 
     def test_first_install_without_xdg_or_wallpaper_uses_fallback(self):
         self.env.pop('XDG_STATE_HOME')
@@ -147,7 +159,7 @@ class ThemeStateTests(unittest.TestCase):
         legacy = self.home / '.local/state/r2-d2'
         self.assertEqual((legacy / 'theme-accent').read_text(), '#EAEAEA\n')
         self.assertEqual(self.run_script('r2-d2-theme-sync-live').returncode, 0)
-        self.assertEqual(json.loads((legacy / 'theme.json').read_text())['accent']['source'], '#EAEAEA')
+        self.assertEqual(json.loads((legacy / 'theme.json').read_text())['source'], '#EAEAEA')
 
     def test_failed_copy_does_not_advance_active_revision(self):
         self.apply()
@@ -201,7 +213,7 @@ class ThemeStateTests(unittest.TestCase):
         result = self.run_script('r2-d2-theme-bg-set', str(wallpaper))
         self.assertEqual(result.returncode, 0, result.stderr)
         data = json.loads((self.state / 'theme.json').read_text())
-        self.assertEqual(data['accent']['source'], '#1D4ED8')
+        self.assertEqual(data['source'], '#1D4ED8')
         self.assertEqual((self.home / 'reload-accent').read_text(), '#1D4ED8')
         self.assertEqual((self.repo / 'backgrounds/@background').resolve(), wallpaper)
         self.assertTrue((self.home / '.config/hypr/looknfeel.lua').is_file())
@@ -229,8 +241,8 @@ class ThemeStateTests(unittest.TestCase):
             while not stop.is_set():
                 try:
                     data = json.loads((self.state / 'theme.json').read_text())
-                    observations.append(data['accent']['source'])
-                    self.assertEqual(data['accent']['dark']['source'], data['accent']['source'])
+                    observations.append(data['source'])
+                    self.assertEqual(data['colors']['dark']['source_color'], data['source'])
                 except Exception as error:
                     failures.append(str(error))
         reader = threading.Thread(target=observe)
@@ -255,49 +267,67 @@ class ThemeStateTests(unittest.TestCase):
     def test_rendered_templates_use_derived_roles(self):
         self.apply('#1D4ED8')
         document = json.loads((self.repo / '.theme-state.json').read_text())
-        dark = document['accent']['dark']
-        text = dark['text'].lstrip('#')
-        red, green, blue = int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16)
-        hyprlock = (self.repo / 'config/hypr/hyprlock.conf').read_text()
-        self.assertIn(f'$font_color    = rgba({red}, {green}, {blue}, 1.0)', hyprlock)
+        dark = document['colors']['dark']
+        primary = dark['primary'].lower().lstrip('#')
+        outline = dark['outline'].lower().lstrip('#')
+        on_primary = dark['on_primary'].lower().lstrip('#')
+        background = dark['background'].lower().lstrip('#')
+
+        # Quickshell surfaces consume colors.toml; the desktop stays dark.
+        colors = (self.repo / 'config/r2-d2/colors.toml').read_text()
+        self.assertIn(f'accent = "#{primary}"', colors)
+        self.assertIn(f'background = "#{background}"', colors)
+
         look = (self.repo / 'config/hypr/looknfeel.lua').read_text()
-        self.assertIn(f'rgb({dark["border"].lstrip("#")})', look)
+        self.assertIn(f'rgb({outline})', look)
+        self.assertNotIn('{{', look)
+
         walker = (self.repo / 'default/config/walker/themes/default/style.css').read_text()
         for leftover in ('#EAEAEA', '#5e5e5e', '#fffffaaa'):
             self.assertNotIn(leftover, walker)
         self.assertIn('JetBrainsMono Nerd Font', walker)
-        waybar = (self.repo / 'config/waybar/waybar.css').read_text()
-        self.assertNotIn('#636e72', waybar)
-        self.assertIn(dark['border'], waybar)
-        mako = (self.repo / 'config/mako/config').read_text()
-        self.assertIn('font=Manrope 12', mako)
-        self.assertIn(f'border-color={dark["border"]}', mako)
-        self.assertIn('text-color=#D25E5E', mako)
+        self.assertNotIn('{{', walker)
+
+        zathura = (self.repo / 'config/zathura/zathurarc').read_text()
+        self.assertIn('JetBrainsMono Nerd Font', zathura)
+        self.assertNotIn('{{', zathura)
+
+        palette = (self.repo / 'default/sddm/r2-d2/Palette.qml').read_text()
+        self.assertIn(f'property color primary: "#{primary}"', palette)
+        self.assertIn(f'property color background: "#{background}"', palette)
+        self.assertIn(f'property color outline: "#{outline}"', palette)
+        self.assertNotIn('{{', palette)
+
         starship = (self.repo / 'config/starship.toml').read_text()
         self.assertIn('bold #D25E5E', starship)
+        self.assertIn(f'bold #{on_primary}', starship)
+        self.assertNotIn('{{', starship)
+
         alacritty = (self.repo / 'config/alacritty/alacritty.toml').read_text()
         self.assertNotIn('#bebebe', alacritty)
         self.assertNotIn('#333333', alacritty)
+        self.assertNotIn('{{', alacritty)
+
         for rendered in (
-            self.repo / 'config/hypr/hyprlock.conf',
-            self.repo / 'config/waybar/waybar.css',
-            self.repo / 'config/mako/config',
-            walker,
+            self.repo / 'config/hypr/looknfeel.lua',
+            self.repo / 'config/r2-d2/colors.toml',
+            self.repo / 'default/config/walker/themes/default/style.css',
+            self.repo / 'config/zathura/zathurarc',
+            self.repo / 'default/sddm/r2-d2/Palette.qml',
         ):
-            text_out = rendered if isinstance(rendered, str) else rendered.read_text()
-            self.assertNotIn('{{', text_out)
-        source = document['accent']['source']
+            self.assertNotIn('{{', rendered.read_text())
+
         gtk4 = (self.repo / 'config/gtk-4.0/gtk.css').read_text()
-        self.assertIn(f'@define-color accent_bg_color {source};', gtk4)
+        self.assertIn(f'@define-color accent_bg_color #{primary};', gtk4)
         self.assertNotIn('window_bg_color', gtk4)
         self.assertNotIn('{{', gtk4)
         hermes = (self.repo / 'config/theme/accent-apps/hermes-skin.yaml').read_text()
-        self.assertIn(f'ui_accent: "{source}"', hermes)
+        self.assertIn(f'ui_accent: "#{primary}"', hermes)
         self.assertNotIn('status_bar_bg', hermes)
         self.assertNotIn('{{', hermes)
         opencode = json.loads((self.repo / 'config/theme/accent-apps/opencode.json').read_text())
-        self.assertEqual(opencode['defs']['darkAccent'], source)
-        self.assertEqual(opencode['defs']['lightAccent'], source)
+        self.assertEqual(opencode['defs']['darkAccent'], f'#{primary}')
+        self.assertEqual(opencode['defs']['lightAccent'], f'#{primary}')
         self.assertEqual(opencode['defs']['darkStep9'], '#fab283')
         self.assertNotIn('#9d7cd8', json.dumps(opencode))
 
@@ -339,7 +369,7 @@ class ThemeStateTests(unittest.TestCase):
                 result = self.run_script(command)
                 self.assertEqual(result.returncode, 0, result.stderr)
 
-        source = '#1D4ED8'
+        primary = '#b7c4ff'
         self.assertEqual((self.home / '.config/gtk-4.0/gtk.css').read_text(),
                          (self.repo / 'config/gtk-4.0/gtk.css').read_text())
         self.assertEqual((hermes / 'skins/r2-d2.yaml').read_text(),
@@ -349,7 +379,7 @@ class ThemeStateTests(unittest.TestCase):
         self.assertIn('compact: false\n', hermes_config)
         self.assertIn('other: 1\n', hermes_config)
         theme = json.loads((self.home / '.config/opencode/themes/opencode.json').read_text())
-        self.assertEqual(theme['defs']['darkAccent'], source)
+        self.assertEqual(theme['defs']['darkAccent'], primary)
         self.assertEqual(theme['defs']['darkStep9'], '#fab283')
         self.assertFalse((self.home / '.config/opencode/tui.json').exists())
         self.assertEqual(opencode.read_text(), original)
@@ -358,11 +388,11 @@ class ThemeStateTests(unittest.TestCase):
         self.assertEqual(settings['workbench.colorTheme'], 'Default Dark+')
         colors = settings['workbench.colorCustomizations']
         self.assertEqual(colors['editor.background'], '#111111')
-        self.assertEqual(colors['focusBorder'], source)
+        self.assertEqual(colors['focusBorder'], primary)
         self.assertNotIn('workbench.colorTheme', colors)
         cloned = (self.home / '.config/Kvantum/r2-d2/r2-d2.kvconfig').read_text()
-        self.assertIn(f'highlight.color={source}\n', cloned)
-        self.assertIn(f'link.color={source}\n', cloned)
+        self.assertIn(f'highlight.color={primary}\n', cloned)
+        self.assertIn(f'link.color={primary}\n', cloned)
         self.assertIn('window.color=#353535\n', cloned)
         self.assertEqual((self.home / '.config/Kvantum/r2-d2/r2-d2.svg').read_text(), '<svg/>\n')
         selected = active.read_text()
