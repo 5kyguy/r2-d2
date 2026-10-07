@@ -150,6 +150,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
 | **Super + Alt + T** | Screen time panel |
 | **Super + Alt + C** | Pomodoro timer |
 | **Super + Alt + G** | Grep search (Grap) |
+| **Super + Alt + D** | Drive health panel |
 | **Super + Shift + L** | Monitor layout (external left) |
 
 ### Tiling and workspaces

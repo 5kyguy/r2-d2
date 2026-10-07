@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.drivehealth",
+  "name": "DriveHealth",
+  "version": "1.0.0",
+  "author": "Omarchy",
+  "description": "Disk health, usage, temperature, SMART status, and per-mount speed test",
+  "kinds": [
+    "panel"
+  ],
+  "entryPoints": {
+    "panel": "Panel.qml"
+  }
+}

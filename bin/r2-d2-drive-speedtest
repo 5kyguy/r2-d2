@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# User-initiated disk speed test for a directory's underlying filesystem.
+# Writes a temp file, reads it back, reports MB/s, then deletes it.
+#
+# Usage: r2-d2-drive-speedtest <dir> [size_mb]
+# Output: JSON { "dir": "...", "size_mb": N, "write_mbps": X, "read_mbps": Y,
+#                "error": "" }
+
+set -uo pipefail
+
+dir="${1:?usage: r2-d2-drive-speedtest <dir> [size_mb]}"
+size_mb="${2:-256}"
+
+if [ ! -d "$dir" ]; then
+  printf '{"dir":"%s","size_mb":%s,"write_mbps":0,"read_mbps":0,"error":"not a directory"}\n' \
+    "$dir" "$size_mb"
+  exit 1
+fi
+
+tmp="$(mktemp "$dir/.r2-d2-speedtest.XXXXXX")"
+trap 'rm -f "$tmp"' EXIT
+
+python3 - "$tmp" "$size_mb" "$dir" <<'PY'
+import json
+import os
+import subprocess
+import sys
+
+tmp, size_mb, dir_ = sys.argv[1], int(sys.argv[2]), sys.argv[3]
+bytes_total = size_mb * 1024 * 1024
+out = {"dir": dir_, "size_mb": size_mb, "write_mbps": 0.0, "read_mbps": 0.0, "error": ""}
+
+def time_write():
+    # dd writes from /dev/zero; conv=fdatasync flushes before timing stops.
+    try:
+        p = subprocess.run(
+            ["dd", "if=/dev/zero", "of=" + tmp, "bs=1M", "count=" + str(size_mb),
+             "oflag=direct", "conv=fdatasync", "status=none"],
+            capture_output=True, text=True)
+        return p.returncode == 0
+    except Exception as e:
+        out["error"] = "write: %s" % e
+        return False
+
+def time_read():
+    try:
+        p = subprocess.run(
+            ["dd", "if=" + tmp, "of=/dev/null", "bs=1M", "status=none"],
+            capture_output=True, text=True)
+        return p.returncode == 0
+    except Exception as e:
+        out["error"] = "read: %s" % e
+        return False
+
+import time
+if not os.access(dir_, os.W_OK):
+    out["error"] = "not writable"
+    print(json.dumps(out)); sys.exit(0)
+
+t0 = time.monotonic()
+ok = time_write()
+t1 = time.monotonic()
+if ok and (t1 - t0) > 0:
+    out["write_mbps"] = round(bytes_total / (t1 - t0) / (1024 * 1024), 1)
+
+if ok:
+    t0 = time.monotonic()
+    ok = time_read()
+    t1 = time.monotonic()
+    if ok and (t1 - t0) > 0:
+        out["read_mbps"] = round(bytes_total / (t1 - t0) / (1024 * 1024), 1)
+
+print(json.dumps(out))
+PY

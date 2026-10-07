@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# Drive health snapshot for the DriveHealth panel. Stdlib + lsblk/df, with
+# best-effort temperature (NVMe hwmon sysfs) and SMART status (smartctl when
+# installed and readable). No root is required; when smartctl is missing or
+# the device node is not readable as the user, SMART is reported as "" and
+# the panel shows a dash instead of a status.
+#
+# Output: one JSON object on stdout:
+#   { "disks": [ { name, model, tran, rota, size, temp_c, smart,
+#                  partitions: [ { name, mount, fstype, size, used, avail, use_pct } ] } ] }
+
+set -uo pipefail
+
+python3 - <<'PY'
+import json
+import os
+import shutil
+import subprocess
+
+# Whole disks (no parent) with their partitions (children that carry mounts).
+def lsblk_tree():
+    try:
+        out = subprocess.check_output(["lsblk", "-JbO"], text=True, stderr=subprocess.DEVNULL)
+    except Exception:
+        return []
+    try:
+        return json.loads(out).get("blockdevices", [])
+    except ValueError:
+        return []
+
+def df_map():
+    """mountpoint -> {size, used, avail, use_pct, fstype}."""
+    m = {}
+    try:
+        out = subprocess.check_output(["df", "-B1", "--output=source,size,used,avail,pcent,target,fstype"],
+                                       text=True, stderr=subprocess.DEVNULL)
+    except Exception:
+        return m
+    lines = out.splitlines()[1:]
+    for line in lines:
+        parts = line.split()
+        if len(parts) < 7:
+            continue
+        source, size, used, avail, pcent, target = parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]
+        fstype = parts[6] if len(parts) > 6 else ""
+        try:
+            m[target] = {
+                "size": int(size), "used": int(used), "avail": int(avail),
+                "use_pct": int(pcent.rstrip("%")) if pcent.rstrip("%").isdigit() else 0,
+                "fstype": fstype,
+            }
+        except ValueError:
+            continue
+    return m
+
+def hwmon_temp(dev):
+    """Best-effort °C for a block device from the hwmon sysfs (NVMe)."""
+    base = "/sys/class/block/%s/device" % dev
+    if not os.path.isdir(base):
+        return None
+    for root, dirs, files in os.walk(base):
+        if os.path.basename(root).startswith("hwmon"):
+            for f in files:
+                if f.startswith("temp") and f.endswith("_input"):
+                    try:
+                        with open(os.path.join(root, f)) as fh:
+                            return int(fh.read().strip()) // 1000
+                    except Exception:
+                        continue
+    return None
+
+def smart_status(dev):
+    """PASSED / FAILED / "" (unknown). Best-effort, no root."""
+    if not os.path.exists("/dev/%s" % dev):
+        return ""
+    if not shutil.which("smartctl"):
+        return ""
+    try:
+        p = subprocess.run(["smartctl", "-H", "/dev/%s" % dev],
+                           capture_output=True, text=True, timeout=10)
+    except Exception:
+        return ""
+    out = (p.stdout + p.stderr).lower()
+    if p.returncode == 0 or "passed" in out:
+        return "PASSED" if "fail" not in out else "FAILED"
+    if "permission denied" in out or p.returncode & 0x40:
+        return ""  # needs root
+    return ""
+
+def collect_partitions(node, dfm):
+    parts = []
+    for child in node.get("children", []) or []:
+        mnts = child.get("mountpoints") or []
+        if mnts:
+            for mp in mnts:
+                d = dfm.get(mp, {})
+                parts.append({
+                    "name": child.get("name", ""),
+                    "mount": mp,
+                    "fstype": child.get("fstype") or d.get("fstype", ""),
+                    "size": d.get("size", int(child.get("size", 0) or 0)),
+                    "used": d.get("used", 0),
+                    "avail": d.get("avail", int(child.get("size", 0) or 0)),
+                    "use_pct": d.get("use_pct", 0),
+                })
+        # recurse for nested (e.g. LUKS containers)
+        parts.extend(collect_partitions(child, dfm))
+    return parts
+
+def main():
+    dfm = df_map()
+    disks = []
+    for node in lsblk_tree():
+        # only whole disks at the top level (no parent)
+        if node.get("type") in ("disk", "loop") and not node.get("children"):
+            continue
+        if node.get("type") not in ("disk",):
+            continue
+        name = node.get("name", "")
+        disks.append({
+            "name": name,
+            "model": (node.get("model") or "").strip(),
+            "tran": node.get("tran") or "",
+            "rota": bool(node.get("rota", False)),
+            "size": int(node.get("size", 0) or 0),
+            "temp_c": hwmon_temp(name),
+            "smart": smart_status(name),
+            "partitions": collect_partitions(node, dfm),
+        })
+    print(json.dumps({"disks": disks}))
+
+main()
+PY
