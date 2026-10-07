@@ -24,6 +24,7 @@ BarWidget {
     return identity === "brook" || entry === "brook" || entry === "dev.skyguy.brook"
   }
   property bool cardOpen: false
+  property bool popoutSwitchClosing: false
   property bool pickerOpen: false
   property var results: []
   property string searchError: ""
@@ -54,7 +55,7 @@ BarWidget {
     searchSettled = false
     pickerOpen = true
     searchField.text = ""
-    searchField.forceActiveFocus()
+    searchFocus.restart()
     scheduleSearch()
   }
 
@@ -205,38 +206,102 @@ BarWidget {
       }
     }
 
-    Text {
-      id: titleLabel
-      textFormat: Text.PlainText
+    Item {
+      id: titleSlot
       anchors.verticalCenter: parent.verticalCenter
-      text: root.title + (root.artist ? "  ·  " + root.artist : "")
-      color: root.ink
-      font.family: root.bar ? root.bar.fontFamily : Style.font.family
-      font.pixelSize: Style.font.body
-      elide: Text.ElideRight
       width: Style.space(360)
+      implicitWidth: width
+      height: root.barSize
+      clip: true
+
+      readonly property string label: root.title + (root.artist ? "  ·  " + root.artist : "")
+      readonly property real gap: Style.space(48)
+      readonly property bool overflows: titleLabel.implicitWidth > width + 1
+      readonly property real cycle: titleLabel.implicitWidth + gap
+      property real marqueeOffset: 0
+      property bool marqueeReady: false
+
+      function armMarquee() {
+        marqueeScroll.stop()
+        marqueeHold.stop()
+        marqueeOffset = 0
+        if (overflows)
+          marqueeHold.start()
+      }
+
+      function startScroll() {
+        if (!overflows) return
+        marqueeScroll.from = 0
+        marqueeScroll.to = -cycle
+        marqueeScroll.duration = Math.max(2500, Math.round(cycle / 40 * 1000))
+        marqueeScroll.start()
+      }
+
+      onLabelChanged: if (marqueeReady) Qt.callLater(function() { armMarquee() })
+      onOverflowsChanged: if (marqueeReady) armMarquee()
+      Component.onCompleted: {
+        marqueeReady = true
+        armMarquee()
+      }
+
+      Text {
+        id: titleLabel
+        x: titleSlot.overflows ? titleSlot.marqueeOffset : 0
+        anchors.verticalCenter: parent.verticalCenter
+        textFormat: Text.PlainText
+        text: titleSlot.label
+        color: root.ink
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.body
+      }
+
+      Text {
+        visible: titleSlot.overflows
+        x: titleLabel.x + titleSlot.cycle
+        anchors.verticalCenter: parent.verticalCenter
+        textFormat: Text.PlainText
+        text: titleSlot.label
+        color: root.ink
+        font.family: root.bar ? root.bar.fontFamily : Style.font.family
+        font.pixelSize: Style.font.body
+      }
 
       MouseArea {
+        id: titleHover
         anchors.fill: parent
-        enabled: root.brookPlayer
-        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-        onClicked: root.openPicker()
+        hoverEnabled: true
+        cursorShape: root.brookPlayer ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: if (root.brookPlayer) root.openPicker()
+        onContainsMouseChanged: {
+          if (root.pickerOpen) {
+            root.cardOpen = false
+            return
+          }
+          if (containsMouse) {
+            cardClose.stop()
+            root.cardOpen = root.hasMedia
+          } else {
+            cardClose.restart()
+          }
+        }
       }
-    }
-  }
 
-  HoverHandler {
-    id: islandHover
-    onHoveredChanged: {
-      if (root.pickerOpen) {
-        root.cardOpen = false
-        return
+      Timer {
+        id: marqueeHold
+        interval: 3000
+        onTriggered: titleSlot.startScroll()
       }
-      if (hovered) {
-        cardClose.stop()
-        root.cardOpen = root.hasMedia
-      } else {
-        cardClose.restart()
+
+      NumberAnimation {
+        id: marqueeScroll
+        target: titleSlot
+        property: "marqueeOffset"
+        easing.type: Easing.Linear
+        onFinished: {
+          titleSlot.marqueeOffset = 0
+          if (titleSlot.overflows)
+            marqueeHold.start()
+        }
       }
     }
   }
@@ -262,7 +327,7 @@ BarWidget {
       if (containsMouse) {
         cardClose.stop()
         root.cardOpen = true
-      } else if (!islandHover.hovered) {
+      } else if (!titleHover.containsMouse) {
         cardClose.restart()
       }
     }
@@ -329,6 +394,12 @@ BarWidget {
   }
 
   Timer {
+    id: searchFocus
+    interval: 80
+    onTriggered: if (root.pickerOpen) searchField.forceActiveFocus()
+  }
+
+  Timer {
     id: searchDebounce
     interval: 150
     onTriggered: root.runSearch()
@@ -348,17 +419,16 @@ BarWidget {
     }
   }
 
-  PopupCard {
+  KeyboardPanel {
     id: picker
     anchorItem: root
     bar: root.bar
     owner: root
-    triggerMode: "click"
+    focusTarget: searchField
     open: root.pickerOpen && root.hasMedia
     padding: Style.space(8)
     contentWidth: picker.fittedContentWidth(Style.space(360))
     contentHeight: picker.fittedContentHeight(pickerCol.implicitHeight, Style.space(420))
-    onOpenChanged: if (open) searchField.forceActiveFocus()
 
     Column {
       id: pickerCol
