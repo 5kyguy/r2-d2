@@ -1,0 +1,271 @@
+#!/bin/bash
+
+# WatchCat dashboard generator. Stdlib only. Reads the daemon's DB and
+# live.json, writes a static HTML page that auto-reloads every 30s.
+#
+# Usage: r2-d2-watchcat-dash <out.html> [cap_mb]
+#
+# Colors come from the live R2-D2 theme document (~/.local/state/r2-d2/theme.json),
+# so the dashboard follows the current wallpaper accent. Falls back to the
+# dark base palette when no theme is selected yet.
+#
+# Port of uthman_dotfiles watchcat-dash.py, trimmed for the R2-D2 dark palette.
+
+set -uo pipefail
+
+export R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+
+python3 - "$@" <<'PY'
+import sys, html, os, json, sqlite3
+from datetime import datetime, date, timedelta
+
+HOME = os.path.expanduser("~")
+STATE = os.environ.get("XDG_STATE_HOME") or os.path.join(HOME, ".local", "state")
+DB = os.path.join(STATE, "r2-d2", "watchcat", "daemon.db")
+LIVE = os.path.join(STATE, "r2-d2", "watchcat", "live.json")
+THEME = os.path.join(STATE, "r2-d2", "theme.json")
+
+DEFAULT = {"background": "#121212", "foreground": "#D4D4D4", "accent": "#EAEAEA",
+           "critical": "#C73838", "warning": "#E07924", "inactive": "#606060",
+           "dim": "#8A8A8D"}
+
+
+def read_scheme():
+    pal = dict(DEFAULT)
+    try:
+        with open(THEME, encoding="utf-8") as f:
+            doc = json.load(f)
+        p = doc.get("palette", {})
+        for k, v in p.items():
+            if isinstance(v, str) and v.startswith("#"):
+                pal[{"dim_foreground": "dim"}.get(k, k)] = v
+        acc = doc.get("accent", {}).get("dark", {})
+        if acc.get("source", "").startswith("#"):
+            pal["accent"] = acc["source"]
+    except Exception:
+        pass
+    return pal
+
+
+def read_live():
+    d = {"state": "?", "err": "", "iface": "", "down": 0.0, "up": 0.0}
+    try:
+        with open(LIVE, encoding="utf-8") as f:
+            l = json.load(f)
+        d["state"], d["err"], d["iface"] = l.get("state", "?"), l.get("err", ""), l.get("iface", "")
+        for t in l.get("talkers") or []:
+            d["down"] += float(t.get("down", 0))
+            d["up"] += float(t.get("up", 0))
+    except Exception:
+        pass
+    return d
+
+
+def read_db():
+    day = date.today().isoformat()
+    if not os.path.exists(DB):
+        return day, 0.0, 0.0, [], []
+    conn = sqlite3.connect(DB)
+    conn.row_factory = sqlite3.Row
+    rx = tx = 0.0
+    r = conn.execute("SELECT rx_mb, tx_mb FROM day_total WHERE day=?", (day,)).fetchone()
+    if r:
+        rx, tx = r["rx_mb"] or 0, r["tx_mb"] or 0
+    week = [{"day": (date.fromisoformat(day) - timedelta(days=i)).isoformat(), "rx": 0.0, "tx": 0.0}
+            for i in range(6, -1, -1)]
+    for r in conn.execute("SELECT day, rx_mb, tx_mb FROM day_total ORDER BY day DESC LIMIT 7"):
+        for w in week:
+            if w["day"] == r["day"]:
+                w["rx"], w["tx"] = r["rx_mb"] or 0, r["tx_mb"] or 0
+    procs = [dict(r) for r in conn.execute(
+        "SELECT prog, rx_mb AS rx, tx_mb AS tx, peak_mb AS peak FROM day_proc WHERE day=? "
+        "ORDER BY rx_mb + tx_mb DESC", (day,))]
+    conn.close()
+    return day, rx, tx, week, procs
+
+
+def fmt_mb(mb):
+    if mb >= 1024:
+        return "%.2f GB" % (mb / 1024)
+    return "%.0f MB" % mb if mb >= 10 else "%.1f MB" % mb
+
+
+def fmt_kbs(k):
+    return "%.2f MB/s" % (k / 1024) if k >= 1024 else "%.0f KB/s" % k
+
+
+def fmt_peak(m):
+    return "%.1f MB/s" % m if m >= 1 else "%.0f KB/s" % (m * 1024)
+
+
+def esc(s):
+    return html.escape(str(s))
+
+
+def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
+           rx, tx, peak_max, nproc, week_rows, table_rows):
+    css = (
+        ":root{--bg:%s;--text:%s;--accent:%s;--critical:%s;--warning:%s;--dim:%s;"
+        "--inactive:%s;--card:#1a1a1a;--border:#2a2a2a;--bar:%s}"
+        "*{box-sizing:border-box}"
+        "body{margin:0;background:var(--bg);color:var(--text);"
+        "font-family:'JetBrainsMono Nerd Font',ui-monospace,monospace}"
+        "main{max-width:1100px;margin:0 auto;padding:28px 24px 48px}"
+        ".num{font-variant-numeric:tabular-nums}"
+        "header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px}"
+        "h1{font-size:16px;letter-spacing:.24em;text-transform:uppercase;margin:0}"
+        ".status{margin:8px 0 0;font-size:12px;color:var(--dim);display:flex;align-items:center;gap:8px}"
+        ".dot{width:8px;height:8px;border-radius:50%%}"
+        ".dot.ok{background:var(--accent);box-shadow:0 0 8px var(--accent)}"
+        ".dot.bad{background:var(--critical)}.dot.idle{background:var(--inactive)}"
+        ".meta{text-align:right}.meta .day{font-size:13px}.meta .stamp{font-size:11px;color:var(--dim);margin-top:4px}"
+        ".card{background:var(--card);border:1px solid var(--border);border-radius:12px}"
+        ".card-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}"
+        ".hero{padding:22px 26px;margin-bottom:14px}"
+        ".hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}"
+        ".budget{font-size:56px;font-weight:600;line-height:.95}"
+        ".budget-sub{margin-top:6px;font-size:12px;color:var(--dim)}"
+        ".live{display:flex;gap:22px;font-size:12px;color:var(--dim)}"
+        ".live .rate{display:inline-flex;align-items:center;gap:6px}"
+        ".live .rate b{font-size:16px;font-weight:500}"
+        ".numline{position:relative;margin:22px 0 6px}"
+        ".numline .track{height:2px;background:var(--border);border-radius:1px;position:relative}"
+        ".numline .fill{position:absolute;top:-2px;left:0;height:6px;border-radius:3px;"
+        "background:var(--bar);width:%.1f%%;transition:width .7s}"
+        ".numline .marker{position:absolute;top:-9px;left:calc(%.1f%% - 9px);width:18px;height:18px;"
+        "border-radius:50%%;background:var(--card);border:3px solid var(--bar);transition:left .7s}"
+        ".ticks{display:flex;justify-content:space-between;margin-top:12px;font-size:10px;color:var(--inactive)}"
+        ".statstrip{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;"
+        "border:1px solid var(--border);border-radius:10px;overflow:hidden}"
+        ".stat{padding:12px 16px}.stat+.stat{border-left:1px solid var(--border)}"
+        ".stat .slabel{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}"
+        ".stat .sval{font-size:20px;font-weight:600;margin-top:4px}"
+        ".panel{padding:16px 20px;margin-bottom:14px}.panel .card-label{margin-bottom:12px}"
+        "table{width:100%%;border-collapse:collapse;font-size:13px}"
+        "th{text-align:left;font-size:10px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;"
+        "color:var(--dim);padding:4px 6px;border-bottom:1px solid var(--border)}"
+        "th.r,td.r{text-align:right}td{padding:6px;border-bottom:1px solid var(--border)}"
+        "tr:last-child td{border-bottom:none}"
+        ".wday{font-weight:600;width:90px}.wdate{color:var(--inactive);font-size:11px;width:60px}"
+        ".week tr.today .wday{color:var(--accent)}"
+        ".strong{font-weight:600}.share{width:140px}"
+        ".track{height:5px;border-radius:3px;background:var(--border);overflow:hidden}"
+        ".fill{height:100%%;background:var(--accent)}"
+        ".rank{width:30px;color:var(--inactive)}.proc{font-weight:500}.dim{color:var(--inactive)}"
+        ".empty{text-align:center;color:var(--dim);padding:30px}"
+        "footer{margin-top:18px;font-size:11px;color:var(--inactive)}"
+    ) % (P["background"], P["foreground"], P["accent"], P["critical"], P["warning"],
+         P["dim"], P["inactive"], bar, pct, pct)
+
+    day_label = date.fromisoformat(day).strftime("%a, %d %b")
+    stamp = datetime.now().strftime("%H:%M")
+    body = (
+        '<header><div><h1>WatchCat</h1><p class="status">%s</p></div>'
+        '<div class="meta"><div class="day num">%s</div>'
+        '<div class="stamp">refreshed %s &middot; auto-reloads 30s</div></div></header>'
+        '<section class="card hero">'
+        '<div class="hero-top"><div class="card-label">day budget</div><div class="live">%s</div></div>'
+        '<div class="budget num">%s</div>'
+        '<div class="budget-sub">of %s cap &middot; %s of 1.0 used</div>'
+        '<div class="numline"><div class="track"><div class="fill"></div></div><div class="marker"></div>'
+        '<div class="ticks"><span>0</span><span>0.25</span><span>0.5</span><span>0.75</span><span>1.0</span></div></div>'
+        '<div class="statstrip">'
+        '<div class="stat"><div class="slabel">down today</div><div class="sval num">%s</div></div>'
+        '<div class="stat"><div class="slabel">up today</div><div class="sval num">%s</div></div>'
+        '<div class="stat"><div class="slabel">peak rate</div><div class="sval num">%s</div></div>'
+        '<div class="stat"><div class="slabel">processes</div><div class="sval num">%d</div></div>'
+        '</div></section>'
+        '<section class="card panel"><div class="card-label">this week &mdash; by day</div>'
+        '<table class="week"><thead><tr><th>day</th><th>date</th><th class="r">down</th>'
+        '<th class="r">up</th><th class="r">total</th><th></th></tr></thead><tbody>%s</tbody></table></section>'
+        '<section class="card panel"><div class="card-label">top talkers &mdash; all of today</div>'
+        '<table><thead><tr><th>#</th><th>process</th><th class="r">down</th><th class="r">up</th>'
+        '<th class="r">total</th><th>share</th><th class="r">peak</th></tr></thead><tbody>%s</tbody></table></section>'
+        '<footer>alert &gt; 500 KB/s &times; 10s &middot; warn at 500 MB &middot; cap at 1 GB '
+        '&middot; notify-only &middot; 7 days kept</footer>'
+    ) % (status, day_label, stamp, rate_line, fmt_mb(total), fmt_mb(cap), frac_lbl,
+         fmt_mb(rx), fmt_mb(tx), fmt_peak(peak_max), nproc, week_rows, table_rows)
+
+    page = (
+        "<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>"
+        "<meta http-equiv='refresh' content='30'>"
+        "<meta name='viewport' content='width=device-width,initial-scale=1'>"
+        "<title>WatchCat</title><style>%s</style></head><body><main>%s</main></body></html>"
+    ) % (css, body)
+
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    tmp = out + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(page)
+    os.replace(tmp, out)
+    print("ok " + out)
+
+
+def main():
+    explicit_out = len(sys.argv) > 1
+    out = sys.argv[1] if explicit_out else os.path.join(
+        os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
+        "r2-d2", "watchcat", "dashboard.html")
+    cap = float(sys.argv[2]) if len(sys.argv) > 2 else 1024.0
+    P = read_scheme()
+    day, rx, tx, week, procs = read_db()
+    live = read_live()
+    total = rx + tx
+    frac = total / cap if cap > 0 else 0
+    pct = min(100.0, frac * 100)
+    bar = P["critical"] if frac >= 1 else (P["warning"] if frac >= 0.5 else P["accent"])
+    frac_lbl = "%.2f" % frac if frac < 100 else "%.0f" % frac
+    peak_max = max([float(p["peak"] or 0) for p in procs] + [0])
+
+    wmax = max([w["rx"] + w["tx"] for w in week] + [1])
+    wr = []
+    for w in week:
+        d = date.fromisoformat(w["day"])
+        wt = w["rx"] + w["tx"]
+        wr.append(
+            '<tr class="%s"><td class="wday">%s</td><td class="num wdate">%s</td>'
+            '<td class="num r">%s</td><td class="num r">%s</td><td class="num r strong">%s</td>'
+            '<td class="share"><div class="track"><div class="fill" style="width:%.0f%%"></div></div></td></tr>'
+            % ("today" if w["day"] == day else "", d.strftime("%A"), d.strftime("%d %b"),
+               fmt_mb(w["rx"]), fmt_mb(w["tx"]), fmt_mb(wt), min(100, wt / wmax * 100)))
+    week_rows = "\n".join(wr)
+
+    maxp = max([p["rx"] + p["tx"] for p in procs] + [1])
+    rows = []
+    for i, p in enumerate(procs[:25]):
+        name = esc(p["prog"])
+        pr, pt = float(p["rx"]), float(p["tx"])
+        hot = bool(p["peak"]) and float(p["peak"]) > 0.5
+        rows.append(
+            '<tr><td class="rank">%d</td><td class="proc">%s%s</td>'
+            '<td class="num r">%s</td><td class="num r">%s</td><td class="num r strong">%s</td>'
+            '<td class="share"><div class="track"><div class="fill" style="width:%.0f%%"></div></div></td>'
+            '<td class="num r dim">%s</td></tr>'
+            % (i + 1, "&#128293; " if hot else "", name, fmt_mb(pr), fmt_mb(pt),
+               fmt_mb(pr + pt), (pr + pt) / maxp * 100, fmt_peak(float(p["peak"] or 0))))
+    table_rows = "\n".join(rows) if rows else \
+        '<tr><td colspan="7" class="empty">the daemon is listening &mdash; per-process numbers appear once there is traffic</td></tr>'
+
+    if live["state"] == "on":
+        status = '<span class="dot ok"></span> watching 24/7' + (
+            " &middot; " + esc(live["iface"]) if live["iface"] else "")
+    elif live["state"] == "error":
+        status = '<span class="dot bad"></span> ' + esc(live["err"] or "daemon error")
+    else:
+        status = '<span class="dot idle"></span> starting'
+    rate_line = '<span class="rate">&#8595; <b class="num">%s</b></span><span class="rate">&#8593; <b class="num">%s</b></span>' \
+        % (fmt_kbs(live["down"]), fmt_kbs(live["up"]))
+
+    render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
+           rx, tx, peak_max, len(procs), week_rows, table_rows)
+    # `r2-d2-watchcat-dash` with no args = "show me": open the page once.
+    # A caller passing an explicit path (e.g. a regen timer) gets no popup.
+    if not explicit_out:
+        import subprocess
+        subprocess.Popen(["xdg-open", out],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+if __name__ == "__main__":
+    main()
+PY

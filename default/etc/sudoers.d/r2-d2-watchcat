@@ -1,0 +1,7 @@
+# WatchCat samples per-process traffic with nethogs, which needs root to
+# capture packets. The daemon (r2-d2-watchcat) runs as a user service and
+# shells out to `sudo -n /usr/bin/nethogs -t -d 1 <iface>` once per 12s
+# chunk, so it must not block on a password prompt. Scoped to the nethogs
+# binary only: nethogs reads packets and prints rates, it does not write
+# files or run other commands, so this grants no general root access.
+%wheel ALL=(root) NOPASSWD: /usr/bin/nethogs

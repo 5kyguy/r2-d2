@@ -1,0 +1,16 @@
+[Unit]
+Description=R2-D2 WatchCat hotspot data watchdog
+After=graphical-session.target
+PartOf=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/r2-d2/bin/r2-d2-watchcat
+Environment=R2D2_PATH=%h/.local/share/r2-d2
+Environment=PATH=%h/.local/share/r2-d2/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
