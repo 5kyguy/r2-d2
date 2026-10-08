@@ -309,6 +309,20 @@ Item {
                       }
                     }
 
+                    // btrfs subvolumes sharing this filesystem (collapsed into one row)
+                    Text {
+                      Layout.fillWidth: true
+                      Layout.leftMargin: Style.space(180)
+                      visible: (modelData.mounts || []).length > 1
+                      text: "subvolumes  " + (modelData.mounts || [])
+                        .filter(function(m) { return m !== modelData.mount })
+                        .join("    ")
+                      color: Color.muted
+                      font.family: root.fontFamily
+                      font.pixelSize: Style.font.caption
+                      elide: Text.ElideRight
+                    }
+
                     // usage bar
                     Rectangle {
                       Layout.fillWidth: true

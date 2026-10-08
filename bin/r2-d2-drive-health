@@ -8,7 +8,10 @@
 #
 # Output: one JSON object on stdout:
 #   { "disks": [ { name, model, tran, rota, size, temp_c, smart,
-#                  partitions: [ { name, mount, fstype, size, used, avail, use_pct } ] } ] }
+#                  partitions: [ { name, mount, mounts, fstype, size, used, avail, use_pct } ] } ] }
+# `mount` is the representative mount (root first); `mounts` lists every
+# mountpoint sharing the partition's backing device, so btrfs subvolumes
+# collapse into one row instead of one identical row per subvolume.
 
 set -uo pipefail
 
@@ -30,7 +33,7 @@ def lsblk_tree():
         return []
 
 def df_map():
-    """mountpoint -> {size, used, avail, use_pct, fstype}."""
+    """mountpoint -> {source, size, used, avail, use_pct, fstype}."""
     m = {}
     try:
         out = subprocess.check_output(["df", "-B1", "--output=source,size,used,avail,pcent,target,fstype"],
@@ -46,6 +49,7 @@ def df_map():
         fstype = parts[6] if len(parts) > 6 else ""
         try:
             m[target] = {
+                "source": source,
                 "size": int(size), "used": int(used), "avail": int(avail),
                 "use_pct": int(pcent.rstrip("%")) if pcent.rstrip("%").isdigit() else 0,
                 "fstype": fstype,
@@ -89,15 +93,34 @@ def smart_status(dev):
     return ""
 
 def collect_partitions(node, dfm):
+    # A single block device can carry several mountpoints when it holds btrfs
+    # subvolumes. df reports the same source device for every subvolume (they
+    # share one storage pool), so group a device's mountpoints by df source and
+    # emit one filesystem row whose `mounts` lists the subvolume paths, instead
+    # of one identical row per subvolume.
     parts = []
     for child in node.get("children", []) or []:
         mnts = child.get("mountpoints") or []
         if mnts:
+            groups = {}
+            order = []
             for mp in mnts:
                 d = dfm.get(mp, {})
+                src = (d.get("source") or "").split("[", 1)[0]
+                key = src or mp  # fall back to the mount itself when df has no row
+                if key not in groups:
+                    groups[key] = {"mounts": [], "df": d}
+                    order.append(key)
+                groups[key]["mounts"].append(mp)
+            for key in order:
+                g = groups[key]
+                mounts = sorted(g["mounts"], key=lambda x: (x != "/", x))
+                primary = "/" if "/" in mounts else mounts[0]
+                d = g["df"]
                 parts.append({
                     "name": child.get("name", ""),
-                    "mount": mp,
+                    "mount": primary,
+                    "mounts": mounts,
                     "fstype": child.get("fstype") or d.get("fstype", ""),
                     "size": d.get("size", int(child.get("size", 0) or 0)),
                     "used": d.get("used", 0),
