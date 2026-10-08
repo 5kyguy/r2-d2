@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Install or upgrade Omaroll from GitHub releases, and point its theme reader
+# at the R2-D2 theme. Images and videos open in Omaroll.
+
+set -euo pipefail
+
+repo=btsouth/omaroll
+desktop=io.github.tsouth89.omaroll.desktop
+
+link_theme() {
+  local state config
+  state="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/current"
+  config="${XDG_CONFIG_HOME:-$HOME/.config}/r2-d2"
+  mkdir -p "$state"
+  ln -sfn "$config" "$state/theme"
+}
+
+set_default_apps() {
+  local mime
+  [[ -f /usr/share/applications/$desktop ]] || return 0
+
+  for mime in image/png image/jpeg image/gif image/webp image/bmp image/tiff; do
+    xdg-mime default "$desktop" "$mime"
+  done
+
+  for mime in \
+    video/mp4 video/x-msvideo video/x-matroska video/x-flv video/x-ms-wmv \
+    video/mpeg video/ogg video/webm video/quicktime video/3gpp video/3gpp2 \
+    video/x-ms-asf video/x-ogm+ogg video/x-theora+ogg; do
+    xdg-mime default "$desktop" "$mime"
+  done
+}
+
+installed_version() {
+  pacman -Q omaroll 2>/dev/null | awk '{ print $2 }'
+}
+
+main() {
+  local json name url sums pkgver current dir
+
+  link_theme
+
+  if r2-d2-pkg-missing qt6-wayland; then
+    r2-d2-pkg-add qt6-wayland
+  fi
+
+  json=$(curl -fsSL -A r2-d2 "https://api.github.com/repos/$repo/releases/latest") || {
+    echo "Could not reach GitHub for Omaroll." >&2
+    return 1
+  }
+
+  name=$(jq -r '[.assets[].name | select(endswith("x86_64.pkg.tar.zst"))][0] // empty' <<<"$json")
+  sums=$(jq -r '.assets[] | select(.name == "SHA256SUMS") | .browser_download_url' <<<"$json")
+  url=$(jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' <<<"$json")
+
+  [[ -n $name && $name != "null" && -n $url && $url != "null" && -n $sums && $sums != "null" ]] || {
+    echo "Omaroll release is missing a package or checksum." >&2
+    return 1
+  }
+
+  pkgver=${name#omaroll-}
+  pkgver=${pkgver%-x86_64.pkg.tar.zst}
+  current=$(installed_version || true)
+
+  if [[ $current == "$pkgver" ]]; then
+    set_default_apps
+    return 0
+  fi
+
+  dir=$(mktemp -d)
+  trap 'rm -rf "$dir"' RETURN
+
+  curl -fL -A r2-d2 -o "$dir/$name" "$url"
+  curl -fL -A r2-d2 -o "$dir/SHA256SUMS" "$sums"
+  (cd "$dir" && sha256sum -c --ignore-missing SHA256SUMS | grep -F -- "$name: OK")
+
+  sudo pacman -U --noconfirm "$dir/$name"
+  set_default_apps
+}
+
+main "$@"

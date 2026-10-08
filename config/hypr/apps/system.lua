@@ -13,8 +13,24 @@ hl.window_rule({
 })
 
 hl.window_rule({
-  match = { class = "(org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.pwmt.zathura|com.gabm.satty|R2-D2|About|TUI.float|org.gnome.Totem|org.gnome.eog)" },
+  match = { class = "(org.r2d2.btop|org.r2d2.terminal|org.r2d2.bash|org.pwmt.zathura|R2-D2|About|TUI.float)" },
   tag = "+floating-window",
+})
+hl.window_rule({
+  match = { class = "dev.tensaku.Tensaku" },
+  float = true,
+})
+hl.window_rule({
+  match = { class = "dev.tensaku.Tensaku" },
+  center = true,
+})
+hl.window_rule({
+  match = { class = "^io\\.github\\.tsouth89\\.omaroll$", title = ".* · Omaroll" },
+  float = true,
+})
+hl.window_rule({
+  match = { class = "^io\\.github\\.tsouth89\\.omaroll$", title = ".* · Omaroll" },
+  center = true,
 })
 hl.window_rule({
   match = {

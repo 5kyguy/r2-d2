@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Omaroll calls this name. The work lives in r2-d2-transcode.
+
+exec r2-d2-transcode "$@"

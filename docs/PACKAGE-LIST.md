@@ -53,7 +53,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **151** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **150** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -61,7 +61,7 @@ base, base-devel, linux, linux-firmware, linux-headers, btrfs-progs, snapper, li
 
 ### Compositor and session
 
-hyprland, hypridle, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, quickshell, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell, qt5-wayland
+hyprland, hypridle, hyprpicker, hyprsunset, hyprland-guiutils, swaybg, quickshell, uwsm, sddm, plymouth, egl-wayland, gtk4-layer-shell, qt5-wayland, qt6-wayland
 
 ### Shell and CLI
 
@@ -93,7 +93,7 @@ xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland
 
 ### Screenshot, capture, sharing
 
-grim, slurp, imagemagick, gpu-screen-recorder, satty, wl-clipboard, ffmpegthumbnailer, zbar, tesseract, tesseract-data-eng
+grim, slurp, imagemagick, gpu-screen-recorder, wl-clipboard, ffmpegthumbnailer, zbar, tesseract, tesseract-data-eng
 
 ### File manager and GVfs
 
@@ -133,7 +133,9 @@ quickshell draws the bar, panels, on-screen display, notifications, and lock scr
 
 ### Apps and tools (user-facing)
 
-qalculate-gtk, gnome-themes-extra, kvantum-qt5, zathura, zathura-pdf-mupdf, eog, pinta, totem, kdenlive, obs-studio, steam
+qalculate-gtk, gnome-themes-extra, kvantum-qt5, zathura, zathura-pdf-mupdf, pinta, kdenlive, obs-studio, steam
+
+Omaroll is the image and video viewer. It is not in the pacman list. Install and the migration run `r2-d2-install-omaroll`, which downloads the GitHub release. Run that command again to upgrade it. Screenshots open in Tensaku (`tensaku-bin` on the AUR list).
 
 ### Firewall and security
 
@@ -153,7 +155,7 @@ plocate, whois, unzip, exfatprogs, fuse2, wtype
 
 ### AUR base (`install/r2-d2-base.aur.packages`)
 
-brave-origin-nightly-bin, cursor-bin, walker, elephant, hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
+brave-origin-nightly-bin, cursor-bin, walker, elephant, hyprland-preview-share-picker-git, limine-mkinitcpio-hook, limine-snapper-sync, localsend, makima-bin, python-terminaltexteffects, tensaku-bin, tzupdate, ufw-docker, voxtype-bin, xdg-terminal-exec, yaru-icon-theme, yay
 
 elephant-desktopapplications, elephant-websearch, elephant-menus, elephant-symbols, elephant-clipboard, elephant-calc, elephant-providerlist, elephant-files, elephant-runner, elephant-bluetooth, elephant-todo, elephant-unicode
 
@@ -182,8 +184,9 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 151 (from `install/r2-d2-base.packages`).
-- **Base AUR packages:** 28 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Base pacman packages:** 150 (from `install/r2-d2-base.packages`).
+- **Base AUR packages:** 30 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, tensaku, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
+- **Omaroll:** default image and video viewer, installed from GitHub releases by `r2-d2-install-omaroll`.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 4 (WhatsApp, YouTube, X, Telegram).

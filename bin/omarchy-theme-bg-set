@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Omaroll calls this name when a picture is set as the background.
+
+exec r2-d2-theme-bg-set "$@"

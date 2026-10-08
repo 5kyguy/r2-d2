@@ -27,7 +27,6 @@ docker
 docker-buildx
 docker-compose
 egl-wayland
-eog
 exfatprogs
 expac
 eza
@@ -108,9 +107,9 @@ python-poetry-core
 qalculate-gtk
 qrencode
 qt5-wayland
+qt6-wayland
 quickshell
 ripgrep
-satty
 sddm
 slurp
 snapper
@@ -124,7 +123,6 @@ thunar
 system-config-printer
 tldr
 tmux
-totem
 tree
 ttf-cascadia-mono-nerd
 ttf-jetbrains-mono-nerd

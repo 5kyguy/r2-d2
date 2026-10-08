@@ -2,7 +2,7 @@
 
 # Take a screenshot of the whole screen, a specific window, or a user-drawn region.
 # Saves to ~/Pictures by default, but that can be changed via R2D2_SCREENSHOT_DIR or XDG_PICTURES_DIR ENVs.
-# Editor defaults to Satty but can be changed via --editor=<name> or R2D2_SCREENSHOT_EDITOR env
+# Editor defaults to Tensaku but can be changed via --editor=<name> or R2D2_SCREENSHOT_EDITOR env
 #
 # Usage: r2-d2-cmd-screenshot [mode] [processing]
 #   mode:        smart (default) | region | windows | fullscreen
@@ -20,7 +20,7 @@ mkdir -p "$OUTPUT_DIR"
 
 pkill slurp && exit 0
 
-SCREENSHOT_EDITOR="${R2D2_SCREENSHOT_EDITOR:-satty}"
+SCREENSHOT_EDITOR="${R2D2_SCREENSHOT_EDITOR:-tensaku}"
 
 # Parse --editor flag from any position
 ARGS=()
@@ -35,8 +35,8 @@ set -- "${ARGS[@]}"
 
 open_editor() {
   local filepath="$1"
-  if [[ $SCREENSHOT_EDITOR == "satty" ]]; then
-    satty --filename "$filepath" \
+  if [[ $SCREENSHOT_EDITOR == "tensaku" ]]; then
+    tensaku --filename "$filepath" \
       --output-filename "$filepath" \
       --actions-on-enter save-to-clipboard \
       --save-after-copy \

@@ -101,6 +101,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 **Phase 2 — Packaging** (`install/packaging/all.sh`)
 
 - **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
+- **omaroll.sh** — Install Omaroll from GitHub releases and point images and videos at it (`r2-d2-install-omaroll`)
 - **fonts.sh** — Copy `r2-d2.ttf` and `manrope-variable.ttf` to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
 - **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X, Telegram) in the default browser (Brave Origin)
@@ -119,7 +120,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **increase-file-watchers** — Dev tooling (inotify limits)
 - **detect-keyboard-layout, xcompose** — Input
 - **docker.sh, flatpak.sh** — Container/flatpak config
-- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Zathura, Totem, Nano); terminal order from `default/config/xdg-terminals.list`. Change text, PDF, image, and video handlers later from Setup → Default apps
+- **mimetypes.sh** — Refresh applications (copies repo `applications/*.desktop`), default apps (Brave Origin, Zathura, Omaroll, Nano); terminal order from `default/config/xdg-terminals.list`. Change text, PDF, image, and video handlers later from Setup → Default apps
 - **walker-elephant.sh, fast-shutdown.sh, input-group.sh** (plocate DB: run `r2-d2-update-locate` when needed)
 - **oomd.sh** — Enable systemd-oomd for `app.slice` only
 - **zram.sh** — zram drop-in, and disable zswap in front of zram
