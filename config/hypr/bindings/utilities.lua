@@ -1,7 +1,7 @@
 -- Menus and launchers
 hl.bind("SUPER + SPACE", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.commandbar"), { description = "Command bar" })
 hl.bind("SUPER + CTRL + E", hl.dsp.exec_cmd("r2-d2-launch-walker -m symbols"), { description = "Emoji picker" })
-hl.bind("SUPER + CTRL + SPACE", hl.dsp.exec_cmd("r2-d2-launch-walker -m menus:r2-d2-background-selector --width 800 --minheight 400"), { description = "Background selector" })
+hl.bind("SUPER + CTRL + SPACE", hl.dsp.exec_cmd("r2-d2-theme-bg-switcher"), { description = "Background carousel" })
 hl.bind("SUPER + ALT + SPACE", hl.dsp.exec_cmd("r2-d2-menu"), { description = "R2-D2 menu" })
 hl.bind("SUPER + ESCAPE", hl.dsp.exec_cmd("r2-d2-menu system"), { description = "System menu" })
 hl.bind("XF86PowerOff", hl.dsp.exec_cmd("r2-d2-menu system"), { locked = true, description = "Power menu" })

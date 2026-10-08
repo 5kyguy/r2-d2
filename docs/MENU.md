@@ -67,7 +67,7 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 | **Dropbox** | Install Dropbox |
 | **Tailscale** | Install Tailscale |
 
-Change wallpaper via **Super + Ctrl + Space** (Walker background selector). Accent colors update immediately from the selected image.
+Change wallpaper via **Super + Ctrl + Space** (image carousel). Accent colors update immediately from the selected image.
 
 ---
 
@@ -104,7 +104,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`). The
 | **Super + Alt + Space** | R2-D2 menu (command bar) |
 | **Super + Escape** | System menu (lock, suspend, reboot, etc.) |
 | **XF86PowerOff** | System menu |
-| **Super + Ctrl + Space** | Background selector (wallpaper + accent theme) |
+| **Super + Ctrl + Space** | Background carousel (wallpaper and accent) |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker (Walker symbols) |
 | **Super + \\** | Clipboard history |

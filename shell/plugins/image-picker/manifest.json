@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "r2-d2.image-picker",
+  "name": "Image picker",
+  "version": "1.0.0",
+  "author": "Omarchy",
+  "description": "Carousel selector overlay used for wallpapers and any other directory of images",
+  "kinds": [
+    "overlay"
+  ],
+  "keepLoaded": true,
+  "entryPoints": {
+    "overlay": "ImagePicker.qml"
+  }
+}

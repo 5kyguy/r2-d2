@@ -1,0 +1,175 @@
+#!/bin/bash
+
+# Open an image carousel and print the chosen file path.
+
+set -euo pipefail
+
+selected_image=""
+show_labels=false
+filterable=false
+image_dirs=()
+
+usage() {
+  echo "Usage: r2-d2-menu-images [--selected <image>] [--show-labels] [--filterable] <image-dir>..." >&2
+}
+
+while (( $# > 0 )); do
+  case "$1" in
+    --selected)
+      if (( $# < 2 )); then
+        usage
+        exit 1
+      fi
+      selected_image="$2"
+      shift 2
+      ;;
+    --show-labels)
+      show_labels=true
+      shift
+      ;;
+    --filterable)
+      filterable=true
+      shift
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    --*)
+      usage
+      exit 1
+      ;;
+    *)
+      image_dirs+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if (( ${#image_dirs[@]} == 0 )); then
+  usage
+  exit 1
+fi
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/r2-d2/image-selector"
+mkdir -p "$cache_dir"
+
+selection_file=$(mktemp)
+done_file=$(mktemp)
+pending_file=$(mktemp)
+rm -f "$done_file"
+trap 'rm -f "$selection_file" "$done_file" "$pending_file"' EXIT
+
+# Same name as list.sh: md5 of "<path>\t<size>:<mtime>".
+thumbnail_path_for() {
+  local image="$1"
+  local signature hash
+
+  signature=$(stat -Lc '%s:%Y' "$image") || return 1
+  hash=$(printf '%s\t%s' "$image" "$signature" | md5sum | cut -d ' ' -f 1)
+  printf '%s\n' "$cache_dir/$hash.jpg"
+}
+
+generate_thumbnail() {
+  local image="$1"
+  local thumbnail="$2"
+  local lock="$thumbnail.lock"
+  local lock_fd
+  local tmp="$thumbnail.$$.jpg"
+
+  exec {lock_fd}>"$lock" || return 0
+  flock -w 30 "$lock_fd" || return 0
+  [[ -f $thumbnail ]] && return 0
+
+  # A generator killed mid-write leaves its partial thumbnail behind.
+  rm -f "$thumbnail".*.jpg
+
+  # Cover 1536x864, then crop the center. [0] keeps the first frame of a gif.
+  if magick "${image}[0]" -auto-orient -thumbnail '1536x864^' -gravity center -extent 1536x864 -quality 82 -strip "$tmp"; then
+    mv -f "$tmp" "$thumbnail"
+  else
+    rm -f "$tmp"
+  fi
+}
+
+image_files=()
+for dir in "${image_dirs[@]}"; do
+  [[ -d $dir ]] || continue
+  while IFS= read -r -d '' image; do
+    image_files+=("$image")
+  done < <(find "$dir" -maxdepth 1 -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.bmp' -o -iname '*.webp' \) \
+    -print0 2>/dev/null | sort -z)
+done
+
+if (( ${#image_files[@]} == 0 )); then
+  echo "No images found" >&2
+  exit 1
+fi
+
+for image in "${image_files[@]}"; do
+  thumbnail=$(thumbnail_path_for "$image") || continue
+  [[ -f $thumbnail ]] && continue
+  printf '%s\0%s\0' "$image" "$thumbnail" >>"$pending_file"
+done
+
+if [[ -s $pending_file ]]; then
+  if ! command -v magick >/dev/null; then
+    echo "magick is required to build image previews" >&2
+    exit 1
+  fi
+  export -f generate_thumbnail
+  # $1 and $2 belong to the xargs bash, not this script.
+  # shellcheck disable=SC2016
+  xargs -0 -a "$pending_file" -n 2 -P "$(nproc)" bash -c 'generate_thumbnail "$1" "$2"' _
+fi
+
+rows=""
+for image in "${image_files[@]}"; do
+  thumbnail=$(thumbnail_path_for "$image") || continue
+  [[ -f $thumbnail ]] || thumbnail="$image"
+  if [[ -z $rows ]]; then
+    rows="$image"$'\t'"$thumbnail"
+  else
+    rows+=$'\n'"$image"$'\t'"$thumbnail"
+  fi
+done
+
+selected_list_image=""
+if [[ -n $selected_image ]]; then
+  current_image=$(readlink -f "$selected_image" 2>/dev/null || true)
+  if [[ -n $current_image ]]; then
+    for image in "${image_files[@]}"; do
+      if [[ $image -ef $current_image ]]; then
+        selected_list_image="$image"
+        break
+      fi
+    done
+  fi
+fi
+
+rows_b64=$(printf '%s' "$rows" | base64 -w 0)
+
+if ! open_result=$(r2-d2-shell image-selector open \
+  "" \
+  "$rows_b64" \
+  "$selected_list_image" \
+  "$selection_file" \
+  "$done_file" \
+  "$show_labels" \
+  "$filterable"); then
+  exit 1
+fi
+
+if [[ $open_result != "ok" ]]; then
+  echo "Image selector failed to accept request" >&2
+  exit 1
+fi
+
+while [[ ! -e $done_file ]]; do
+  sleep 0.01
+done
+
+if [[ -s $selection_file ]]; then
+  cat "$selection_file"
+fi

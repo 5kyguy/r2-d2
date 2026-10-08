@@ -16,7 +16,7 @@ Default Hyprland chords. They live under `config/hypr/bindings/` and are copied 
 | **Super + Alt + Space** | R2-D2 menu |
 | **Super + Escape** | System menu (lock, suspend, reboot, and the rest) |
 | **XF86PowerOff** | System menu |
-| **Super + Ctrl + Space** | Background selector (wallpaper and accent) |
+| **Super + Ctrl + Space** | Background carousel (wallpaper and accent) |
 | **Super + K** | Keybindings browser |
 | **Super + Ctrl + E** | Emoji picker |
 | **Super + Backslash** | Clipboard history |

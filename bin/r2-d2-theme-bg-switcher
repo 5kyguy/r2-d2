@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Open the background carousel and apply the chosen wallpaper.
+
+set -euo pipefail
+
+root="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
+background_dir="$root/backgrounds"
+current_background=$(readlink -f "$background_dir/@background" 2>/dev/null || true)
+
+background=$(r2-d2-menu-images \
+  --selected "$current_background" \
+  --show-labels \
+  --filterable \
+  "$background_dir")
+
+if [[ -n $background ]]; then
+  r2-d2-theme-bg-set "$background"
+fi

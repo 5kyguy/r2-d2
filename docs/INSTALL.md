@@ -149,7 +149,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 R2-D2 uses a dark companion palette with a **wallpaper-driven accent**. The base colors (background, text, inactive borders) stay fixed; the accent is extracted from the active wallpaper and applied across Hyprland, the shell, GTK, the terminal, notifications, and other UI.
 
-- Change the wallpaper with the background selector (**Super + Ctrl + Space**). `r2-d2-theme-bg-set` updates the desktop image, extracts an accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
+- Change the wallpaper with the background carousel (**Super + Ctrl + Space**). Left and right move through the images, typing filters by name, and Enter applies the selection. `r2-d2-theme-bg-set` updates the desktop image, extracts an accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
 - Desaturated or grayscale wallpapers use the palette fallback accent (`#EAEAEA`). That is a real accent. `#FFFFFF` is only the monochrome used when no accent can be read.
 - The shell, Walker, and the terminal stay on JetBrainsMono Nerd Font. Manrope still ships in `default/config/` and is copied into `~/.local/share/fonts` on install and update.
 - Run **Update** (`r2-d2-update`) to refresh all repo-managed config and optionally reload desktop components when prompted.
