@@ -35,8 +35,8 @@ Item {
   readonly property bool showPasswordCursor: inputEnabled && !authenticatingPassword && failureMessage.length === 0
   readonly property bool errorState: failureMessage.length > 0
   readonly property var inputBorderSpec: errorState
-    ? Border.surfaceSpec("lock", "border-error", Color.lock.borderError, root.outlineThickness, "border-alpha")
-    : Border.surfaceSpec("lock", "border-active", Color.lock.borderActive, root.outlineThickness, "border-alpha")
+    ? Border.surfaceSpec("lock", "border-error", Colors.lock.borderError, root.outlineThickness, "border-alpha")
+    : Border.surfaceSpec("lock", "border-active", Colors.lock.borderActive, root.outlineThickness, "border-alpha")
 
   signal submitPassword(string password)
   signal passwordTextEdited(string password)
@@ -95,7 +95,7 @@ Item {
 
   Rectangle {
     anchors.fill: parent
-    color: Color.background
+    color: Colors.background
 
     Image {
       id: wallpaper
@@ -133,7 +133,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       anchors.verticalCenterOffset: -280
       text: Qt.formatDateTime(root.clockNow, "hh:mm")
-      color: Color.lock.text
+      color: Colors.lock.text
       font.family: Style.font.family
       font.pixelSize: 120
       style: Text.Outline
@@ -145,7 +145,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       anchors.verticalCenterOffset: -190
       text: Qt.formatDateTime(root.clockNow, "dddd, MMMM dd")
-      color: Color.lock.text
+      color: Colors.lock.text
       font.family: Style.font.family
       font.pixelSize: 22
       style: Text.Outline
@@ -155,7 +155,7 @@ Item {
     Text {
       anchors.centerIn: parent
       text: "Hello There"
-      color: Color.lock.text
+      color: Colors.lock.text
       font.family: Style.font.family
       font.pixelSize: 30
       style: Text.Outline
@@ -169,7 +169,7 @@ Item {
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.verticalCenter: parent.verticalCenter
       anchors.verticalCenterOffset: 180
-      color: Color.lock.background
+      color: Colors.lock.background
       borderSpec: root.inputBorderSpec
       radius: 0
       clip: true
@@ -190,16 +190,16 @@ Item {
         echoMode: TextInput.Password
         passwordCharacter: "\u25CF"
         passwordMaskDelay: 0
-        color: Color.lock.text
-        selectionColor: Color.lock.selection
-        selectedTextColor: Color.lock.text
+        color: Colors.lock.text
+        selectionColor: Colors.lock.selection
+        selectedTextColor: Colors.lock.text
         font.family: Style.font.family
         font.pixelSize: text.length > 0 ? Math.max(1, Math.floor(root.passwordDotFontSize * root.passwordDotScale)) : root.fieldFontSize
         font.letterSpacing: text.length > 0 ? root.passwordDotLetterSpacing * root.passwordDotScale : 0
         cursorVisible: activeFocus && root.showPasswordCursor && text.length > 0
         cursorDelegate: Rectangle {
           width: 2
-          color: Color.lock.text
+          color: Colors.lock.text
           visible: passwordInput.cursorVisible
         }
 
@@ -231,7 +231,7 @@ Item {
         anchors.fill: passwordInput
         text: root.authenticatingPassword ? "Checking…" : (root.failureMessage.length > 0 ? root.failureMessage : root.placeholderText)
         visible: passwordInput.text.length === 0
-        color: Color.lock.text
+        color: Colors.lock.text
         font.family: Style.font.family
         font.pixelSize: root.fieldFontSize
         font.italic: !root.authenticatingPassword && root.failureMessage.length > 0

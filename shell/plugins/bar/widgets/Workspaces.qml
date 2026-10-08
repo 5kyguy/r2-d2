@@ -34,8 +34,8 @@ BarWidget {
 
   // ------------------------------------------------------------ geometry & colors
 
-  readonly property color fg: bar ? bar.barForeground : Color.foreground
-  readonly property color bg: bar ? bar.background : Color.background
+  readonly property color fg: bar ? bar.barForeground : Colors.foreground
+  readonly property color bg: bar ? bar.background : Colors.background
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
   readonly property int pillThickness: Math.max(16, barSize - Style.space(6))
   readonly property int iconPx: Math.min(cfg.iconSize, pillThickness - Style.space(4))
@@ -47,7 +47,7 @@ BarWidget {
 
   function activeFill() {
     if (cfg.activeStyle === "solid") return root.fg
-    if (cfg.activeStyle === "accent") return Color.accent
+    if (cfg.activeStyle === "accent") return Colors.accent
     return Util.alpha(root.fg, 0.18)
   }
 
@@ -683,7 +683,7 @@ BarWidget {
           id: urgentGlow
           anchors.fill: parent
           radius: root.pillRadius
-          color: root.bar ? root.bar.urgent : Color.urgent
+          color: root.bar ? root.bar.urgent : Colors.urgent
           opacity: 0
           visible: pill.urgent
 
@@ -867,7 +867,7 @@ BarWidget {
                         width: Math.max(5, Math.round(root.iconPx * 0.36))
                         height: width
                         radius: width / 2
-                        color: root.bar ? root.bar.urgent : Color.urgent
+                        color: root.bar ? root.bar.urgent : Colors.urgent
                         border.width: 1
                         border.color: root.bg
                       }
@@ -887,8 +887,8 @@ BarWidget {
                         Rectangle {
                           anchors.fill: parent
                           radius: width / 2
-                          color: appIcon.agentState === "done" ? Color.accent
-                            : appIcon.agentState === "waiting" ? (root.bar ? root.bar.urgent : Color.urgent)
+                          color: appIcon.agentState === "done" ? Colors.accent
+                            : appIcon.agentState === "waiting" ? (root.bar ? root.bar.urgent : Colors.urgent)
                             : root.bg
                         }
 
@@ -1239,7 +1239,7 @@ BarWidget {
             anchors.fill: parent
             color: "transparent"
             border.width: thumb.highlighted ? 2 : 1
-            border.color: thumb.highlighted ? Color.accent : Util.alpha(root.fg, 0.18)
+            border.color: thumb.highlighted ? Colors.accent : Util.alpha(root.fg, 0.18)
             Behavior on border.color { enabled: root.fastDur > 0; ColorAnimation { duration: root.fastDur } }
           }
 

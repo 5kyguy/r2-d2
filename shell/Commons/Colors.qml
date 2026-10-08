@@ -4,7 +4,10 @@ import Quickshell
 import Quickshell.Io
 import "BorderGeometry.js" as Geometry
 
-// Color surfaces for the shell. Foundational palette (foreground, background,
+// Color surfaces for the shell. The singleton is Colors, not Color: Qt 6.12
+// exports QtQuick.Color, and that type shadows a singleton of the same name,
+// which leaves every surface undefined and paints the bar and menus blank.
+// Foundational palette (foreground, background,
 // accent, urgent) comes from theme/colors.toml. Per-surface roles come from
 // theme/shell.toml — generated per theme from default/themed/shell.toml.tpl,
 // or shipped directly by a theme to replace the generated file. Surfaces that

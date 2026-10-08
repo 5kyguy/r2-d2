@@ -100,9 +100,9 @@ Item {
   }
 
   function smartColor(s) {
-    if (s === "PASSED") return Color.accent
-    if (s === "FAILED") return Color.urgent
-    return Color.muted
+    if (s === "PASSED") return Colors.accent
+    if (s === "FAILED") return Colors.urgent
+    return Colors.muted
   }
 
   Process {
@@ -132,7 +132,7 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: Color.menu.scrim
+      color: Colors.menu.scrim
       MouseArea { anchors.fill: parent; onClicked: root.dismiss() }
     }
 
@@ -156,9 +156,9 @@ Item {
           width: Math.min(Style.space(560), keyCatcher.width - Style.space(48))
           height: content.implicitHeight + Style.space(28)
           radius: Style.cornerRadius
-          color: Color.popups.background
+          color: Colors.popups.background
           border.width: 1
-          border.color: Color.popups.border
+          border.color: Colors.popups.border
 
           ColumnLayout {
             id: content
@@ -171,7 +171,7 @@ Item {
               Layout.fillWidth: true
               Text {
                 text: "DRIVE HEALTH"
-                color: Color.accent
+                color: Colors.accent
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.bodySmall
                 font.weight: Font.ExtraBold
@@ -180,7 +180,7 @@ Item {
               }
               Text {
                 text: root.disks.length + " disk" + (root.disks.length === 1 ? "" : "s")
-                color: Color.muted
+                color: Colors.muted
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
               }
@@ -194,7 +194,7 @@ Item {
               Text {
                 anchors.centerIn: parent
                 text: "No disks found"
-                color: Color.muted
+                color: Colors.muted
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
               }
@@ -212,7 +212,7 @@ Item {
                 Rectangle {
                   Layout.fillWidth: true
                   Layout.preferredHeight: 1
-                  color: Util.alpha(Color.foreground, 0.1)
+                  color: Util.alpha(Colors.foreground, 0.1)
                   visible: index > 0
                 }
 
@@ -222,14 +222,14 @@ Item {
                   spacing: Style.space(8)
                   Text {
                     text: modelData.name
-                    color: Color.foreground
+                    color: Colors.foreground
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.body
                     font.weight: Font.Bold
                   }
                   Text {
                     text: modelData.model || ""
-                    color: Color.muted
+                    color: Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                     Layout.fillWidth: true
@@ -237,20 +237,20 @@ Item {
                   }
                   Text {
                     text: (modelData.tran || "disk").toUpperCase()
-                    color: Color.muted
+                    color: Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                   }
                   Text {
                     text: root.fmtBytes(modelData.size)
-                    color: Color.muted
+                    color: Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                   }
                   Text {
                     visible: modelData.temp_c !== null && modelData.temp_c !== undefined
                     text: modelData.temp_c + "°C"
-                    color: (modelData.temp_c || 0) >= 60 ? Color.urgent : Color.muted
+                    color: (modelData.temp_c || 0) >= 60 ? Colors.urgent : Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                   }
@@ -277,7 +277,7 @@ Item {
                       spacing: Style.space(8)
                       Text {
                         text: modelData.mount
-                        color: Color.foreground
+                        color: Colors.foreground
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.bodySmall
                         Layout.preferredWidth: Style.space(180)
@@ -285,15 +285,15 @@ Item {
                       }
                       Text {
                         text: modelData.fstype || ""
-                        color: Color.muted
+                        color: Colors.muted
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.preferredWidth: Style.space(48)
                       }
                       Text {
                         text: modelData.use_pct + "%"
-                        color: modelData.use_pct >= 90 ? Color.urgent
-                          : (modelData.use_pct >= 75 ? Color.accent : Color.muted)
+                        color: modelData.use_pct >= 90 ? Colors.urgent
+                          : (modelData.use_pct >= 75 ? Colors.accent : Colors.muted)
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.preferredWidth: Style.space(36)
@@ -301,7 +301,7 @@ Item {
                       }
                       Text {
                         text: root.fmtBytes(modelData.used) + " / " + root.fmtBytes(modelData.size)
-                        color: Color.muted
+                        color: Colors.muted
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.fillWidth: true
@@ -317,7 +317,7 @@ Item {
                       text: "subvolumes  " + (modelData.mounts || [])
                         .filter(function(m) { return m !== modelData.mount })
                         .join("    ")
-                      color: Color.muted
+                      color: Colors.muted
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.caption
                       elide: Text.ElideRight
@@ -328,16 +328,16 @@ Item {
                       Layout.fillWidth: true
                       Layout.preferredHeight: Style.space(6)
                       radius: 3
-                      color: Util.alpha(Color.foreground, 0.08)
+                      color: Util.alpha(Colors.foreground, 0.08)
                       Rectangle {
                         anchors.left: parent.left
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
                         width: parent.width * Math.min(1, modelData.use_pct / 100)
                         radius: 3
-                        color: modelData.use_pct >= 90 ? Color.urgent
-                          : (modelData.use_pct >= 75 ? Color.accent
-                             : Util.alpha(Color.accent, 0.7))
+                        color: modelData.use_pct >= 90 ? Colors.urgent
+                          : (modelData.use_pct >= 75 ? Colors.accent
+                             : Util.alpha(Colors.accent, 0.7))
                       }
                     }
 
@@ -350,15 +350,15 @@ Item {
                         Layout.preferredHeight: Style.space(28)
                         radius: Style.cornerRadius
                         color: testMa.containsMouse
-                          ? Util.alpha(Color.accent, 0.22)
-                          : Util.alpha(Color.accent, 0.12)
+                          ? Util.alpha(Colors.accent, 0.22)
+                          : Util.alpha(Colors.accent, 0.12)
                         border.width: 1
-                        border.color: Util.alpha(Color.accent, 0.4)
+                        border.color: Util.alpha(Colors.accent, 0.4)
                         Text {
                           anchors.centerIn: parent
                           text: (root.speed[modelData.mount] && root.speed[modelData.mount].running)
                             ? "..." : "Test"
-                          color: Color.accent
+                          color: Colors.accent
                           font.family: root.fontFamily
                           font.pixelSize: Style.font.caption
                           font.weight: Font.Bold
@@ -373,7 +373,7 @@ Item {
                       Text {
                         visible: !root.speed[modelData.mount]
                         text: "Run a write/read speed test"
-                        color: Color.muted
+                        color: Colors.muted
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.fillWidth: true
@@ -381,7 +381,7 @@ Item {
                       Text {
                         visible: root.speed[modelData.mount] && root.speed[modelData.mount].running
                         text: "Testing " + modelData.mount + " ..."
-                        color: Color.muted
+                        color: Colors.muted
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.fillWidth: true
@@ -391,7 +391,7 @@ Item {
                           && !root.speed[modelData.mount].error
                         text: "W " + root.speed[modelData.mount].write_mbps
                           + " · R " + root.speed[modelData.mount].read_mbps + " MB/s"
-                        color: Color.foreground
+                        color: Colors.foreground
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         font.weight: Font.Bold
@@ -401,7 +401,7 @@ Item {
                         visible: root.speed[modelData.mount] && !root.speed[modelData.mount].running
                           && root.speed[modelData.mount].error
                         text: root.speed[modelData.mount].error
-                        color: Color.urgent
+                        color: Colors.urgent
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                         Layout.fillWidth: true

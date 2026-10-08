@@ -178,7 +178,7 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: Color.menu.scrim
+      color: Colors.menu.scrim
       MouseArea { anchors.fill: parent; onClicked: root.dismiss() }
     }
 
@@ -202,9 +202,9 @@ Item {
           width: content.implicitWidth + Style.space(28)
           height: content.implicitHeight + Style.space(28)
           radius: Style.cornerRadius
-          color: Color.popups.background
+          color: Colors.popups.background
           border.width: 1
-          border.color: Color.popups.border
+          border.color: Colors.popups.border
 
           ColumnLayout {
             id: content
@@ -214,7 +214,7 @@ Item {
 
             Text {
               text: root.phaseLabel
-              color: Color.accent
+              color: Colors.accent
               font.family: root.fontFamily
               font.pixelSize: Style.font.bodySmall
               font.weight: Font.ExtraBold
@@ -229,7 +229,7 @@ Item {
               Text {
                 id: timeText
                 text: root.fmt(root.remaining)
-                color: Color.foreground
+                color: Colors.foreground
                 opacity: root.engaged && !root.running ? 0.45 : 1
                 font.family: root.fontFamily
                 font.pixelSize: Style.space(52)
@@ -258,14 +258,14 @@ Item {
                     Layout.preferredHeight: Style.space(32)
                     radius: Style.cornerRadius
                     color: sideMa.containsMouse
-                      ? Util.alpha(Color.foreground, 0.14)
-                      : Util.alpha(Color.foreground, 0.06)
+                      ? Util.alpha(Colors.foreground, 0.14)
+                      : Util.alpha(Colors.foreground, 0.06)
                     border.width: 1
-                    border.color: Util.alpha(Color.foreground, 0.2)
+                    border.color: Util.alpha(Colors.foreground, 0.2)
                     Text {
                       anchors.centerIn: parent
                       text: modelData.label
-                      color: Color.foreground
+                      color: Colors.foreground
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.bodySmall
                     }
@@ -290,15 +290,15 @@ Item {
                   width: Style.space(8)
                   height: width
                   radius: width / 2
-                  color: root.completedFocus > index ? Color.accent
-                    : Util.alpha(Color.foreground, 0.15)
+                  color: root.completedFocus > index ? Colors.accent
+                    : Util.alpha(Colors.foreground, 0.15)
                 }
               }
             }
 
             Text {
               text: root.hint
-              color: Color.muted
+              color: Colors.muted
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
               horizontalAlignment: Text.AlignHCenter

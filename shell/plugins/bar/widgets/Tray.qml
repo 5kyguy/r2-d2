@@ -1,5 +1,6 @@
 import Quickshell
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Effects
 import Quickshell.Services.SystemTray
 import qs.Commons
@@ -13,7 +14,7 @@ BarWidget {
   property bool trayMenuOpen: false
   property var activeTrayItem: null
   property var activeTrayAnchor: null
-  readonly property color foreground: bar ? bar.foreground : Color.foreground
+  readonly property color foreground: bar ? bar.foreground : Colors.foreground
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
   readonly property var allItems: trayItems()
   readonly property int trayItemExtent: Style.bar.iconSlot
@@ -293,7 +294,7 @@ BarWidget {
             anchors.rightMargin: Style.space(10)
             anchors.verticalCenter: parent.verticalCenter
             height: 1
-            color: Color.popups.border
+            color: Colors.popups.border
             opacity: 0.45
           }
         }
@@ -347,7 +348,7 @@ BarWidget {
                 anchors.rightMargin: Style.space(10)
                 anchors.verticalCenter: parent.verticalCenter
                 height: 1
-                color: Color.popups.border
+                color: Colors.popups.border
                 opacity: 0.45
               }
 

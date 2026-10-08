@@ -68,13 +68,13 @@ Item {
   property var windows: []          // [{ address, cls, title, workspace, focus }], taken on open
 
   // Menu surface tokens, so themes that style the Omarchy menu style this too.
-  property color background: Color.menu.background
-  property color foreground: Color.menu.text
-  property color border: Color.menu.border
+  property color background: Colors.menu.background
+  property color foreground: Colors.menu.text
+  property color border: Colors.menu.border
   property var borderSpec: Border.surfaceSpec("menu", "border", border, Math.max(1, Style.space(2)))
-  property color scrim: Color.menu.scrim
-  property color selectedBackground: Color.menu.selectedBackground
-  property color selectedText: Color.menu.selectedText
+  property color scrim: Colors.menu.scrim
+  property color selectedBackground: Colors.menu.selectedBackground
+  property color selectedText: Colors.menu.selectedText
   readonly property int cornerRadius: Style.cornerRadius
   property string fontFamily: Style.font.menuFamily
   property int contentMargin: Style.spacing.panelPadding
@@ -917,7 +917,7 @@ Item {
   component Keycap: Rectangle {
     id: cap
     property string label: ""
-    property color foreground: Color.foreground
+    property color foreground: Colors.foreground
     property string fontFamily: Style.font.family
     property bool rounded: true
     implicitWidth: Math.max(implicitHeight, capText.implicitWidth + Style.space(10))
@@ -945,8 +945,8 @@ Item {
     property url imageSource: ""
     property bool selected: false
     property real size: Style.space(30)
-    property color foreground: Color.foreground
-    property color selectedText: Color.foreground
+    property color foreground: Colors.foreground
+    property color selectedText: Colors.foreground
     property string fontFamily: Style.font.family
     readonly property bool hasImage: String(imageSource) !== ""
     width: size

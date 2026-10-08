@@ -15,7 +15,7 @@ BarWidget {
   readonly property string artist: activePlayer ? (activePlayer.trackArtist || "") : ""
   readonly property string artUrl: activePlayer && activePlayer.trackArtUrl ? activePlayer.trackArtUrl : ""
   readonly property bool shuffleOn: activePlayer ? activePlayer.shuffle === true : false
-  readonly property color ink: bar ? bar.barForeground : Color.foreground
+  readonly property color ink: bar ? bar.barForeground : Colors.foreground
   readonly property bool brookPlayer: {
     var player = activePlayer
     if (!player) return false
@@ -383,8 +383,8 @@ BarWidget {
         width: root.artCoverSide
         height: root.artCoverSide
         radius: Style.spacing.labelGap
-        color: Style.normalFillFor(root.bar ? root.bar.foreground : Color.foreground, Color.accent)
-        borderSpec: Border.controlSpec("normal", root.bar ? root.bar.foreground : Color.foreground, Color.accent)
+        color: Style.normalFillFor(root.bar ? root.bar.foreground : Colors.foreground, Colors.accent)
+        borderSpec: Border.controlSpec("normal", root.bar ? root.bar.foreground : Colors.foreground, Colors.accent)
 
         Image {
           anchors.fill: parent
@@ -399,7 +399,7 @@ BarWidget {
           anchors.centerIn: parent
           visible: root.artUrl === ""
           text: "󰝚"
-          color: root.bar ? root.bar.foreground : Color.foreground
+          color: root.bar ? root.bar.foreground : Colors.foreground
           font.family: root.bar ? root.bar.fontFamily : Style.font.family
           font.pixelSize: Style.font.displayLarge
         }
@@ -413,7 +413,7 @@ BarWidget {
         Text {
           textFormat: Text.PlainText
           text: root.title || "Nothing playing"
-          color: root.bar ? root.bar.foreground : Color.foreground
+          color: root.bar ? root.bar.foreground : Colors.foreground
           font.family: root.bar ? root.bar.fontFamily : Style.font.family
           font.pixelSize: Style.font.subtitle
           font.bold: true
@@ -424,7 +424,7 @@ BarWidget {
         Text {
           textFormat: Text.PlainText
           text: root.artist
-          color: Qt.darker(root.bar ? root.bar.foreground : Color.foreground, 1.3)
+          color: Qt.darker(root.bar ? root.bar.foreground : Colors.foreground, 1.3)
           font.family: root.bar ? root.bar.fontFamily : Style.font.family
           font.pixelSize: Style.font.bodySmall
           elide: Text.ElideRight
@@ -481,7 +481,7 @@ BarWidget {
         id: searchField
         width: parent.width
         foreground: root.ink
-        accent: Color.accent
+        accent: Colors.accent
         placeholderText: "Playlist or track"
         font.family: root.bar ? root.bar.fontFamily : Style.font.family
         verticalPadding: Style.space(4)

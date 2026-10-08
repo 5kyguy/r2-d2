@@ -116,7 +116,7 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: Color.menu.scrim
+      color: Colors.menu.scrim
       MouseArea { anchors.fill: parent; onClicked: root.dismiss() }
     }
 
@@ -140,9 +140,9 @@ Item {
           width: Math.min(Style.space(520), keyCatcher.width - Style.space(48))
           height: content.implicitHeight + Style.space(28)
           radius: Style.cornerRadius
-          color: Color.popups.background
+          color: Colors.popups.background
           border.width: 1
-          border.color: Color.popups.border
+          border.color: Colors.popups.border
 
           ColumnLayout {
             id: content
@@ -155,7 +155,7 @@ Item {
               Layout.fillWidth: true
               Text {
                 text: "SCREEN TIME"
-                color: Color.accent
+                color: Colors.accent
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.bodySmall
                 font.weight: Font.ExtraBold
@@ -164,7 +164,7 @@ Item {
               }
               Text {
                 text: root.fmtDur(root.todaySecs) + " today"
-                color: Color.muted
+                color: Colors.muted
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
               }
@@ -182,7 +182,7 @@ Item {
                   spacing: Style.space(6)
                   Text {
                     text: (root.dayLabels[index] || {}).label || ""
-                    color: ((root.dayLabels[index] || {}).is_today) ? Color.accent : Color.muted
+                    color: ((root.dayLabels[index] || {}).is_today) ? Colors.accent : Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption
                     Layout.preferredWidth: Style.space(28)
@@ -195,9 +195,9 @@ Item {
                       Layout.fillWidth: true
                       Layout.preferredHeight: Style.space(14)
                       radius: 2
-                      color: Util.alpha(Color.accent, Math.min(1, modelData / root.maxCell))
+                      color: Util.alpha(Colors.accent, Math.min(1, modelData / root.maxCell))
                       border.width: 1
-                      border.color: Util.alpha(Color.foreground, modelData > 0 ? 0.05 : 0.02)
+                      border.color: Util.alpha(Colors.foreground, modelData > 0 ? 0.05 : 0.02)
                     }
                   }
                 }
@@ -217,7 +217,7 @@ Item {
                   Text {
                     anchors.left: parent.left
                     text: ["00", "06", "12", "18"][index]
-                    color: Color.muted
+                    color: Colors.muted
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.caption - 2
                   }
@@ -231,14 +231,14 @@ Item {
               spacing: Style.space(6)
               Text {
                 text: "7d"
-                color: Color.muted
+                color: Colors.muted
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
                 Layout.preferredWidth: Style.space(28)
               }
               Text {
                 text: root.fmtDur(root.totalSecs) + " total"
-                color: Color.foreground
+                color: Colors.foreground
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
                 Layout.fillWidth: true
@@ -248,13 +248,13 @@ Item {
             Rectangle {
               Layout.fillWidth: true
               height: 1
-              color: Util.alpha(Color.foreground, 0.1)
+              color: Util.alpha(Colors.foreground, 0.1)
             }
 
             // top apps today
             Text {
               text: "TOP APPS TODAY"
-              color: Color.muted
+              color: Colors.muted
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
               font.weight: Font.Bold
@@ -269,7 +269,7 @@ Item {
                 spacing: Style.space(8)
                 Text {
                   text: modelData.name
-                  color: Color.foreground
+                  color: Colors.foreground
                   font.family: root.fontFamily
                   font.pixelSize: Style.font.bodySmall
                   Layout.preferredWidth: Style.space(140)
@@ -279,19 +279,19 @@ Item {
                   Layout.fillWidth: true
                   Layout.preferredHeight: Style.space(8)
                   radius: 3
-                  color: Util.alpha(Color.accent, 0.12)
+                  color: Util.alpha(Colors.accent, 0.12)
                   Rectangle {
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
                     width: parent.width * Math.min(1, modelData.secs / Math.max(1, root.todayApps.length ? root.todayApps[0].secs : 1))
-                    color: Color.accent
+                    color: Colors.accent
                     radius: 3
                   }
                 }
                 Text {
                   text: root.fmtDur(modelData.secs)
-                  color: Color.muted
+                  color: Colors.muted
                   font.family: root.fontFamily
                   font.pixelSize: Style.font.caption
                   Layout.preferredWidth: Style.space(52)
@@ -307,7 +307,7 @@ Item {
               Text {
                 anchors.centerIn: parent
                 text: "No focused-app samples yet"
-                color: Color.muted
+                color: Colors.muted
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
               }
