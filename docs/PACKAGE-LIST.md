@@ -53,7 +53,7 @@ This document lists what is installed during the R2-D2 install and what can be i
 
 ## 2. Base packages by purpose (`install/r2-d2-base.packages`)
 
-The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **150** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
+The following lists every package in **`install/r2-d2-base.packages`**, grouped by purpose. Total: **152** packages (pacman only; AUR base via `install/r2-d2-base.aur.packages`).
 
 ### System and base
 
@@ -97,7 +97,7 @@ grim, slurp, imagemagick, gpu-screen-recorder, wl-clipboard, ffmpegthumbnailer, 
 
 ### File manager and GVfs
 
-thunar, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
+thunar, thunar-archive-plugin, file-roller, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
@@ -184,7 +184,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 ## 4. Summary
 
-- **Base pacman packages:** 150 (from `install/r2-d2-base.packages`).
+- **Base pacman packages:** 152 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 30 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, tensaku, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
 - **Omaroll:** default image and video viewer, installed from GitHub releases by `r2-d2-install-omaroll`.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.

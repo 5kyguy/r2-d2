@@ -33,6 +33,7 @@ eza
 fastfetch
 fd
 ffmpegthumbnailer
+file-roller
 flatpak
 fontconfig
 fuse2
@@ -120,6 +121,7 @@ swaybg
 tesseract
 tesseract-data-eng
 thunar
+thunar-archive-plugin
 system-config-printer
 tldr
 tmux
