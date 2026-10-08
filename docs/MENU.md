@@ -1,6 +1,6 @@
 # Menu and keybindings
 
-The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` runs the actions). **Super + Alt + Space**, the bar logo, and `r2-d2-menu` show the top level. Type to search every entry. Enter opens a category or runs its action. Backspace on an empty query goes up one level, and closes once it is back at the level you opened. **Super + Space** stays the app and answer bar: a matching app is selected, and a menu action that matches sits below that, above Google and, when K-2SO is installed, Ask K-2SO.
+The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` runs the actions). **Super + Alt + Space**, the bar logo, and `r2-d2-menu` show the top level. Type to search every entry. Enter opens a category or runs its action. Backspace on an empty query goes up one level, and closes once it is back at the level you opened. **Super + Space** stays the app and answer bar: a matching app is selected, and a menu action that matches sits below that, above Google and, when K-2SO is installed, Ask K-2SO. File matches sit under all of that. Enter opens a PDF, image, or video in its default app, and a text file in Cursor at that line. `@path` scopes them, for example `@yavin Panel`.
 
 `r2-d2-menu <submenu>` opens that level (`install`, `system`, `screenrecord`, `setup`, and the rest). `r2-d2-menu doctor` and `r2-d2-menu webcam` still run those actions directly. Audio, Wi-Fi, Bluetooth, and power open from the top bar. Picking a webcam or a default app still uses Walker, because those lists are built when you choose them.
 
@@ -149,7 +149,6 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`). The
 | **Super + Shift + P** | Power panel |
 | **Super + Alt + T** | Screen time panel |
 | **Super + Alt + C** | Pomodoro timer |
-| **Super + Alt + G** | Grep search (Grap) |
 | **Super + Alt + D** | Drive health panel |
 | **Super + Alt + W** | WatchCat dashboard |
 | **Super + Shift + L** | Monitor layout (external left) |

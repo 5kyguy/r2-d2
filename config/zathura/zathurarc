@@ -29,12 +29,10 @@ set highlight-color             "#82d3e0"
 set highlight-active-color      "#b1cbd0"
 set default-bg                   "#0e1415"
 set default-fg                   "#dee3e5"
-set recolor-lightcolor           "#0e1415"
-set recolor-darkcolor            "#dee3e5"
 
 set render-loading              true
-set recolor                     true
-set recolor-keephue             true
+# The page keeps the PDF's own colors. Bars, input, and the index stay themed.
+set recolor                     false
 set adjust-open                 width
 set scroll-page-aware            true
 set selection-clipboard         clipboard

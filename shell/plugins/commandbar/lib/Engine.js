@@ -83,6 +83,10 @@ function contextFor(p, config, services) {
     windows: services.windows || [],
     launches: services.launches || {},
     commands: (config && config.commands) || [],
+    home: services.home || "",
+    grap: services.grap || null,
+    grapSearching: !!services.grapSearching,
+    requestGrap: services.requestGrap || null,
     menuState: services.menuState || {},
     menuId: services.menuId || "",
     k2soPresent: !!services.k2soPresent,
@@ -117,7 +121,7 @@ function enabledProviders(config) {
 // it, or their hint when there's no answer right now (no matching window).
 
 // Topics in the order people reach for them; anything else after, keywords last.
-var HELP_ORDER = ["apps", "windows", "calc", "units", "currency", "time", "dates", "emoji", "kill"]
+var HELP_ORDER = ["apps", "windows", "calc", "units", "currency", "time", "dates", "emoji", "kill", "grap"]
 
 function helpTopics(config, services) {
   var topics = []
@@ -148,8 +152,9 @@ function helpTopics(config, services) {
 function preview(q, config, services) {
   var quiet = {}
   for (var k in services) quiet[k] = services[k]
-  quiet.requestRates = null
-  quiet.requestProcesses = null
+    quiet.requestRates = null
+    quiet.requestProcesses = null
+    quiet.requestGrap = null
   var rows = run(q, config, quiet)
   var top = rows[0]
   if (!top || top.help || !(top.copy || top.run)) return ""

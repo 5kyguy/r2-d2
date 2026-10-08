@@ -9,6 +9,7 @@ import "lib/Engine.js" as Engine
 import "lib/tzcities.js" as Tz
 import "lib/Hotkey.js" as Hotkey
 import "providers/menu.js" as Menu
+import "providers/grap.js" as Grap
 
 // Spotlight-style command bar. The UI and the data it needs (config, exchange
 // rates, zone offsets) live here; what a query *means* is decided by the
@@ -54,6 +55,12 @@ Item {
   property var emojis: []           // Omarchy's emojis.json: [{ e, k }]
   property var processes: null      // [{ pid, rss, cpu, name, args }], fetched on demand
   property real processesFetchedAt: 0
+  property var grap: null           // { query, hits } from the latest file search
+  property var grapWant: null       // { dir, pattern, key } the box is asking for
+  property var grapHits: []
+  property bool grapSawOutput: false
+  property string grapKey: ""
+  property bool grapSearching: false
   property var apps: []             // [{ id, name, generic, comment, keywords, icon, actions }]
   property var appEntries: ({})     // id -> DesktopEntry, for launching actions
   property var hiddenApps: ({})     // ids Omarchy hides from its own launcher
@@ -219,6 +226,10 @@ Item {
       launches: root.launches,
       requestProcesses: root.requestProcesses,
       requestRates: root.refreshRates,
+      requestGrap: root.requestGrap,
+      home: root.home,
+      grap: root.grap,
+      grapSearching: root.grapSearching,
       menuState: root.menuState,
       menuId: root.menuId,
       k2soPresent: root.k2soPresent
@@ -632,6 +643,106 @@ Item {
     }
   }
 
+  // ---------------------------------------------------------------- files (Grap)
+
+  // Debounced ripgrep + fd over the home directory. Results stay cached on
+  // `grap` and the provider paints them under every other row. A newer query
+  // that arrives mid-search is run as soon as this one finishes.
+  function requestGrap(query) {
+    var spec = Grap.parse(query, root.home)
+    if (!spec) return
+    if (root.grap && root.grap.query === spec.key && !root.grapSearching) return
+    root.grapWant = spec
+    if (grapProc.running) return
+    grapDebounce.restart()
+  }
+
+  function splitGrap(raw) {
+    var mark = "---GRAP---"
+    var idx = raw.indexOf(mark)
+    if (idx === -1) return { content: raw, files: "" }
+    return {
+      content: raw.slice(0, idx).replace(/\n$/, ""),
+      files: raw.slice(idx + mark.length).replace(/^\n/, "")
+    }
+  }
+
+  function launchGrap(spec) {
+    if (!spec) return
+    root.grapSearching = true
+    root.grapKey = spec.key
+    root.grapHits = []
+    root.grapSawOutput = false
+    grapChain.finished = spec.key
+    grapProc.command = ["bash", "-c",
+      "dir=$1; pat=$2; timeout 4 rg --vimgrep --no-heading --no-messages --hidden --smart-case -M 160 --max-count 3"
+      + " --glob '!.git/' --glob '!.cache/' --glob '!node_modules/' --glob '!.mozilla/' --glob '!.local/share/Trash/'"
+      + " -e \"$pat\" \"$dir\" 2>/dev/null | head -n 12 || true; printf '%s\\n' '---GRAP---';"
+      + " timeout 3 fd -H -t f -F --max-results 4 --exclude .git --exclude node_modules --exclude .cache"
+      + " --exclude .mozilla --exclude Trash \"$pat\" \"$dir\" 2>/dev/null || true",
+      "grap", spec.dir, spec.pattern]
+    grapProc.running = true
+  }
+
+  Timer {
+    id: grapDebounce
+    interval: 280
+    onTriggered: {
+      var spec = root.grapWant
+      if (!spec || (root.grap && root.grap.query === spec.key)) return
+      root.launchGrap(spec)
+      if (root.opened) root.recompute()
+    }
+  }
+
+  Process {
+    id: grapProc
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        var parts = root.splitGrap(String(text || ""))
+        var hits = []
+        var seen = {}
+        var lines = parts.files.split("\n")
+        var i
+        for (i = 0; i < lines.length && hits.length < 3; i++) {
+          var file = lines[i].trim()
+          if (!file || seen[file]) continue
+          seen[file] = true
+          hits.push({ file: file, line: 1, col: 1, snippet: "", isFile: true })
+        }
+        lines = parts.content.split("\n")
+        for (i = 0; i < lines.length && hits.length < 6; i++) {
+          var m = /^(.+?):(\d+):(\d+):(.*)$/.exec(lines[i])
+          if (!m) continue
+          hits.push({
+            file: m[1], line: parseInt(m[2], 10), col: parseInt(m[3], 10),
+            snippet: m[4].trim(), isFile: false
+          })
+        }
+        root.grapHits = hits
+        root.grapSawOutput = true
+        grapChain.finished = root.grapKey
+        grapChain.restart()
+      }
+    }
+    onExited: if (!root.grapSawOutput) grapChain.restart()
+  }
+
+  Timer {
+    id: grapChain
+    interval: 40
+    property string finished: ""
+    onTriggered: {
+      if (grapProc.running) { restart(); return }
+      root.grap = { query: finished, hits: root.grapHits || [] }
+      var want = root.grapWant
+      if (want && want.key !== finished) root.launchGrap(want)
+      else root.grapSearching = false
+      if (root.opened) root.recompute()
+    }
+  }
+
   // ---------------------------------------------------------------- apps
 
   // Desktop entries, filtered like Omarchy's own launcher: NoDisplay entries
@@ -948,7 +1059,7 @@ Item {
               anchors.fill: parent
               verticalAlignment: Text.AlignVCenter
               visible: !input.text
-              text: root.menuId ? ("Search " + Menu.title(root.menuId)) : "Search apps and windows, or type a sum"
+              text: root.menuId ? ("Search " + Menu.title(root.menuId)) : "Search apps, files, and windows, or type a sum"
               color: root.foreground
               opacity: 0.4
               font: input.font

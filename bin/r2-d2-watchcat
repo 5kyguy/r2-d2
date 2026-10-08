@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# WatchCat daemon: per-process hotspot data watchdog. Notify-only, never
-# blocks traffic. Tracks every byte against a daily 1 GB cap, flags hot
-# processes, warns at 500 MB and 1 GB, and keeps 7 days of history.
+# WatchCat daemon: per-process data tracker. Notify-only, never blocks
+# traffic. Keeps a running total per process and 7 days of history. A
+# process that holds 1 MB/s for 10 seconds gets one notice that day.
 #
 # Runs as a systemd --user service (default/config/systemd/user/r2-d2-watchcat.service).
 # nethogs needs root to capture packets, so sudoers.d/r2-d2-watchcat allows
@@ -13,7 +13,8 @@
 # for CHUNK seconds -> parse -> update DB + alerts -> write live.json -> repeat.
 #
 # Port of uthman_dotfiles watchcat-daemon.py, adapted to R2-D2 paths and the
-# r2-d2-notification-send wrapper.
+# r2-d2-notification-send wrapper. WatchCat is the name of this tracker, not
+# a package; the package it runs is nethogs.
 
 set -uo pipefail
 
@@ -36,10 +37,8 @@ LIVE = os.path.join(DATA, "live.json")
 NETHOGS = "/usr/bin/nethogs"
 NOTIFY = "r2-d2-notification-send"
 
-HOT_KBS = 500.0      # flag a process pulling more than this
-HOT_SECS = 10        # ...for this many consecutive seconds
-WARN_MB = 500.0      # first day warning
-CAP_MB = 1024.0      # daily cap
+HOT_KBS = 1024.0    # 1 MB/s — one notice per process per day
+HOT_SECS = 10        # ...held for this many consecutive seconds
 CHUNK = 12           # seconds per nethogs run
 
 
@@ -212,20 +211,12 @@ def main():
             hot[prog] = hot[prog] + dt if rate >= HOT_KBS else 0.0
             if hot[prog] >= HOT_SECS and not sent_today(c, day, "hot", prog):
                 c.execute("INSERT INTO sent(day, kind, prog) VALUES(?,?,?)", (day, "hot", prog))
-                notify("critical", "WatchCat: %s hogging data" % prog,
-                       "%.0f KB/s for %ds+ — on hotspot." % (rate, HOT_SECS))
+                rate_lbl = "%.1f MB/s" % (rate / 1024.0) if rate >= 1024 else "%.0f KB/s" % rate
+                notify("critical", "WatchCat: %s moving a lot of data" % prog,
+                       "%s for %ds." % (rate_lbl, HOT_SECS))
             talkers.append({"prog": prog, "pid": a["pid"], "down": t, "up": r})
         talkers.sort(key=lambda x: x["down"] + x["up"], reverse=True)
         talkers = talkers[:15]
-
-        # day warn/crit (once per day)
-        for mb, kind, urg, title in (
-            (WARN_MB, "warn", "normal", "WatchCat: %.0f MB used today" % WARN_MB),
-            (CAP_MB, "crit", "critical", "WatchCat: 1 GB cap reached!"),
-        ):
-            if today_total >= mb and not sent_today(c, day, kind, "*"):
-                c.execute("INSERT INTO sent(day, kind, prog) VALUES(?,?,?)", (day, kind, "*"))
-                notify(urg, title, "Hotspot data used: %.0f MB." % today_total)
 
         c.commit()
         write_live("on", "", iface_, today_total, talkers, unatt)

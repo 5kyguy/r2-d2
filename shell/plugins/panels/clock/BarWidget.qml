@@ -32,7 +32,58 @@ BarWidget {
   // A seconds label needs the clock to tick sixty times as often, and a
   // repaint a second is a price only the formats that print seconds pay.
   readonly property bool showsSeconds: Model.clockNeedsSeconds(activeFormat)
-  readonly property string displayText: formatted(displayDate)
+  // A running or paused Pomodoro replaces the clock with the countdown.
+  // The digits come from pomodoro.json, which the timer plugin rewrites.
+  property bool timerShown: false
+  property bool timerRunning: false
+  property string timerPhase: "focus"
+  property int timerRemaining: 0
+  property real timerEndsAt: 0
+  property real timerTick: 0
+
+  readonly property string pomoPath: {
+    var state = Quickshell.env("XDG_STATE_HOME")
+    if (!state) state = Quickshell.env("HOME") + "/.local/state"
+    return state + "/r2-d2/pomodoro.json"
+  }
+
+  function pad2(n) {
+    var v = Math.max(0, n)
+    return (v < 10 ? "0" : "") + v
+  }
+
+  readonly property int timerSeconds: {
+    var _tick = timerTick
+    if (!timerShown) return 0
+    if (timerRunning) return Math.max(0, Math.round((timerEndsAt - Date.now()) / 1000))
+    return Math.max(0, timerRemaining)
+  }
+
+  readonly property string timerText: vertical
+    ? pad2(Math.floor(timerSeconds / 60)) + "\n" + pad2(timerSeconds % 60)
+    : pad2(Math.floor(timerSeconds / 60)) + ":" + pad2(timerSeconds % 60)
+
+  readonly property string timerTooltip: {
+    var name = timerPhase === "break" ? "Break" : "Focus"
+    return timerRunning ? name : "Paused · " + name
+  }
+
+  function applyPomo(raw) {
+    try {
+      var data = JSON.parse(raw || "")
+      timerShown = data.shown === true
+      timerRunning = data.running === true
+      timerPhase = data.phase === "break" ? "break" : "focus"
+      timerRemaining = Number(data.remaining) || 0
+      timerEndsAt = Number(data.endsAt) || 0
+    } catch (e) {
+      timerShown = false
+      timerRunning = false
+    }
+    timerTick = Date.now()
+  }
+
+  readonly property string displayText: timerShown ? timerText : formatted(displayDate)
   readonly property var verticalLines: displayText.split("\n")
 
   function refresh() {
@@ -130,6 +181,32 @@ BarWidget {
     onDateChanged: root.displayDate = date
   }
 
+  Timer {
+    interval: 1000
+    repeat: true
+    running: root.timerShown && root.timerRunning
+    onTriggered: root.timerTick = Date.now()
+  }
+
+  // The timer creates this file after the clock has already looked for it.
+  // A miss retries until the file is there; later writes are in place, so
+  // the watch keeps firing.
+  FileView {
+    id: pomoFile
+    path: root.pomoPath
+    watchChanges: true
+    printErrors: false
+    onLoaded: root.applyPomo(text())
+    onFileChanged: reload()
+    onLoadFailed: pomoRetry.restart()
+  }
+
+  Timer {
+    id: pomoRetry
+    interval: 1000
+    onTriggered: pomoFile.reload()
+  }
+
   Loader {
     id: panelLoader
     active: true
@@ -164,9 +241,16 @@ BarWidget {
     fixedHeight: root.vertical ? root.verticalLines.length * Style.bar.iconSlot : -1
     horizontalMargin: 8.75
     verticalPadding: 8.75
-    tooltipText: root.zoneTooltip(root.displayDate)
+    dimmed: root.timerShown && !root.timerRunning
+    active: root.timerShown && root.timerRunning && root.timerPhase === "break"
+    tooltipText: root.timerShown ? root.timerTooltip : root.zoneTooltip(root.displayDate)
 
     onPressed: function(b) {
+      if (root.timerShown && b === Qt.LeftButton) {
+        if (root.bar && root.bar.shell && typeof root.bar.shell.toggle === "function")
+          root.bar.shell.toggle("r2-d2.pomodoro")
+        return
+      }
       if (b === Qt.RightButton) { if (root.bar) root.bar.run("r2-d2-launch-floating-terminal-with-presentation r2-d2-tz-select") }
       else if (b === Qt.MiddleButton) root.cycleFormat()
       else root.togglePanel()

@@ -1,6 +1,6 @@
 {
   "hotkey": "",
-  "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "menu", "search"],
+  "providers": ["commands", "math", "currency", "time", "emoji", "processes", "units", "windows", "apps", "menu", "search", "grap"],
   "math": { "precision": 10 },
   "currency": { "home": "INR", "favorites": ["EUR", "GBP"] },
   "emoji": { "onEnter": "paste" },

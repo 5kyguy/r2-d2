@@ -10,6 +10,7 @@
 .import "windows.js" as Windows
 .import "menu.js" as Menu
 .import "search.js" as Search
+.import "grap.js" as Grap
 
 // Every provider the bar knows about. To add a feature: write providers/<name>.js
 // exporting `var provider = { id, name, icon, match(query, ctx) }`, import it
@@ -25,5 +26,6 @@ var all = [
   Windows.provider,
   Apps.provider,
   Menu.provider,
-  Search.provider
+  Search.provider,
+  Grap.provider
 ]

@@ -23,6 +23,8 @@ Default Hyprland chords. They live under `config/hypr/bindings/` and are copied 
 | **Super + A** | Ask K-2SO |
 | **Super + Alt + A** | K-2SO voice |
 
+**Super + Space** searches apps and answers. File matches sit at the bottom of that list. Enter opens a PDF, image, or video in its default app, and a text file in Cursor at that line. Start a query with `@path` to scope them, for example `@yavin Panel`.
+
 ---
 
 ## Apps
@@ -63,11 +65,10 @@ Default Hyprland chords. They live under `config/hypr/bindings/` and are copied 
 | **Super + Shift + L** | Monitor layout (external left) |
 | **Super + Alt + T** | Screen time panel |
 | **Super + Alt + C** | Pomodoro timer |
-| **Super + Alt + G** | Grep search (Grap) |
 | **Super + Alt + D** | Drive health panel |
 | **Super + Alt + W** | WatchCat dashboard |
 
-WatchCat is a background daemon. **Super + Alt + W** regenerates its HTML dashboard and opens it in the browser. `r2-d2-watchcat-dash <path>` writes the page without opening it.
+WatchCat is R2-D2's data tracker, not a package. The daemon runs `nethogs`. **Super + Alt + W** regenerates its HTML dashboard and opens it in the browser. `r2-d2-watchcat-dash <path>` writes the page without opening it. It keeps seven days of per-process totals and sends one notice when a process holds 1 MB/s for 10 seconds.
 
 ---
 

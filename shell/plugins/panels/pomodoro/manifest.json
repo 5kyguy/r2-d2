@@ -4,10 +4,11 @@
   "name": "Pomodoro",
   "version": "1.0.0",
   "author": "Omarchy",
-  "description": "Focus timer with focus, short break, and long break phases",
+  "description": "35 minute focus and 10 minute break. Docks into the clock while it runs.",
   "kinds": [
     "panel"
   ],
+  "keepLoaded": true,
   "entryPoints": {
     "panel": "Panel.qml"
   }

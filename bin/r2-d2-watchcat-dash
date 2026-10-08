@@ -3,7 +3,7 @@
 # WatchCat dashboard generator. Stdlib only. Reads the daemon's DB and
 # live.json, writes a static HTML page that auto-reloads every 30s.
 #
-# Usage: r2-d2-watchcat-dash <out.html> [cap_mb]
+# Usage: r2-d2-watchcat-dash [out.html]
 #
 # Colors come from the live R2-D2 theme document (~/.local/state/r2-d2/theme.json),
 # so the dashboard follows the current wallpaper accent. Falls back to the
@@ -102,11 +102,10 @@ def esc(s):
     return html.escape(str(s))
 
 
-def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
-           rx, tx, peak_max, nproc, week_rows, table_rows):
+def render(out, P, status, day, rate_line, total, rx, tx, peak_max, nproc, week_rows, table_rows):
     css = (
         ":root{--bg:%s;--text:%s;--accent:%s;--critical:%s;--warning:%s;--dim:%s;"
-        "--inactive:%s;--card:#1a1a1a;--border:#2a2a2a;--bar:%s}"
+        "--inactive:%s;--card:#1a1a1a;--border:#2a2a2a}"
         "*{box-sizing:border-box}"
         "body{margin:0;background:var(--bg);color:var(--text);"
         "font-family:'JetBrainsMono Nerd Font',ui-monospace,monospace}"
@@ -128,13 +127,6 @@ def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
         ".live{display:flex;gap:22px;font-size:12px;color:var(--dim)}"
         ".live .rate{display:inline-flex;align-items:center;gap:6px}"
         ".live .rate b{font-size:16px;font-weight:500}"
-        ".numline{position:relative;margin:22px 0 6px}"
-        ".numline .track{height:2px;background:var(--border);border-radius:1px;position:relative}"
-        ".numline .fill{position:absolute;top:-2px;left:0;height:6px;border-radius:3px;"
-        "background:var(--bar);width:%.1f%%;transition:width .7s}"
-        ".numline .marker{position:absolute;top:-9px;left:calc(%.1f%% - 9px);width:18px;height:18px;"
-        "border-radius:50%%;background:var(--card);border:3px solid var(--bar);transition:left .7s}"
-        ".ticks{display:flex;justify-content:space-between;margin-top:12px;font-size:10px;color:var(--inactive)}"
         ".statstrip{display:grid;grid-template-columns:repeat(4,1fr);margin-top:18px;"
         "border:1px solid var(--border);border-radius:10px;overflow:hidden}"
         ".stat{padding:12px 16px}.stat+.stat{border-left:1px solid var(--border)}"
@@ -155,7 +147,7 @@ def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
         ".empty{text-align:center;color:var(--dim);padding:30px}"
         "footer{margin-top:18px;font-size:11px;color:var(--inactive)}"
     ) % (P["background"], P["foreground"], P["accent"], P["critical"], P["warning"],
-         P["dim"], P["inactive"], bar, pct, pct)
+         P["dim"], P["inactive"])
 
     day_label = date.fromisoformat(day).strftime("%a, %d %b")
     stamp = datetime.now().strftime("%H:%M")
@@ -164,11 +156,9 @@ def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
         '<div class="meta"><div class="day num">%s</div>'
         '<div class="stamp">refreshed %s &middot; auto-reloads 30s</div></div></header>'
         '<section class="card hero">'
-        '<div class="hero-top"><div class="card-label">day budget</div><div class="live">%s</div></div>'
+        '<div class="hero-top"><div class="card-label">today</div><div class="live">%s</div></div>'
         '<div class="budget num">%s</div>'
-        '<div class="budget-sub">of %s cap &middot; %s of 1.0 used</div>'
-        '<div class="numline"><div class="track"><div class="fill"></div></div><div class="marker"></div>'
-        '<div class="ticks"><span>0</span><span>0.25</span><span>0.5</span><span>0.75</span><span>1.0</span></div></div>'
+        '<div class="budget-sub">tracked today</div>'
         '<div class="statstrip">'
         '<div class="stat"><div class="slabel">down today</div><div class="sval num">%s</div></div>'
         '<div class="stat"><div class="slabel">up today</div><div class="sval num">%s</div></div>'
@@ -181,9 +171,8 @@ def render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
         '<section class="card panel"><div class="card-label">top talkers &mdash; all of today</div>'
         '<table><thead><tr><th>#</th><th>process</th><th class="r">down</th><th class="r">up</th>'
         '<th class="r">total</th><th>share</th><th class="r">peak</th></tr></thead><tbody>%s</tbody></table></section>'
-        '<footer>alert &gt; 500 KB/s &times; 10s &middot; warn at 500 MB &middot; cap at 1 GB '
-        '&middot; notify-only &middot; 7 days kept</footer>'
-    ) % (status, day_label, stamp, rate_line, fmt_mb(total), fmt_mb(cap), frac_lbl,
+        '<footer>notice when a process holds 1 MB/s for 10s &middot; notify-only &middot; 7 days kept</footer>'
+    ) % (status, day_label, stamp, rate_line, fmt_mb(total),
          fmt_mb(rx), fmt_mb(tx), fmt_peak(peak_max), nproc, week_rows, table_rows)
 
     page = (
@@ -206,15 +195,10 @@ def main():
     out = sys.argv[1] if explicit_out else os.path.join(
         os.environ.get("XDG_STATE_HOME", os.path.expanduser("~/.local/state")),
         "r2-d2", "watchcat", "dashboard.html")
-    cap = float(sys.argv[2]) if len(sys.argv) > 2 else 1024.0
     P = read_scheme()
     day, rx, tx, week, procs = read_db()
     live = read_live()
     total = rx + tx
-    frac = total / cap if cap > 0 else 0
-    pct = min(100.0, frac * 100)
-    bar = P["critical"] if frac >= 1 else (P["warning"] if frac >= 0.5 else P["accent"])
-    frac_lbl = "%.2f" % frac if frac < 100 else "%.0f" % frac
     peak_max = max([float(p["peak"] or 0) for p in procs] + [0])
 
     wmax = max([w["rx"] + w["tx"] for w in week] + [1])
@@ -235,7 +219,7 @@ def main():
     for i, p in enumerate(procs[:25]):
         name = esc(p["prog"])
         pr, pt = float(p["rx"]), float(p["tx"])
-        hot = bool(p["peak"]) and float(p["peak"]) > 0.5
+        hot = bool(p["peak"]) and float(p["peak"]) >= 1.0
         rows.append(
             '<tr><td class="rank">%d</td><td class="proc">%s%s</td>'
             '<td class="num r">%s</td><td class="num r">%s</td><td class="num r strong">%s</td>'
@@ -256,8 +240,7 @@ def main():
     rate_line = '<span class="rate">&#8595; <b class="num">%s</b></span><span class="rate">&#8593; <b class="num">%s</b></span>' \
         % (fmt_kbs(live["down"]), fmt_kbs(live["up"]))
 
-    render(out, P, bar, pct, status, day, rate_line, total, cap, frac_lbl,
-           rx, tx, peak_max, len(procs), week_rows, table_rows)
+    render(out, P, status, day, rate_line, total, rx, tx, peak_max, len(procs), week_rows, table_rows)
     # `r2-d2-watchcat-dash` with no args = "show me": open the page once.
     # A caller passing an explicit path (e.g. a regen timer) gets no popup.
     if not explicit_out:
