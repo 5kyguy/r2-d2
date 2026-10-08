@@ -26,6 +26,7 @@ hl.bind("SUPER + ALT + T", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.scree
 hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.pomodoro"), { description = "Pomodoro timer" })
 hl.bind("SUPER + ALT + G", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.grap"), { description = "Grep search (Grap)" })
 hl.bind("SUPER + ALT + D", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.drivehealth"), { description = "Drive health panel" })
+hl.bind("SUPER + ALT + W", hl.dsp.exec_cmd("r2-d2-watchcat-dash"), { description = "WatchCat dashboard" })
 hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("r2-d2-hyprland-monitor-layout external-left"), { description = "Apply monitor layout (external left)" })
 
 -- Captures (hardware keys)

@@ -92,7 +92,7 @@ Package and Drop package are always listed. Every other entry appears only when 
 
 ## Hyprland keybindings
 
-Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
+Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`). The full list is in [KEYBINDINGS.md](KEYBINDINGS.md).
 
 **Caps Lock → Super:** keyd maps Caps Lock to Super system-wide (`default/keyd/default.conf`). Hyprland **Super** bindings use the **Caps Lock** key (Left Win is also Super). Caps Lock lock state is disabled — use Shift for capitals.
 
@@ -151,6 +151,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`).
 | **Super + Alt + C** | Pomodoro timer |
 | **Super + Alt + G** | Grep search (Grap) |
 | **Super + Alt + D** | Drive health panel |
+| **Super + Alt + W** | WatchCat dashboard |
 | **Super + Shift + L** | Monitor layout (external left) |
 
 ### Tiling and workspaces
