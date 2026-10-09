@@ -1,16 +1,44 @@
 # R2-D2 companion theme: fixed base palette.
-# Accent is extracted from the active wallpaper at runtime (see bin/r2-d2-theme-apply).
+# Wallpaper pixels snap to one named accent (see bin/r2-d2-theme-accent-from-bg).
+# An explicit --accent that is not one of these sources stays scheme-tonal-spot.
 
 background = "#121212"
 foreground = "#D4D4D4"
 inactive = "#606060"
 dim_foreground = "#8a8a8d"
 
-# Used when the wallpaper has no saturated colors (e.g. light or grayscale images).
-fallback_accent = "#EAEAEA"
-
 # Semantic colors — kept for critical/warning states only.
 critical = "#C73838"
 critical_dark = "#862020"
 warning = "#E07924"
 magenta = "#932A37"
+
+# Named accents. Matching uses the source hue. Black's dark accent roles are
+# overridden after matugen (see bin/r2-d2-theme-state).
+[accents.black]
+source = "#000000"
+scheme = "scheme-monochrome"
+
+[accents.white]
+source = "#FFFFFF"
+scheme = "scheme-monochrome"
+
+[accents.cyan]
+source = "#26C6DA"
+scheme = "scheme-tonal-spot"
+
+[accents.green]
+source = "#2E7D32"
+scheme = "scheme-tonal-spot"
+
+[accents.red]
+source = "#C62828"
+scheme = "scheme-tonal-spot"
+
+[accents.purple]
+source = "#9C27B0"
+scheme = "scheme-tonal-spot"
+
+[accents.gold]
+source = "#D4AF37"
+scheme = "scheme-tonal-spot"

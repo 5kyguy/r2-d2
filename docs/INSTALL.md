@@ -147,10 +147,10 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 ## Themes
 
-R2-D2 uses a dark companion palette with a **wallpaper-driven accent**. The base colors (background, text, inactive borders) stay fixed; the accent is extracted from the active wallpaper and applied across Hyprland, the shell, GTK, the terminal, notifications, and other UI.
+R2-D2 uses a dark companion palette with a **named wallpaper accent**. The base colors (background, text, inactive borders) stay fixed. Each wallpaper is measured and snapped to the nearest accent in `config/theme/palette.toml`: Black, White, Cyan, Green, Red, Purple, or Gold. That accent is applied across Hyprland, the shell, GTK, the terminal, notifications, and other UI.
 
-- Change the wallpaper with the background carousel (**Super + Ctrl + Space**). Left and right move through the images, typing filters by name, and Enter applies the selection. `r2-d2-theme-bg-set` updates the desktop image, extracts an accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
-- Desaturated or grayscale wallpapers use the palette fallback accent (`#EAEAEA`). That is a real accent. `#FFFFFF` is only the monochrome used when no accent can be read.
+- Change the wallpaper with the background carousel (**Super + Ctrl + Space**). Left and right move through the images, typing filters by name, and Enter applies the selection. `r2-d2-theme-bg-set` updates the desktop image, snaps the nearest named accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
+- Achromatic images resolve to Black or White. A missing wallpaper is White (`#FFFFFF`). No free color is taken from the image.
 - The shell, Walker, and the terminal stay on JetBrainsMono Nerd Font. Manrope still ships in `default/config/` and is copied into `~/.local/share/fonts` on install and update.
 - Run **Update** (`r2-d2-update`) to refresh all repo-managed config and optionally reload desktop components when prompted.
 - Theme templates live in `config/theme/templates/`; `r2-d2-theme-apply` renders them into the repo only.

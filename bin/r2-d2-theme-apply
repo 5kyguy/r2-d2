@@ -3,16 +3,14 @@
 # Render theme templates into the R2-D2 repo only ($R2D2_PATH/config and default/config).
 # Live ~/.config/ is updated by r2-d2-update-sync-files, not by this script.
 #
-# The engine is matugen (Material You). A single matugen run renders every
-# template listed in config/theme/matugen/config.toml into repo-relative paths.
-# R2-D2 stays dark, so templates render in dark mode. The published theme
-# document (dark + light) is built by r2-d2-theme-state, which runs matugen
-# again for the light palette.
+# The engine is matugen (Material You). r2-d2-theme-state builds the dark and
+# light palettes, then fills every template in config/theme/matugen/config.toml
+# from the document's dark roles. R2-D2 stays dark. The published document
+# still carries both palettes.
 
 set -euo pipefail
 
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
-MATUGEN_CONFIG="$R2D2_ROOT/config/theme/matugen/config.toml"
 STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
 if [[ ! -f $STATE_FILE && -f $HOME/.local/state/r2-d2/theme-accent ]]; then
   STATE_FILE="$HOME/.local/state/r2-d2/theme-accent"
@@ -71,7 +69,7 @@ if [[ -z $accent && $mode != "accent" ]]; then
   if [[ -f $STATE_FILE ]]; then
     accent="$(<"$STATE_FILE")"
   else
-    accent="#EAEAEA"
+    accent="#FFFFFF"
   fi
 fi
 
@@ -89,11 +87,11 @@ trap 'rm -f "$pending"' EXIT
 # A partial render must never leave an older document eligible for activation.
 rm -f "$R2D2_ROOT/.theme-state.json"
 
-# Render every template in the matugen config into $R2D2_PATH. Paths in
-# config.toml resolve relative to the config file's own directory, so this
-# works from any working directory.
-if ! matugen color hex "${accent#\#}" --mode dark -c "$MATUGEN_CONFIG" -q; then
-  echo "matugen render failed for accent $accent" >&2
+# Fill templates from the document just built, so Black's dark override and
+# the published colors cannot drift. Paths in config.toml resolve relative to
+# the config file's own directory.
+if ! "$R2D2_ROOT/bin/r2-d2-theme-state" render "$pending"; then
+  echo "Theme render failed for accent $accent" >&2
   exit 1
 fi
 

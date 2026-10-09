@@ -19,12 +19,25 @@ import re
 import subprocess
 import sys
 import tempfile
+import tomllib
 from pathlib import Path
 
 root = Path(os.environ['R2D2_PATH'])
 state = Path(os.environ.get('XDG_STATE_HOME') or Path.home() / '.local/state') / 'r2-d2'
 palette_template = root / 'config/theme/matugen/templates/palette.json'
-scheme = 'scheme-tonal-spot'
+palette_file = root / 'config/theme/palette.toml'
+matugen_config = root / 'config/theme/matugen/config.toml'
+default_scheme = 'scheme-tonal-spot'
+
+# Dark accent roles for the Black palette. Surfaces and outlines stay on the
+# matugen monochrome palette; only the accent itself goes black.
+BLACK_DARK = {
+    'primary': '#000000',
+    'on_primary': '#FFFFFF',
+    'primary_container': '#1A1A1A',
+    'on_primary_container': '#FFFFFF',
+    'surface_tint': '#000000',
+}
 
 ROLES = [
     'primary', 'on_primary', 'primary_container', 'on_primary_container', 'inverse_primary',
@@ -42,7 +55,7 @@ ROLES = [
 ]
 
 # Rendered outputs that must exist before a live sync copies anything. These
-# are the repo paths produced by r2-d2-theme-apply's matugen run.
+# are the repo paths produced by r2-d2-theme-apply.
 REQUIRED_OUTPUTS = [
     'config/hypr/looknfeel.lua',
     'config/r2-d2/colors.toml', 'config/r2-d2/shell.toml',
@@ -55,13 +68,34 @@ REQUIRED_OUTPUTS = [
 ]
 
 
+PLACEHOLDER = re.compile(
+    r'\{\{colors\.([A-Za-z0-9_]+)\.default\.(hex|hex_stripped|red|green|blue)\}\}'
+)
+
+
 def normalize_hex(value):
     if not isinstance(value, str) or not re.fullmatch(r'#[0-9a-fA-F]{6}', value):
         raise ValueError(f'Expected a full #RRGGBB color, got {value!r}')
     return value.upper()
 
 
-def matugen_palette(source_hex, mode):
+def named_accents():
+    """Return {SOURCE: scheme} and the Black source, from palette.toml."""
+    with palette_file.open('rb') as handle:
+        table = tomllib.load(handle)['accents']
+    schemes = {}
+    black = None
+    for name, item in table.items():
+        source = normalize_hex(item['source'])
+        schemes[source] = item['scheme']
+        if name == 'black':
+            black = source
+    if black is None:
+        raise ValueError('Palette is missing the black accent')
+    return schemes, black
+
+
+def matugen_palette(source_hex, mode, scheme):
     """Run matugen for one mode and return {role: #RRGGBB} (uppercase)."""
     if not palette_template.is_file():
         raise ValueError(f'Missing palette template: {palette_template}')
@@ -77,7 +111,7 @@ def matugen_palette(source_hex, mode):
         )
         proc = subprocess.run(
             ['matugen', 'color', 'hex', source_hex.lstrip('#'), '--mode', mode,
-            '-c', str(config), '-q'],
+             '-t', scheme, '-c', str(config), '-q'],
             capture_output=True, text=True,
         )
         if proc.returncode != 0:
@@ -93,8 +127,12 @@ def matugen_palette(source_hex, mode):
 
 def document(source):
     source = normalize_hex(source)
-    dark = matugen_palette(source, 'dark')
-    light = matugen_palette(source, 'light')
+    schemes, black = named_accents()
+    scheme = schemes.get(source, default_scheme)
+    dark = matugen_palette(source, 'dark', scheme)
+    light = matugen_palette(source, 'light', scheme)
+    if source == black:
+        dark.update(BLACK_DARK)
     data = {
         'version': 2,
         'contract': 'skyguy-visual',
@@ -118,6 +156,42 @@ def load(path):
     return data
 
 
+def color_field(hex_color, kind):
+    if kind == 'hex':
+        return hex_color.lower()
+    if kind == 'hex_stripped':
+        return hex_color[1:].lower()
+    offset = {'red': 1, 'green': 3, 'blue': 5}[kind]
+    return str(int(hex_color[offset:offset + 2], 16))
+
+
+def render_templates(data):
+    """Fill matugen templates from the document's dark roles."""
+    dark = data['colors']['dark']
+    for role in ROLES:
+        normalize_hex(dark[role])
+    config = tomllib.loads(matugen_config.read_text())
+    base = matugen_config.parent
+    repo = root.resolve()
+    for spec in config['templates'].values():
+        template = (base / spec['input_path']).read_text()
+
+        def replace(match, colors=dark):
+            role, kind = match.group(1), match.group(2)
+            if role not in colors:
+                raise ValueError(f'Template role not in document: {role}')
+            return color_field(colors[role], kind)
+
+        rendered = PLACEHOLDER.sub(replace, template)
+        if '{{' in rendered:
+            raise ValueError(f'Unrendered placeholder in {spec["input_path"]}')
+        output = (base / spec['output_path']).resolve()
+        if not output.is_relative_to(repo):
+            raise ValueError(f'Template output escapes the repo: {output}')
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered)
+
+
 def atomic_write(path, content):
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.is_file() and path.read_text() == content:
@@ -138,6 +212,8 @@ try:
     command, *args = sys.argv[1:]
     if command == 'build' and len(args) == 1:
         print(json.dumps(document(args[0]), sort_keys=True, indent=2))
+    elif command == 'render' and len(args) == 1:
+        render_templates(json.loads(Path(args[0]).read_text()))
     elif command == 'stage' and len(args) == 1:
         data = load(Path(args[0]))
         atomic_write(root / '.theme-state.json', json.dumps(data, sort_keys=True, indent=2) + '\n')
@@ -150,7 +226,7 @@ try:
         if command == 'activate':
             atomic_write(state / 'theme.json', json.dumps(data, sort_keys=True, indent=2) + '\n')
     else:
-        raise ValueError('Usage: r2-d2-theme-state build ACCENT | stage FILE | check | activate')
+        raise ValueError('Usage: r2-d2-theme-state build ACCENT | render FILE | stage FILE | check | activate')
 except (ValueError, KeyError, TypeError, OSError, subprocess.CalledProcessError) as error:
     print(f'Theme state: {error}', file=sys.stderr)
     sys.exit(1)

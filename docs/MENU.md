@@ -67,7 +67,7 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 | **Dropbox** | Install Dropbox |
 | **Tailscale** | Install Tailscale |
 
-Change wallpaper via **Super + Ctrl + Space** (image carousel). Accent colors update immediately from the selected image.
+Change wallpaper via **Super + Ctrl + Space** (image carousel). The image snaps to the nearest named accent, and that accent updates immediately.
 
 ---
 

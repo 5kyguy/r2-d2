@@ -12,6 +12,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import tempfile
+import tomllib
 import unittest
 
 REPO = Path(__file__).resolve().parents[1]
@@ -142,24 +143,62 @@ class ThemeStateTests(unittest.TestCase):
         self.assertFalse((self.state / 'theme.json').exists())
 
     def test_fixture_parity_for_every_supported_sample(self):
+        palette = tomllib.loads((REPO / 'config/theme/palette.toml').read_text())
+        monochrome = {
+            item['source'].upper()
+            for item in palette['accents'].values()
+            if item['scheme'] != 'scheme-tonal-spot'
+        }
         fixture = json.loads((REPO / 'docs/fixtures/contrast-v2.json').read_text())
         for name, modes in fixture['samples'].items():
+            if modes['source'].upper() in monochrome:
+                continue
             with self.subTest(sample=name):
                 result = self.run_script('r2-d2-theme-state', 'build', modes['source'])
                 self.assertEqual(result.returncode, 0, result.stderr)
                 doc = json.loads(result.stdout)
+                self.assertEqual(doc['scheme'], 'scheme-tonal-spot')
                 self.assertEqual(doc['source'], modes['source'])
                 for mode in ('dark', 'light'):
                     self.assertEqual(doc['colors'][mode], modes[mode])
+
+    def test_named_monochrome_accents(self):
+        white = self.run_script('r2-d2-theme-state', 'build', '#FFFFFF')
+        self.assertEqual(white.returncode, 0, white.stderr)
+        white_doc = json.loads(white.stdout)
+        self.assertEqual(white_doc['scheme'], 'scheme-monochrome')
+        self.assertEqual(white_doc['colors']['dark']['primary'], '#FFFFFF')
+
+        black = self.run_script('r2-d2-theme-state', 'build', '#000000')
+        self.assertEqual(black.returncode, 0, black.stderr)
+        black_doc = json.loads(black.stdout)
+        dark = black_doc['colors']['dark']
+        light = black_doc['colors']['light']
+        self.assertEqual(black_doc['scheme'], 'scheme-monochrome')
+        self.assertEqual(dark['primary'], '#000000')
+        self.assertEqual(dark['on_primary'], '#FFFFFF')
+        self.assertEqual(dark['primary_container'], '#1A1A1A')
+        self.assertEqual(dark['on_primary_container'], '#FFFFFF')
+        self.assertEqual(dark['surface_tint'], '#000000')
+        # Light roles stay on matugen's monochrome palette.
+        self.assertEqual(light['on_primary'], '#E2E2E2')
+        self.assertEqual(light['primary_container'], '#3B3B3B')
+        self.assertEqual(light['surface_tint'], '#5E5E5E')
+
+        self.apply('#000000')
+        colors = (self.repo / 'config/r2-d2/colors.toml').read_text()
+        self.assertIn('accent = "#000000"', colors)
 
     def test_first_install_without_xdg_or_wallpaper_uses_fallback(self):
         self.env.pop('XDG_STATE_HOME')
         result = self.run_script('r2-d2-theme-apply', '--from-state')
         self.assertEqual(result.returncode, 0, result.stderr)
         legacy = self.home / '.local/state/r2-d2'
-        self.assertEqual((legacy / 'theme-accent').read_text(), '#EAEAEA\n')
+        self.assertEqual((legacy / 'theme-accent').read_text(), '#FFFFFF\n')
         self.assertEqual(self.run_script('r2-d2-theme-sync-live').returncode, 0)
-        self.assertEqual(json.loads((legacy / 'theme.json').read_text())['source'], '#EAEAEA')
+        document = json.loads((legacy / 'theme.json').read_text())
+        self.assertEqual(document['source'], '#FFFFFF')
+        self.assertEqual(document['scheme'], 'scheme-monochrome')
 
     def test_failed_copy_does_not_advance_active_revision(self):
         self.apply()
@@ -213,22 +252,45 @@ class ThemeStateTests(unittest.TestCase):
         result = self.run_script('r2-d2-theme-bg-set', str(wallpaper))
         self.assertEqual(result.returncode, 0, result.stderr)
         data = json.loads((self.state / 'theme.json').read_text())
-        self.assertEqual(data['source'], '#1D4ED8')
-        self.assertEqual((self.home / 'reload-accent').read_text(), '#1D4ED8')
+        self.assertEqual(data['source'], '#26C6DA')
+        self.assertEqual(data['scheme'], 'scheme-tonal-spot')
+        self.assertEqual((self.home / 'reload-accent').read_text(), '#26C6DA')
         self.assertEqual((self.repo / 'backgrounds/@background').resolve(), wallpaper)
         self.assertTrue((self.home / '.config/hypr/looknfeel.lua').is_file())
 
-    def test_grayscale_extraction_print_only_does_not_write_state(self):
+    def test_achromatic_snaps_do_not_write_state(self):
+        backgrounds = self.repo / 'backgrounds'
+        backgrounds.mkdir()
         wallpaper = self.root / 'gray.ppm'
-        wallpaper.write_text('P3\n1 1\n255\n128 128 128\n')
+        link = backgrounds / '@background'
+        cases = (
+            ('200 200 200', '#FFFFFF'),
+            ('20 20 20', '#000000'),
+        )
+        for pixel, expected in cases:
+            with self.subTest(pixel=pixel):
+                wallpaper.write_text(f'P3\n1 1\n255\n{pixel}\n')
+                link.unlink(missing_ok=True)
+                link.symlink_to(wallpaper)
+                result = self.run_script('r2-d2-theme-accent-from-bg', '--print-only')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), expected)
+                self.assertFalse(self.state.exists())
+                self.assertFalse((self.repo / '.theme-state.json').exists())
+
+    def test_red_on_black_snaps_to_red(self):
+        rows = []
+        for y in range(8):
+            for x in range(8):
+                rows.append('198 40 40' if x < 2 and y < 2 else '0 0 0')
+        wallpaper = self.root / 'red.ppm'
+        wallpaper.write_text('P3\n8 8\n255\n' + '\n'.join(rows) + '\n')
         backgrounds = self.repo / 'backgrounds'
         backgrounds.mkdir()
         (backgrounds / '@background').symlink_to(wallpaper)
         result = self.run_script('r2-d2-theme-accent-from-bg', '--print-only')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(result.stdout.strip(), '#EAEAEA')
-        self.assertFalse(self.state.exists())
-        self.assertFalse((self.repo / '.theme-state.json').exists())
+        self.assertEqual(result.stdout.strip(), '#C62828')
 
     def test_concurrent_renders_and_readers_observe_complete_documents(self):
         import threading

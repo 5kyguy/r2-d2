@@ -1,16 +1,18 @@
 # Matugen (Material You) theme engine for R2-D2.
 #
-# r2-d2-theme-apply renders every template below with:
-#   matugen color hex <SOURCE> --mode dark -c config/theme/matugen/config.toml
-# Paths resolve relative to this file's directory (config/theme/matugen/),
-# so outputs climb out of matugen/ to reach the rest of the repo. R2-D2 stays
-# dark; the light palette is generated only for the published theme document
-# and the portfolio, not for live desktop config.
+# r2-d2-theme-apply fills every template below from the dark roles of the
+# theme document built by r2-d2-theme-state. Paths resolve relative to this
+# file's directory (config/theme/matugen/), so outputs climb out of matugen/
+# to reach the rest of the repo. R2-D2 stays dark; the light palette is
+# generated only for the published theme document and the portfolio, not for
+# live desktop config.
 #
-# Scheme is the matugen default (scheme-tonal-spot). Contrast is left at the
-# matugen default (standard). Changing either changes every rendered color
-# and the v2 fixture; regenerate docs/fixtures/contrast-v2.json with
-# tests/generate-theme-fixture.py after any change here.
+# Chromatic accents use scheme-tonal-spot. Black and White use
+# scheme-monochrome, and Black then forces its dark accent roles to black.
+# Contrast stays at the matugen default (standard). Changing the scheme or
+# contrast changes every rendered color and the v2 fixture; regenerate
+# docs/fixtures/contrast-v2.json with tests/generate-theme-fixture.py after
+# any change here.
 
 [config]
 
