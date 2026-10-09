@@ -253,6 +253,7 @@ run_action() {
   toggle.notifications) r2-d2-toggle-notification-silencing ;;
   toggle.idle) r2-d2-toggle-idle ;;
   toggle.layout) r2-d2-hyprland-workspace-layout-toggle ;;
+  toggle.workspaces) r2-d2-toggle-workspace-apps ;;
   toggle.scaling) r2-d2-hyprland-monitor-scaling-toggle ;;
   toggle.screensaver) r2-d2-toggle-screensaver ;;
   toggle.crash) r2-d2-toggle-crash-capture ;;

@@ -68,6 +68,7 @@ var NODES = [
   item("toggle.notifications", "toggle", "Notifications", "󰂵", { run: "toggle.notifications" }),
   item("toggle.idle", "toggle", "Idle", "󱫖", { run: "toggle.idle" }),
   item("toggle.layout", "toggle", "Layout", "󱂬", { run: "toggle.layout" }),
+  item("toggle.workspaces", "toggle", "Workspace apps", "󰖲", { run: "toggle.workspaces" }),
   item("toggle.scaling", "toggle", "Scaling", "󰍹", { run: "toggle.scaling" }),
   item("toggle.screensaver", "toggle", "Screensaver", "󱄄", { run: "toggle.screensaver" }),
   item("toggle.crash", "toggle", "Crash capture", "󰻌", { run: "toggle.crash" }),

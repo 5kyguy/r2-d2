@@ -8,28 +8,50 @@ import qs.Commons
 import qs.Ui
 import "WorkspacesModel.js" as Model
 
-// Workspace switcher. Occupied workspaces show the apps open on them, and
-// the focused pill keeps its marker. Hover another workspace for a live
-// preview. Click an icon to focus that window.
+// Workspace switcher. Each workspace is a number; the focused pill keeps
+// its marker, and occupied numbers read stronger than empty ones. Trigger
+// → Toggle → Workspace apps adds the app icons and the hover preview.
+// Click an icon to focus that window.
 //
 // Adapted from omarchy-spaces (MIT), Copyright (c) 2026 Tornike Gomareli.
 // https://github.com/tornikegomareli/omarchy-spaces
 //
-// shell.json on this widget can override any WorkspacesModel default, for
-// example { "id": "r2-d2.workspaces", "showApps": "hover" }.
+// The workspace-apps toggle owns showIcons and previews. shell.json can
+// still override the other WorkspacesModel defaults, for example
+// { "id": "r2-d2.workspaces", "showApps": "hover" }.
 BarWidget {
   id: root
   moduleName: "r2-d2.workspaces"
 
-  // Icons on every occupied workspace unless shell.json sets showApps.
+  // Absent flag = numbers only. The flag is created by r2-d2-toggle-workspace-apps.
+  property bool workspaceApps: false
+
   readonly property var cfg: {
     var raw = root.settings || {}
-    var source = raw
-    if (raw.showApps === undefined || raw.showApps === null) {
-      source = { showApps: "all" }
-      for (var key in raw) source[key] = raw[key]
-    }
+    var source = {}
+    for (var key in raw) source[key] = raw[key]
+    source.showIcons = root.workspaceApps
+    source.previews = root.workspaceApps
     return Model.resolveSettings(source)
+  }
+
+  Process {
+    id: workspaceAppsProbe
+    running: true
+    command: ["bash", "-c", "[[ -f $HOME/.local/state/r2-d2/toggles/workspace-apps ]] && echo yes || echo no"]
+    stdout: SplitParser { onRead: function(line) { root.workspaceApps = String(line).trim() === "yes" } }
+  }
+
+  // Watch the parent directory: FileView cannot observe a flag that does not exist yet.
+  FileView {
+    path: Quickshell.env("HOME") + "/.local/state/r2-d2/toggles"
+    watchChanges: true
+    printErrors: false
+    onFileChanged: workspaceAppsProbe.running = true
+  }
+
+  function syncWorkspaceApps() {
+    workspaceAppsProbe.running = true
   }
 
   // ------------------------------------------------------------ geometry & colors
@@ -595,6 +617,12 @@ BarWidget {
     target: "r2-d2.workspaces"
 
     function peek(workspace: string): string { return root.peek(workspace) ? "ok" : "empty" }
+    function syncApps(): void {
+      var items = root.bar && typeof root.bar.moduleWidgets === "function" ? root.bar.moduleWidgets(root.moduleName) : [root]
+      if (items.indexOf(root) === -1) items = items.concat([root])
+      for (var i = 0; i < items.length; i++)
+        if (items[i] && typeof items[i].syncWorkspaceApps === "function") items[i].syncWorkspaceApps()
+    }
     function agent(session: string, state: string, pids: string): void {
       // One IPC handler serves every monitor's bar, so relay to all of them.
       var items = root.bar && typeof root.bar.moduleWidgets === "function" ? root.bar.moduleWidgets(root.moduleName) : [root]

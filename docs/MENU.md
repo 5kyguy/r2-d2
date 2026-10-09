@@ -45,7 +45,7 @@ Monitor layouts are manual. **Apply** is what login and a desktop reload restore
 
 | Entry | Action |
 | ----- | ------ |
-| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Scaling, Screensaver, Crash capture |
+| **Toggle** | Top bar, Display, Mirror, Notifications, Idle, Layout, Workspace apps, Scaling, Screensaver, Crash capture |
 | **Screenshot** | `r2-d2-cmd-screenshot` |
 | **Screenrecord** | Stop, or record with no audio, desktop audio, a microphone, or a webcam |
 | **Share** | Clipboard, file, or folder |

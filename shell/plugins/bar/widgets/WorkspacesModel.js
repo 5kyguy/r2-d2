@@ -7,8 +7,8 @@
 // objects beyond plain property reads.
 
 var DEFAULTS = {
-  showIcons: true,            // master switch: app icons visible or hidden
-  showApps: "hover",          // "all" | "active" | "hover" (active + hovered) | "hoverOnly"
+  showIcons: false,           // app icons; the workspace-apps toggle turns these on
+  showApps: "all",            // "all" | "active" | "hover" (active + hovered) | "hoverOnly"
   persistentWorkspaces: 5,    // workspaces 1..N are always shown
   hideEmpty: false,           // hide empty workspaces, even persistent ones
   perMonitor: false,          // only list workspaces on this bar's monitor
@@ -31,7 +31,7 @@ var DEFAULTS = {
   density: "normal",          // "compact" | "normal" | "roomy"
   activeClick: "none",        // clicking the active pill: "none" | "previous"
   settingsButton: "never",    // gear button: "hover" | "always" | "never"
-  previews: true,             // live preview of a workspace on hover
+  previews: false,            // hover preview; the workspace-apps toggle turns this on
   previewSize: "medium",      // "small" | "medium" | "large"
   previewLive: true,          // keep previews streaming; false = one frame
   agentStatus: true           // badges for coding agents running in terminals

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Toggle app icons and the hover preview on the workspace switcher.
+# Absent flag = numbers only. Present flag = icons beside each number, plus the preview.
+
+r2-d2-toggle workspace-apps
+
+if r2-d2-toggle-enabled workspace-apps; then
+  notify-send "󰖲   Workspace apps on"
+else
+  notify-send "󰖲   Numbers only"
+fi
+
+r2-d2-shell -q r2-d2.workspaces syncApps
