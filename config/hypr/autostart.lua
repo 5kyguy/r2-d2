@@ -26,9 +26,10 @@ end)
 -- That re-applies monitors.lua. Put a manually disabled laptop panel back off,
 -- then restore a saved layout when no display toggle is holding the session.
 hl.on("config.reloaded", function()
-  -- One shell process so these run sequentially: restore the saved layout
-  -- (which re-initializes external DDC/CI outputs and resets their brightness
-  -- to 0), then re-apply the persisted brightness. The restore retries for
-  -- several seconds while DDC/CI comes back after the modeset.
-  hl.exec_cmd("r2-d2-hyprland-monitors-restore --after-reload; r2-d2-hyprland-monitor-profile apply-active; r2-d2-brightness-display-restore")
+  -- One shell process so these run sequentially: put a disabled panel back
+  -- off and reapply the saved layout (which re-initializes external DDC/CI
+  -- outputs and resets their brightness to 0), then return to the workspace
+  -- from before the reload, then re-apply the persisted brightness. The
+  -- brightness step retries for several seconds while DDC/CI comes back.
+  hl.exec_cmd("r2-d2-hyprland-monitors-restore --after-reload; r2-d2-hyprland-monitor-profile apply-active; r2-d2-hyprland-monitors-restore --restore-workspace; r2-d2-brightness-display-restore")
 end)

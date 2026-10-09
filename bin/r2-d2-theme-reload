@@ -16,8 +16,9 @@ if [[ -f $HOME/.config/r2-d2/colors.toml && -f $HOME/.config/r2-d2/shell.toml ]]
   r2-d2-shell -q shell applyTheme "$colors" "$shell_theme" || true
 fi
 
-# Writing looknfeel.lua makes Hyprland reload, which re-enables every output.
-r2-d2-hyprland-monitors-restore --flags-only >/dev/null 2>&1 || true
+# Writing looknfeel.lua reloads Hyprland. config.reloaded puts a disabled
+# panel back off and restores the workspace. Doing that again here races
+# the reload and can leave focus on the gap workspace.
 
 if [[ -n $accent ]] && command -v notify-send >/dev/null 2>&1; then
   notify-send "R2-D2 theme" "Accent: $accent" -t 2500

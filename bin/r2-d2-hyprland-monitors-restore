@@ -17,7 +17,7 @@ remember_workspace() {
 }
 
 restore_workspace() {
-  local saved_at id now attempt active
+  local saved_at id now active stable
 
   [[ -f $WORKSPACE_HOLD ]] || return 0
   read -r saved_at id <"$WORKSPACE_HOLD" || return 0
@@ -28,13 +28,22 @@ restore_workspace() {
     return 0
   fi
 
-  # Disabling the laptop panel moves focus after hyprctl returns, so retry briefly.
-  for attempt in 1 2 3 4 5; do
-    hyprctl dispatch "hl.dsp.focus({ workspace = $id })" >/dev/null 2>&1 || true
+  # Disabling the laptop panel moves focus after hyprctl returns. Hyprland
+  # then plugs the numeric gap with the lowest missing workspace, which is 3
+  # whenever 1 and 2 already exist. That focus change can land after the first
+  # successful restore, so wait until the saved workspace has held.
+  stable=0
+  for _ in {1..30}; do
     active=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id // empty' || true)
     if [[ $active == "$id" ]]; then
-      rm -f "$WORKSPACE_HOLD"
-      return 0
+      stable=$((stable + 1))
+      if ((stable >= 8)); then
+        rm -f "$WORKSPACE_HOLD"
+        return 0
+      fi
+    else
+      stable=0
+      hyprctl dispatch "hl.dsp.focus({ workspace = $id })" >/dev/null 2>&1 || true
     fi
     sleep 0.1
   done
@@ -81,6 +90,5 @@ elif [[ ${1:-} != "--flags-only" && ${1:-} != "--after-reload" && ! -t 0 ]]; the
   done
 fi
 
-if [[ ${1:-} == "--after-reload" ]]; then
-  restore_workspace
-fi
+# Workspace restore is a separate step. config.reloaded runs it after the
+# monitor layout is reapplied, so a modeset cannot undo the saved workspace.
