@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run the R2-D2 screensaver. One pattern is chosen when it starts and repeats until wake.
+# Run the R2-D2 screensaver. Matrix digital rain flows until wake.
 
 screensaver_in_focus() {
   hyprctl activewindow -j | jq -e '.class == "org.r2d2.screensaver"' >/dev/null 2>&1
@@ -35,13 +35,9 @@ play() {
   done
 }
 
-# Pick once. Waking the machine is what starts a new choice.
-if (( RANDOM % 2 == 0 )); then
-  effect=matrix
-else
-  effect=laseretch
-fi
-
+# The rain phase never runs out, so the characters keep flowing until the
+# screensaver is interrupted; the logo reveal never happens. The loop only
+# restarts the rain if tte itself ever exits.
 while true; do
-  play "$effect"
+  play matrix --rain-time 2000000000
 done
