@@ -71,6 +71,9 @@ PopupWindow {
 
   onOpenChanged: {
     if (!bar) return
+    // Hover cards are passive overlays: they claim no popout state, so they
+    // neither close other open panels nor light the module's open-panel mark.
+    if (root.triggerMode !== "click") return
     if (open) bar.requestPopout(coordinatorKey)
     else if (bar.activePopout === coordinatorKey) bar.releasePopout(coordinatorKey)
   }

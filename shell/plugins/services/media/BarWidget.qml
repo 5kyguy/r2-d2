@@ -356,6 +356,7 @@ BarWidget {
     owner: root
     triggerMode: "hover"
     open: root.cardOpen && root.hasMedia
+    borderSpec: Border.none()
     contentWidth: card.fittedContentWidth(titleSlot.width)
     contentHeight: {
       var scaled = Math.round(card.fittedContentHeight(root.artBasisCover) * root.artScale)
