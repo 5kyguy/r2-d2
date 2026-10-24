@@ -42,21 +42,19 @@ Templates filled by `r2-d2-theme-apply` from the dark roles of the theme documen
 | `share-picker.css` | `default/config/hyprland-preview-share-picker/style.css` |
 | `hermes-skin.yaml` | `config/theme/accent-apps/hermes-skin.yaml` |
 | `opencode-theme.json` | `config/theme/accent-apps/opencode.json` |
-| `cursor-accent.json` | `config/theme/accent-apps/cursor.json` |
 | `zathurarc` | `config/zathura/zathurarc` |
 | `sddm-palette.qml` | `default/sddm/r2-d2/Palette.qml` |
 
 `gtk4.css` defines `accent_color`, `accent_bg_color`, and `accent_fg_color` only (mapped to `accent`/`on_accent`). Header bars, window backgrounds, and corner radius stay on the GTK theme.
 
-`r2-d2-theme-sync-live` and `r2-d2-config-sync-live` place the other accent files after the repo render. They do not restart Hermes, OpenCode, Cursor, or Qt.
+`r2-d2-theme-sync-live` and `r2-d2-config-sync-live` place the other accent files after the repo render. They do not restart Hermes, OpenCode, or Qt.
 
 - Hermes: `~/.hermes/skins/r2-d2.yaml` sets `ui_accent`, `banner_accent`, `response_border`, and `selection_bg` to the `accent` role. Every other color stays on the built-in default skin. `display.skin` becomes `r2-d2`.
 - OpenCode: `~/.config/opencode/themes/opencode.json` is the built-in OpenCode palette with `darkAccent` and `lightAccent` replaced by the `accent` role. `darkStep9` stays `#fab283`. The theme name stays `opencode`, so `tui.json` and `opencode.json` are left alone.
-- Cursor: accent keys (merged from `cursor.json`, which uses `accent` for solid borders and `accent` at 0.55/0.22 alpha for selections) are merged into `workbench.colorCustomizations` in the existing user settings. `workbench.colorTheme` stays as it is.
 - Kvantum: when `/usr/share/Kvantum/KvDark` is installed, a clone named `r2-d2` changes highlight and link colors to the `accent` role, and `kvantum.kvconfig` selects that clone. KvDark uses the same window color as Kvantum's builtin default.
 - zathura: `~/.config/zathura/zathurarc` follows the wallpaper live (synced by `r2-d2-theme-sync-live` alongside the other config files).
 
-A running Hermes, OpenCode, Cursor, or Qt process keeps its previous accent until the next launch.
+A running Hermes, OpenCode, or Qt process keeps its previous accent until the next launch.
 
 SDDM (`default/sddm/r2-d2/`) is system-managed. `Main.qml` consumes a `Palette` QtObject rendered into `default/sddm/r2-d2/Palette.qml`. A fallback `Palette.qml` is committed so the import never breaks before the first apply. SDDM is deployed by `r2-d2-refresh-sddm` at install/update only — it follows updates and migrations, **not** every wallpaper change (SDDM runs before the user session and cannot read live state). Plymouth (`default/plymouth/`) remains system-managed and is not recolored by this pass.
 
@@ -64,7 +62,7 @@ The rendered templates use the fixed roles. Lock-screen and prompt text use `tex
 
 ## Out of scope
 
-Chromium, Brave, VS Code, Steam, Spotify, and icon themes. GTK 4, Cursor, Kvantum, Hermes, and OpenCode take the wallpaper accent and keep their own surfaces. K-2SO is a separate project. Menu behavior stays as documented in `docs/MENU.md` and `docs/INSTALL.md`.
+Chromium, Brave, VS Code, Steam, Spotify, and icon themes. Cursor keeps its default color scheme. GTK 4, Kvantum, Hermes, and OpenCode take the wallpaper accent and keep their own surfaces. K-2SO is a separate project. Menu behavior stays as documented in `docs/MENU.md` and `docs/INSTALL.md`.
 
 ## State
 

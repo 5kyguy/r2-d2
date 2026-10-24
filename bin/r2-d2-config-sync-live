@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Copy all repo user config into the live session (~/.config/).
-# Cursor, VS Code, OpenCode, and Voxtype user files are not replaced. The accent
-# merge updates Cursor color keys only. Voxtype keeps the model chosen in Setup.
+# Cursor, VS Code, OpenCode, and Voxtype user files are not replaced. Cursor
+# keeps its own color scheme. Voxtype keeps the model chosen in Setup.
 
 set -euo pipefail
 

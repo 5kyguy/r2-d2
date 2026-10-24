@@ -424,6 +424,7 @@ class ThemeStateTests(unittest.TestCase):
 
         self.apply('#00E5FF')
         self.assertFalse((self.home / '.hermes/skins/r2-d2.yaml').exists())
+        original_cursor = cursor.read_text()
         for command in ('r2-d2-theme-sync-live', 'r2-d2-config-sync-live'):
             with self.subTest(command=command):
                 result = self.run_script(command)
@@ -443,13 +444,8 @@ class ThemeStateTests(unittest.TestCase):
         self.assertEqual(theme['defs']['darkStep9'], '#fab283')
         self.assertFalse((self.home / '.config/opencode/tui.json').exists())
         self.assertEqual(opencode.read_text(), original)
-        settings = json.loads(cursor.read_text())
-        self.assertEqual(settings['editor.fontSize'], 14)
-        self.assertEqual(settings['workbench.colorTheme'], 'Default Dark+')
-        colors = settings['workbench.colorCustomizations']
-        self.assertEqual(colors['editor.background'], '#111111')
-        self.assertEqual(colors['focusBorder'], primary)
-        self.assertNotIn('workbench.colorTheme', colors)
+        self.assertEqual(cursor.read_text(), original_cursor,
+                         'Cursor settings must stay untouched; Cursor is off the accent schema')
         cloned = (self.home / '.config/Kvantum/r2-d2/r2-d2.kvconfig').read_text()
         self.assertIn(f'highlight.color={primary}\n', cloned)
         self.assertIn(f'link.color={primary}\n', cloned)
@@ -479,7 +475,6 @@ class ThemeStateTests(unittest.TestCase):
         self.apply()
         result = self.run_script('r2-d2-theme-sync-live')
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn('Skipping Cursor accent merge', result.stderr)
         self.assertEqual(cursor.read_text(), '{')
         self.assertTrue((self.state / 'theme.json').is_file())
 

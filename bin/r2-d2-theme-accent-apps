@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Merge the wallpaper accent into Hermes, OpenCode, Cursor, and Kvantum.
+# Merge the wallpaper accent into Hermes, OpenCode, and Kvantum.
 # GTK 4 is a normal theme-sync copy. This script does not restart any app.
 # The caller holds $R2D2_PATH/.theme.lock. Do not lock it again.
 
@@ -11,7 +11,7 @@ APPS="$R2D2_PATH/config/theme/accent-apps"
 HERMES_HOME="${HERMES_HOME:-$HOME/.hermes}"
 KVANTUM_SRC="${R2D2_KVANTUM_SRC:-/usr/share/Kvantum/KvDark}"
 
-for required in hermes-skin.yaml opencode.json cursor.json; do
+for required in hermes-skin.yaml opencode.json; do
   if [[ ! -f $APPS/$required ]]; then
     echo "Missing rendered accent file: $APPS/$required" >&2
     exit 1
@@ -137,34 +137,14 @@ write_if_changed(hermes_config, set_display_skin(current, "r2-d2"))
 
 copy_if_changed(apps / "opencode.json", config / "opencode" / "themes" / "opencode.json")
 
-cursor_colors = json.loads((apps / "cursor.json").read_text(encoding="utf-8"))
-if not isinstance(cursor_colors, dict):
-    raise SystemExit("Rendered Cursor accent file must be an object")
-accent = cursor_colors.get("focusBorder")
-on_control = cursor_colors.get("button.foreground")
+# Kvantum accent colors come straight from the staged theme document the
+# caller validated with r2-d2-theme-state check.
+document = json.loads((apps.parents[2] / ".theme-state.json").read_text(encoding="utf-8"))
+dark = document["colors"]["dark"]
+accent = dark["accent"].lower()
+on_control = dark["on_accent"].lower()
 if not isinstance(accent, str) or not isinstance(on_control, str):
-    raise SystemExit("Rendered Cursor accent file is missing focus or button colors")
-
-settings_path = config / "Cursor" / "User" / "settings.json"
-if settings_path.is_file():
-    try:
-        settings = json.loads(settings_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        print(f"Skipping Cursor accent merge; settings are not JSON: {settings_path}", file=sys.stderr)
-        settings = None
-else:
-    settings = {}
-
-if isinstance(settings, dict):
-    custom = settings.get("workbench.colorCustomizations", {})
-    if isinstance(custom, dict):
-        custom.update(cursor_colors)
-        settings["workbench.colorCustomizations"] = custom
-        write_if_changed(settings_path, json.dumps(settings, indent=2) + "\n")
-    else:
-        print(f"Skipping Cursor accent merge; color customizations are not an object: {settings_path}", file=sys.stderr)
-elif settings is not None:
-    print(f"Skipping Cursor accent merge; settings are not an object: {settings_path}", file=sys.stderr)
+    raise SystemExit("Theme document is missing the accent roles")
 
 configs = sorted(kvantum_src.glob("*.kvconfig")) if kvantum_src.is_dir() else []
 svgs = sorted(kvantum_src.glob("*.svg")) if kvantum_src.is_dir() else []

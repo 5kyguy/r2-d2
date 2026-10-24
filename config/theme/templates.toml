@@ -55,10 +55,6 @@ output_path = "accent-apps/hermes-skin.yaml"
 input_path = "templates/opencode-theme.json"
 output_path = "accent-apps/opencode.json"
 
-[templates.cursor-accent]
-input_path = "templates/cursor-accent.json"
-output_path = "accent-apps/cursor.json"
-
 [templates.zathura]
 input_path = "templates/zathurarc"
 output_path = "../zathura/zathurarc"
