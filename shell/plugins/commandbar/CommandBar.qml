@@ -9,6 +9,7 @@ import "lib/Engine.js" as Engine
 import "lib/tzcities.js" as Tz
 import "lib/Hotkey.js" as Hotkey
 import "providers/menu.js" as Menu
+import "providers/apps.js" as Apps
 import "providers/grap.js" as Grap
 
 // Spotlight-style command bar. The UI and the data it needs (config, exchange
@@ -86,9 +87,10 @@ Item {
   property int footerHeight: Math.max(Style.space(32), Style.font.caption + Style.spacing.md * 2)
   readonly property int tileSize: Math.max(Style.space(30), Style.font.iconLarge + Style.space(12))
   readonly property int tileRadius: root.cornerRadius > 0 ? Style.space(7) : 0
-  // Results show up to 7 rows before scrolling; the ? list is allowed to
-  // grow so it fits without scrolling, as far as the screen allows.
-  readonly property int maxRows: 7
+  // Results show up to 9 rows before scrolling (the menu's top level has 9
+  // entries); the ? list is allowed to grow so it fits without scrolling, as
+  // far as the screen allows.
+  readonly property int maxRows: 9
   // Alt+1 … Alt+9 run the first nine results; the ? list doesn't have them.
   readonly property int quickKeys: root.showingHelp ? 0 : 9
   readonly property bool showingHelp: root.rows.length > 0 && !!root.rows[0].help
@@ -122,12 +124,7 @@ Item {
     var payload = {}
     try { payload = JSON.parse(payloadJson || "{}") || {} } catch (e) {}
     var requested = typeof payload.menu === "string" ? Menu.resolve(payload.menu) : ""
-    if (requested === "apps") {
-      if (root.opened && !root.menuId && !input.text) { root.dismiss(); return }
-      root.menuId = ""
-      root.menuRoot = ""
-      input.text = ""
-    } else if (requested) {
+    if (requested) {
       if (root.opened && root.menuId === requested && !input.text) { root.dismiss(); return }
       root.menuId = requested
       root.menuRoot = requested
@@ -235,7 +232,9 @@ Item {
       k2soPresent: root.k2soPresent
     }
     var query = input.text
-    if (root.menuId && !query.trim()) {
+    if (root.menuId === "apps") {
+      root.results = root.appRows(query)
+    } else if (root.menuId && !query.trim()) {
       root.results = Menu.browse(root.menuId, root.menuState)
     } else if (root.menuId) {
       var found = Menu.search(query, root.menuState)
@@ -280,13 +279,6 @@ Item {
         root.menuId = row.run.target || "root"
         root.selectedIndex = 0
         root.refreshMenuState()
-        if (input.text) input.text = ""
-        else root.recompute()
-        return
-      }
-      if (row.run.kind === "apps") {
-        root.menuId = ""
-        root.selectedIndex = 0
         if (input.text) input.text = ""
         else root.recompute()
         return
@@ -775,6 +767,49 @@ Item {
     root.appEntries = byId
     root.apps = list
     if (root.opened) root.recompute()
+  }
+
+  // The menu's Apps level: every visible app, alphabetical. A query filters it
+  // with the ranking the apps provider uses for search.
+  function appRows(query) {
+    var q = String(query || "").trim().toLowerCase().replace(/\s+/g, " ")
+    var qw = Apps.words(q)
+    var launches = root.launches
+    var hits = []
+    for (var i = 0; i < root.apps.length; i++) {
+      var score = 1
+      if (q) {
+        score = Apps.rank(root.apps[i], q, qw)
+        if (score <= 0) continue
+      }
+      hits.push({ app: root.apps[i], score: score + Apps.habit(launches[root.apps[i].id] || 0) })
+    }
+    hits.sort(function(a, b) {
+      if (q) return (b.score - a.score) || a.app.name.localeCompare(b.app.name)
+      return a.app.name.localeCompare(b.app.name)
+    })
+    var rows = []
+    for (var j = 0; j < hits.length; j++) {
+      var app = hits[j].app
+      rows.push({
+        title: app.name,
+        subtitle: app.generic || app.comment || "Application",
+        icon: "",
+        image: app.icon,
+        copy: "",
+        run: { kind: "app", target: app.id, label: "open" },
+        complete: "",
+        select: false,
+        actionLabel: "Open",
+        score: 1000 - j,
+        provider: "apps",
+        providerName: "Apps",
+        group: "Apps",
+        section: j === 0 ? "Apps" : "",
+        hero: false
+      })
+    }
+    return rows
   }
 
   // Started the way Omarchy's launcher starts apps: under uwsm, in their own

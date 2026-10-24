@@ -311,16 +311,14 @@ function isCurrent(node, state) {
 function shellQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
 
 function shape(node, state, score, searching) {
-  var openId = node.kind === "menu" ? node.menu : (!node.run && node.kind !== "apps" ? node.id : "")
+  var openId = node.kind === "menu" ? node.menu : (node.kind === "apps" ? "apps" : (!node.run ? node.id : ""))
   var branch = !!openId
-  var apps = node.kind === "apps"
   var path = crumb(node)
   var subtitle = ""
   if (isCurrent(node, state)) subtitle = "Current"
   else if (searching && path) subtitle = path
   var run
-  if (apps) run = { kind: "apps", target: "", label: "search" }
-  else if (branch) run = { kind: "menu", target: openId, label: "open" }
+  if (branch) run = { kind: "menu", target: openId, label: "open" }
   else run = { kind: "run", target: "r2-d2-menu run " + shellQuote(node.run), label: "run" }
   return {
     provider: "menu",
@@ -333,7 +331,7 @@ function shape(node, state, score, searching) {
     run: run,
     complete: "",
     select: false,
-    actionLabel: apps ? "Search" : (branch ? "Open" : "Run"),
+    actionLabel: branch ? "Open" : "Run",
     score: score,
     group: "Menu",
     section: "",

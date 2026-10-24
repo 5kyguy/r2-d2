@@ -12,7 +12,7 @@ The **R2-D2 menu** is the command bar opened on the menu tree (`bin/r2-d2-menu` 
 
 | Entry | Action |
 | ----- | ------ |
-| **Apps** | App search in the command bar |
+| **Apps** | The installed app list, alphabetical; type to filter it (the free-form command bar stays on **Super + Space**) |
 | **Trigger** | Toggle, Screenshot, Screenrecord, Share |
 | **Setup** | Text size, Default apps, Monitors, System sleep, DNS, Security, Dictation, Fix webcam (AMD), Dependencies, Reset sudo |
 | **Restart** | Restart Shell, Walker, Pipewire, Terminal, Wifi, Bluetooth, Hyprctl |
