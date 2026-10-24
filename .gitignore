@@ -4,9 +4,9 @@
 .markdownlint.json
 backgrounds/@background
 
-k-2so/
-
 # Local theme generation state, never shipped or committed.
 .theme.lock
 .theme-state.*
 tests/__pycache__/
+
+font.txt
