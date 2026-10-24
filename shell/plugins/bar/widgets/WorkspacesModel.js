@@ -18,8 +18,8 @@ var DEFAULTS = {
   dimUnfocused: true,         // dim other windows on the active workspace
   focusedTitle: false,        // show the focused window's title next to its icon
   titleLength: 24,
-  activeStyle: "subtle",      // "subtle" | "solid" | "accent"
-  pillBackground: true,       // quiet fill behind occupied/hovered pills
+  activeStyle: "none",        // "none" | "subtle" | "solid" | "accent"
+  pillBackground: false,      // quiet fill behind occupied/hovered pills
   labelStyle: "number",       // "number" | "glyph" | "none"
   animations: true,
   animationSpeed: "normal",   // "slow" | "normal" | "fast"
@@ -43,7 +43,7 @@ var DENSITIES = ["compact", "normal", "roomy"]
 var ACTIVE_CLICKS = ["none", "previous"]
 var SETTINGS_BUTTONS = ["hover", "always", "never"]
 var PREVIEW_SIZES = ["small", "medium", "large"]
-var ACTIVE_STYLES = ["subtle", "solid", "accent"]
+var ACTIVE_STYLES = ["none", "subtle", "solid", "accent"]
 var LABEL_STYLES = ["number", "glyph", "none"]
 var SPEEDS = ["slow", "normal", "fast"]
 

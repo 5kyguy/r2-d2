@@ -68,13 +68,14 @@ BarWidget {
   readonly property var metrics: Model.densityMetrics(cfg.density)
 
   function activeFill() {
+    if (cfg.activeStyle === "none") return "transparent"
     if (cfg.activeStyle === "solid") return root.fg
     if (cfg.activeStyle === "accent") return Colors.accent
     return Util.alpha(root.fg, 0.18)
   }
 
   function activeText() {
-    return cfg.activeStyle === "subtle" ? root.fg : root.bg
+    return cfg.activeStyle === "solid" || cfg.activeStyle === "accent" ? root.bg : root.fg
   }
 
   // ------------------------------------------------------------ Hyprland state
