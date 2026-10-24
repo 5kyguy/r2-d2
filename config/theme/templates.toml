@@ -1,0 +1,68 @@
+# Fixed-palette templates for R2-D2.
+#
+# r2-d2-theme-apply fills every template below from the dark roles of the
+# theme document built by r2-d2-theme-state. Paths resolve relative to this
+# file's directory (config/theme/). R2-D2 stays dark; the light palette is
+# stored only for the published theme document and the portfolio.
+
+[config]
+
+[templates.hypr-looknfeel]
+input_path = "templates/hypr-looknfeel.lua"
+output_path = "../hypr/looknfeel.lua"
+
+[templates.shell-colors]
+input_path = "templates/shell-colors.toml"
+output_path = "../r2-d2/colors.toml"
+
+[templates.shell]
+input_path = "templates/shell.toml"
+output_path = "../r2-d2/shell.toml"
+
+[templates.gtk]
+input_path = "templates/gtk.css"
+output_path = "../gtk-3.0/gtk.css"
+
+[templates.gtk4]
+input_path = "templates/gtk4.css"
+output_path = "../gtk-4.0/gtk.css"
+
+[templates.alacritty]
+input_path = "templates/alacritty.toml"
+output_path = "../alacritty/alacritty.toml"
+
+[templates.btop]
+input_path = "templates/btop.theme"
+output_path = "../btop/themes/current.theme"
+
+[templates.starship]
+input_path = "templates/starship.toml"
+output_path = "../starship.toml"
+
+[templates.walker]
+input_path = "templates/walker.css"
+output_path = "../../default/config/walker/themes/default/style.css"
+
+[templates.share-picker]
+input_path = "templates/share-picker.css"
+output_path = "../../default/config/hyprland-preview-share-picker/style.css"
+
+[templates.hermes-skin]
+input_path = "templates/hermes-skin.yaml"
+output_path = "accent-apps/hermes-skin.yaml"
+
+[templates.opencode-theme]
+input_path = "templates/opencode-theme.json"
+output_path = "accent-apps/opencode.json"
+
+[templates.cursor-accent]
+input_path = "templates/cursor-accent.json"
+output_path = "accent-apps/cursor.json"
+
+[templates.zathura]
+input_path = "templates/zathurarc"
+output_path = "../zathura/zathurarc"
+
+[templates.sddm-palette]
+input_path = "templates/sddm-palette.qml"
+output_path = "../../default/sddm/r2-d2/Palette.qml"

@@ -78,7 +78,7 @@ def load_accents():
     chromatic = []
     for name, item in table.items():
         source = item["source"].upper()
-        if item["scheme"] == "scheme-monochrome":
+        if item["scheme"] == "monochrome":
             if name == "black":
                 black = source
             elif name == "white":

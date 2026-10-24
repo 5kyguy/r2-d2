@@ -1,22 +1,20 @@
 # R2-D2 visual contract
 
-Contract: `skyguy-visual` version **2**. The color engine is **matugen** (Material You). The desktop is the authority: it runs matugen, builds the theme document, and publishes it; the portfolio site trusts the document and its revision without re-deriving the palette. Theme rendering stays inside the repo until an explicit apply or update. Do not write `~/.config/` or reload the session from theme work in progress.
-
-The matching fixture is `docs/fixtures/contrast-v2.json` (matugen 4.2.0). It pins the full 38-role dark + light palette for every sample source so the test suite can verify parity without re-running matugen for every assertion.
+Contract: `skyguy-visual` version **3**. Colors are a fixed palette in `config/theme/palette.toml`. The desktop is the authority: it looks up the named accent, builds the theme document, and publishes it; the portfolio site trusts the document and its revision without re-deriving the palette. Theme rendering stays inside the repo until an explicit apply or update. Do not write `~/.config/` or reload the session from theme work in progress.
 
 ## Derivation
 
-matugen generates a Material You palette from a source accent. Wallpaper pixels snap to one of seven named accents in `config/theme/palette.toml`: Black, White, Cyan, Green, Red, Purple, and Gold. Chromatic accents, and any explicit `--accent` that is not one of those sources, use `scheme-tonal-spot`. Black (`#000000`) and White (`#FFFFFF`) use `scheme-monochrome`. R2-D2 stays dark, so templates render in **dark** mode only. The published document carries **both** dark and light palettes (the portfolio applies the light palette in light mode), built by running matugen once per mode.
+`docs/palettes.html` shows one accent at a time. Wallpaper pixels snap to one of seven named accents in `config/theme/palette.toml`: Black, White, Cyan, Green, Red, Purple, and Gold. An explicit `#RRGGBB` that is not one of those sources snaps to the nearest named source by hue. A nearly gray color snaps to White when its luminance is at least 0.45, and to Black otherwise. Black (`#000000`) and White (`#FFFFFF`) use scheme `monochrome`. The other five use scheme `fixed`. R2-D2 stays dark, so templates render in **dark** mode only. The published document carries **both** dark and light palettes (the portfolio applies the light palette in light mode).
 
-Black is true monochrome. After matugen, the dark accent roles are forced to black: `primary` and `surface_tint` `#000000`, `primary_container` `#1A1A1A`, `on_primary` and `on_primary_container` `#FFFFFF`. Surfaces and outlines stay the monochrome grays. The light palette is left as matugen generated it. White is unmodified `scheme-monochrome`, so its dark primary stays `#FFFFFF`.
+Black's snap source stays `#000000`. Its visible dark accent is `#FFFFFF`, with ink `#0A0A0A`. White's dark accent is also `#FFFFFF`, on a slightly different set of surfaces. Light-mode accents are the darker button colors in the same file. Danger `#FF2A4A`, on-danger `#2A0008`, warning `#FFB000`, and on-warning `#2A2100` are shared by every accent.
 
-The portfolio does not re-derive colors. HCT color science in TypeScript is out of scope for the site; the desktop's matugen output is the source of truth, and the worker validates the document's SHA-256 revision over the canonical body instead. `design/contrast.py` in the portfolio repo documents the v2 algorithm but is no longer the reference checker the desktop runs against.
+The portfolio does not re-derive colors. The desktop palette is the source of truth, and the worker validates the document's SHA-256 revision over the canonical body. `design/contrast.py` in the portfolio repo checks that contract.
 
 ## What the desktop takes
 
-- Material You roles from matugen: `primary`, `on_primary`, `primary_container`, `on_primary_container`, `secondary`/`tertiary` families, `error` family, `background`/`on_background`, `surface`/`on_surface`/`surface_variant`/`on_surface_variant`, the `surface_container*` set, `surface_dim`/`surface_bright`/`surface_tint`, `outline`/`outline_variant`, `inverse_*`, `shadow`, `scrim`, and `source_color`.
-- Wallpaper source accent, validated as six-digit hex before templates render.
-- Semantic colors stay fixed literals, not matugen roles: critical `#C73838`, critical dark `#862020`, warning `#E07924`, magenta `#932A37`. Small critical text uses `#D25E5E`.
+- Roles from the fixed palette: `accent`, `on_accent`, `deep`, `spark`, `on_spark`, `bg`, `surface`, `text`, `muted`, `line`, `danger`, `on_danger`, `warning`, and `on_warning`.
+- Wallpaper source accent, validated as six-digit hex before templates render. The focused window border uses `accent`. The idle window border uses `line`.
+- `danger` and `warning` are the critical and warning signals. `spark` is the second hue (none of the monochrome accents invent a second hue; their spark is the text color).
 - Existing logo and icon files under `assets/`. White on dark surfaces, black on light. Silver and blue stay branding variants. They are PNG-in-SVG, so they do not inherit `currentColor`.
 - JetBrainsMono Nerd Font for terminals, the shell, Walker, Alacritty, and zathura. Icon glyphs stay on that font. The variable font ships in `default/config/` because the AUR package's download returns 404. Hyprland blur and wallpaper treatment are unchanged.
 
@@ -26,7 +24,7 @@ R2-D2 stays dark. The light palette belongs to the document and the portfolio.
 
 ## Surfaces in scope
 
-Templates filled by `r2-d2-theme-apply` from the dark roles of the theme document (`config/theme/matugen/config.toml`). Template paths resolve relative to the config file's directory, so the render works from any working directory:
+Templates filled by `r2-d2-theme-apply` from the dark roles of the theme document (`config/theme/templates.toml`). Template paths resolve relative to the config file's directory, so the render works from any working directory:
 
 | Template | Output |
 | --- | --- |
@@ -46,21 +44,21 @@ Templates filled by `r2-d2-theme-apply` from the dark roles of the theme documen
 | `zathurarc` | `config/zathura/zathurarc` |
 | `sddm-palette.qml` | `default/sddm/r2-d2/Palette.qml` |
 
-`gtk4.css` defines `accent_color`, `accent_bg_color`, and `accent_fg_color` only (mapped to `primary`/`on_primary`). Header bars, window backgrounds, and corner radius stay on the GTK theme.
+`gtk4.css` defines `accent_color`, `accent_bg_color`, and `accent_fg_color` only (mapped to `accent`/`on_accent`). Header bars, window backgrounds, and corner radius stay on the GTK theme.
 
 `r2-d2-theme-sync-live` and `r2-d2-config-sync-live` place the other accent files after the repo render. They do not restart Hermes, OpenCode, Cursor, or Qt.
 
-- Hermes: `~/.hermes/skins/r2-d2.yaml` sets `ui_accent`, `banner_accent`, `response_border`, and `selection_bg` to the `primary` role. Every other color stays on the built-in default skin. `display.skin` becomes `r2-d2`.
-- OpenCode: `~/.config/opencode/themes/opencode.json` is the built-in OpenCode palette with `darkAccent` and `lightAccent` replaced by the `primary` role. `darkStep9` stays `#fab283`. The theme name stays `opencode`, so `tui.json` and `opencode.json` are left alone.
-- Cursor: accent keys (merged from `cursor.json`, which uses `primary` for solid borders and `primary` at 0.55/0.22 alpha for selections) are merged into `workbench.colorCustomizations` in the existing user settings. `workbench.colorTheme` stays as it is.
-- Kvantum: when `/usr/share/Kvantum/KvDark` is installed, a clone named `r2-d2` changes highlight and link colors to the `primary` role, and `kvantum.kvconfig` selects that clone. KvDark uses the same window color as Kvantum's builtin default.
+- Hermes: `~/.hermes/skins/r2-d2.yaml` sets `ui_accent`, `banner_accent`, `response_border`, and `selection_bg` to the `accent` role. Every other color stays on the built-in default skin. `display.skin` becomes `r2-d2`.
+- OpenCode: `~/.config/opencode/themes/opencode.json` is the built-in OpenCode palette with `darkAccent` and `lightAccent` replaced by the `accent` role. `darkStep9` stays `#fab283`. The theme name stays `opencode`, so `tui.json` and `opencode.json` are left alone.
+- Cursor: accent keys (merged from `cursor.json`, which uses `accent` for solid borders and `accent` at 0.55/0.22 alpha for selections) are merged into `workbench.colorCustomizations` in the existing user settings. `workbench.colorTheme` stays as it is.
+- Kvantum: when `/usr/share/Kvantum/KvDark` is installed, a clone named `r2-d2` changes highlight and link colors to the `accent` role, and `kvantum.kvconfig` selects that clone. KvDark uses the same window color as Kvantum's builtin default.
 - zathura: `~/.config/zathura/zathurarc` follows the wallpaper live (synced by `r2-d2-theme-sync-live` alongside the other config files).
 
 A running Hermes, OpenCode, Cursor, or Qt process keeps its previous accent until the next launch.
 
-SDDM (`default/sddm/r2-d2/`) is system-managed. `Main.qml` consumes a `Palette` QtObject rendered by matugen into `default/sddm/r2-d2/Palette.qml`. A fallback `Palette.qml` is committed so the import never breaks before the first apply. SDDM is deployed by `r2-d2-refresh-sddm` at install/update only — it follows updates and migrations, **not** every wallpaper change (SDDM runs before the user session and cannot read live state). Plymouth (`default/plymouth/`) remains system-managed and is not recolored by this pass.
+SDDM (`default/sddm/r2-d2/`) is system-managed. `Main.qml` consumes a `Palette` QtObject rendered into `default/sddm/r2-d2/Palette.qml`. A fallback `Palette.qml` is committed so the import never breaks before the first apply. SDDM is deployed by `r2-d2-refresh-sddm` at install/update only — it follows updates and migrations, **not** every wallpaper change (SDDM runs before the user session and cannot read live state). Plymouth (`default/plymouth/`) remains system-managed and is not recolored by this pass.
 
-The rendered templates use Material You roles. Lock-screen and prompt text use the `on_surface`/`on_background` roles. Borders use `outline`/`outline_variant`. Critical notifications and the shell error mark stay on `#C73838` / `#D25E5E`. ANSI slots that were already accent-mapped stay that way. The old fixed grays in Walker, the shell, btop, Alacritty, GTK, and the share picker are now Material You roles.
+The rendered templates use the fixed roles. Lock-screen and prompt text use `text`. The focused border uses `accent` and the idle border uses `line`. Critical notifications and the shell error mark use `danger`. Warning notifications use `warning`. ANSI slots that follow the accent stay on `accent` or `deep`.
 
 ## Out of scope
 
@@ -78,9 +76,9 @@ State lives under `${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/`. When the new s
 
 Consumers such as Brook must read **theme.json**, not the staged document or compatibility file. Repository-only renders do not advance this consumer document, publish to the website, or reload the desktop. A successful config sync may precede a user-approved desktop reload during update; the document describes selected configuration, not proof that every running process has reloaded it.
 
-The document contains schema `version: 2`, `contract: skyguy-visual`, `contract_version: 2`, the `source` accent, the matugen `scheme` (`scheme-tonal-spot` or `scheme-monochrome`), a `colors` object with `dark` and `light` maps of the 38 Material You roles (uppercase `#RRGGBB`), and a `revision`. The revision is a SHA-256 fingerprint over the canonical sorted-compact JSON body **excluding** the `revision` field; consumers can treat it as an opaque change identifier. The portfolio worker recomputes that fingerprint to validate the document **without re-deriving the colors**. No wallpaper path, username, or machine identifier is included. The document is limited to 32 KiB when validated.
+The document contains schema `version: 3`, `contract: skyguy-visual`, `contract_version: 3`, the `source` accent, the `scheme` (`fixed` or `monochrome`), a `colors` object with `dark` and `light` maps of the fixed roles (uppercase `#RRGGBB`), and a `revision`. The revision is a SHA-256 fingerprint over the canonical sorted-compact JSON body **excluding** the `revision` field; consumers can treat it as an opaque change identifier. The portfolio worker recomputes that fingerprint to validate the document **without re-deriving the colors**. No wallpaper path, username, or machine identifier is included. The document is limited to 32 KiB when validated.
 
-The internal `bin/r2-d2-theme-state` helper supports build/render/stage/check/activate operations. `build` runs matugen for dark and light and emits the document; `render` fills the templates from that document's dark roles; `stage`/`check`/`activate` validate the schema, the colors, and the revision-over-body, and confirm every required rendered output exists before a live sync copies anything. It is intentionally not a second public theme-selection interface: callers hold `$R2D2_PATH/.theme.lock` across render or sync. One helper centralizes schema, matugen invocation, validation, and atomic writes without a new daemon or package dependency. Python 3, matugen, and flock are required on the Arch host.
+The internal `bin/r2-d2-theme-state` helper supports build/render/stage/check/activate operations. `build` looks up the named accent and emits the document; `render` fills the templates from that document's dark roles; `stage`/`check`/`activate` validate the schema, the colors, and the revision-over-body, and confirm every required rendered output exists before a live sync copies anything. It is intentionally not a second public theme-selection interface: callers hold `$R2D2_PATH/.theme.lock` across render or sync. One helper centralizes schema, palette lookup, validation, and atomic writes without a new daemon or package dependency. Python 3 and flock are required on the Arch host.
 
 Accent input must be a full `#RRGGBB` token. Case normalization follows validation; missing hashes, embedded whitespace, shortened colors, and extra characters are rejected. The renderer calls `r2-d2-theme-accent-from-bg --print-only`, so a failed render cannot write a new compatibility color early. The matcher's no-argument mode still writes the compatibility file, but never activates theme.json.
 
@@ -114,7 +112,7 @@ bash -n bin/r2-d2-theme-state bin/r2-d2-theme-apply
 shellcheck bin/r2-d2-theme-state bin/r2-d2-theme-apply bin/r2-d2-theme-sync-live bin/r2-d2-config-sync-live bin/r2-d2-theme-accent-from-bg bin/r2-d2-theme-accent-apps bin/r2-d2-theme-publish
 ```
 
-The suite isolates HOME, XDG_STATE_HOME, and R2D2_PATH. **matugen must be installed** to run it: the tests build real documents through matugen and fill real templates from those documents, then assert fixture parity against `docs/fixtures/contrast-v2.json` for `scheme-tonal-spot` samples. Named monochrome accents are checked on their own, because White (`#FFFFFF`) is no longer the tonal-spot sample. It exercises actual wallpaper snaps (ImageMagick), rendering, file copies, schema/fixture checks, achromatic and missing-wallpaper snaps, invalid input, copy failures, idempotence, concurrent readers/writers, and Material You roles in the rendered templates (including zathura and the SDDM palette). Wallpaper process management and desktop reload are replaced with test-only stubs. It does not change the user's running session, test an actual compositor reload, or make network requests.
+The suite isolates HOME, XDG_STATE_HOME, and R2D2_PATH. It builds documents from `config/theme/palette.toml`, checks each named accent against that file, and fills real templates from those documents. It exercises actual wallpaper snaps (ImageMagick), rendering, file copies, schema checks, achromatic and missing-wallpaper snaps, invalid input, copy failures, idempotence, concurrent readers/writers, and the fixed roles in the rendered templates (including zathura and the SDDM palette). Wallpaper process management and desktop reload are replaced with test-only stubs. It does not change the user's running session, test an actual compositor reload, or make network requests.
 
 ## Session review and rollback
 

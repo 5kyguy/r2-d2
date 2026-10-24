@@ -1,7 +1,7 @@
 name: r2-d2
 description: Wallpaper accent on the default Hermes skin
 colors:
-  ui_accent: "#82d3e0"
-  banner_accent: "#82d3e0"
-  response_border: "#82d3e0"
-  selection_bg: "#004f58"
+  ui_accent: "#ffffff"
+  banner_accent: "#ffffff"
+  response_border: "#ffffff"
+  selection_bg: "#e6e6e6"

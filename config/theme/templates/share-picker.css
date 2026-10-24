@@ -1,14 +1,14 @@
-/* R2-D2 companion theme: Material You palette from the wallpaper accent */
-@define-color foreground {{colors.on_background.default.hex}};
-@define-color background {{colors.background.default.hex}};
-@define-color accent {{colors.primary.default.hex}};
-@define-color muted {{colors.on_surface_variant.default.hex}};
-@define-color card_bg {{colors.surface_container_low.default.hex}};
-@define-color accent_border {{colors.outline.default.hex}};
-@define-color text_dark {{colors.background.default.hex}};
-@define-color accent_hover {{colors.primary.default.hex}};
-@define-color selected_tab {{colors.primary.default.hex}};
-@define-color text {{colors.on_background.default.hex}};
+/* R2-D2 companion theme: fixed palette from the wallpaper accent */
+@define-color foreground {{colors.text.default.hex}};
+@define-color background {{colors.bg.default.hex}};
+@define-color accent {{colors.accent.default.hex}};
+@define-color muted {{colors.muted.default.hex}};
+@define-color card_bg {{colors.surface.default.hex}};
+@define-color accent_border {{colors.line.default.hex}};
+@define-color text_dark {{colors.bg.default.hex}};
+@define-color accent_hover {{colors.accent.default.hex}};
+@define-color selected_tab {{colors.accent.default.hex}};
+@define-color text {{colors.text.default.hex}};
 
 * {
   all: unset;

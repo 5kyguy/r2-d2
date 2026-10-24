@@ -1,0 +1,5 @@
+foreground = "{{colors.text.default.hex}}"
+background = "{{colors.bg.default.hex}}"
+accent = "{{colors.accent.default.hex}}"
+muted = "{{colors.line.default.hex}}"
+red = "{{colors.danger.default.hex}}"

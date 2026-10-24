@@ -1,11 +1,11 @@
-@define-color selected-text {{colors.on_primary.default.hex}};
-@define-color text {{colors.on_background.default.hex}};
-@define-color base {{colors.background.default.hex}};
-@define-color border {{colors.outline.default.hex}};
-@define-color foreground {{colors.on_background.default.hex}};
-@define-color background {{colors.background.default.hex}};
-@define-color search-bar {{colors.surface_container_low.default.hex}};
-@define-color selected-box {{colors.surface_container_low.default.hex}};
+@define-color selected-text {{colors.on_accent.default.hex}};
+@define-color text {{colors.text.default.hex}};
+@define-color base {{colors.bg.default.hex}};
+@define-color border {{colors.line.default.hex}};
+@define-color foreground {{colors.text.default.hex}};
+@define-color background {{colors.bg.default.hex}};
+@define-color search-bar {{colors.surface.default.hex}};
+@define-color selected-box {{colors.surface.default.hex}};
 
 window .box-wrapper {
   border: 2px solid alpha(@border; 0.0)

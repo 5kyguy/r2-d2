@@ -3,10 +3,10 @@
 # Render theme templates into the R2-D2 repo only ($R2D2_PATH/config and default/config).
 # Live ~/.config/ is updated by r2-d2-update-sync-files, not by this script.
 #
-# The engine is matugen (Material You). r2-d2-theme-state builds the dark and
-# light palettes, then fills every template in config/theme/matugen/config.toml
-# from the document's dark roles. R2-D2 stays dark. The published document
-# still carries both palettes.
+# Colors come from the fixed palette. r2-d2-theme-state builds the dark and
+# light roles, then fills every template in config/theme/templates.toml from
+# the document's dark roles. R2-D2 stays dark. The published document still
+# carries both palettes.
 
 set -euo pipefail
 
@@ -87,9 +87,9 @@ trap 'rm -f "$pending"' EXIT
 # A partial render must never leave an older document eligible for activation.
 rm -f "$R2D2_ROOT/.theme-state.json"
 
-# Fill templates from the document just built, so Black's dark override and
-# the published colors cannot drift. Paths in config.toml resolve relative to
-# the config file's own directory.
+# Fill templates from the document just built, so published colors cannot
+# drift. Paths in templates.toml resolve relative to the config file's own
+# directory.
 if ! "$R2D2_ROOT/bin/r2-d2-theme-state" render "$pending"; then
   echo "Theme render failed for accent $accent" >&2
   exit 1

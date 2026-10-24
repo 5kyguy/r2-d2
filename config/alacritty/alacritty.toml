@@ -25,34 +25,34 @@ bindings = [
 
 [colors]
 [colors.primary]
-background = "#0e1415"
-foreground = "#dee3e5"
-dim_foreground = "#bfc8ca"
+background = "#0c0c0c"
+foreground = "#f7f7f7"
+dim_foreground = "#a3a3a3"
 
 [colors.cursor]
-text = "#0e1415"
-cursor = "#82d3e0"
+text = "#0c0c0c"
+cursor = "#ffffff"
 
 [colors.selection]
 text = "CellForeground"
-background = "#004f58"
+background = "#e6e6e6"
 
 [colors.normal]
-black = "#171d1e"
-red = "#862020"
-green = "#004f58"
-yellow = "#82d3e0"
-blue = "#82d3e0"
-magenta = "#932A37"
-cyan = "#004f58"
-white = "#dee3e5"
+black = "#181818"
+red = "#ff2a4a"
+green = "#e6e6e6"
+yellow = "#ffffff"
+blue = "#ffffff"
+magenta = "#f7f7f7"
+cyan = "#e6e6e6"
+white = "#f7f7f7"
 
 [colors.bright]
-black = "#bfc8ca"
-red = "#C73838"
-green = "#82d3e0"
-yellow = "#E07924"
-blue = "#82d3e0"
-magenta = "#C73838"
-cyan = "#82d3e0"
-white = "#dee3e5"
+black = "#a3a3a3"
+red = "#ff2a4a"
+green = "#ffffff"
+yellow = "#ffb000"
+blue = "#ffffff"
+magenta = "#ff2a4a"
+cyan = "#ffffff"
+white = "#f7f7f7"

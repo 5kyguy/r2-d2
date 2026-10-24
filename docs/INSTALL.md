@@ -147,7 +147,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 
 ## Themes
 
-R2-D2 uses a dark companion palette with a **named wallpaper accent**. The base colors (background, text, inactive borders) stay fixed. Each wallpaper is measured and snapped to the nearest accent in `config/theme/palette.toml`: Black, White, Cyan, Green, Red, Purple, or Gold. That accent is applied across Hyprland, the shell, GTK, the terminal, notifications, and other UI.
+R2-D2 uses a dark companion palette with a **named wallpaper accent**. Each wallpaper is measured and snapped to the nearest accent in `config/theme/palette.toml`: Black, White, Cyan, Green, Red, Purple, or Gold. Accent, surfaces, and borders for that accent come from the same file and are applied across Hyprland, the shell, GTK, the terminal, notifications, and other UI.
 
 - Change the wallpaper with the background carousel (**Super + Ctrl + Space**). Left and right move through the images, typing filters by name, and Enter applies the selection. `r2-d2-theme-bg-set` updates the desktop image, snaps the nearest named accent, syncs themed config to `~/.config/` via `r2-d2-theme-sync-live`, and reloads desktop components immediately.
 - Achromatic images resolve to Black or White. A missing wallpaper is White (`#FFFFFF`). No free color is taken from the image.

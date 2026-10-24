@@ -1,0 +1,7 @@
+name: r2-d2
+description: Wallpaper accent on the default Hermes skin
+colors:
+  ui_accent: "{{colors.accent.default.hex}}"
+  banner_accent: "{{colors.accent.default.hex}}"
+  response_border: "{{colors.accent.default.hex}}"
+  selection_bg: "{{colors.deep.default.hex}}"
