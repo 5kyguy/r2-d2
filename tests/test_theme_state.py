@@ -483,6 +483,58 @@ class ThemeStateTests(unittest.TestCase):
         self.assertEqual(cursor.read_text(), '{')
         self.assertTrue((self.state / 'theme.json').is_file())
 
+    def test_bg_set_applies_the_stored_accent_without_measuring_pixels(self):
+        backgrounds = self.repo / 'backgrounds'
+        backgrounds.mkdir()
+        # Black pixels would snap to #000000 if the image were measured.
+        wallpaper = backgrounds / 'preset.png'
+        wallpaper.write_text('P3\n1 1\n255\n0 0 0\n')
+        (backgrounds / 'accents.toml').write_text('"preset.png" = "#00E5FF"\n')
+        for name in ('pkill', 'setsid'):
+            stub = self.repo / 'bin' / name
+            stub.write_text('#!/bin/bash\nexit 0\n')
+            stub.chmod(0o755)
+        reload = self.repo / 'bin/r2-d2-theme-reload'
+        reload.write_text(
+            '#!/bin/bash\nset -euo pipefail\n'
+            'printf "%s" "$1" > "$HOME/reload-accent"\n')
+        result = self.run_script('r2-d2-theme-bg-set', str(wallpaper))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = json.loads((self.state / 'theme.json').read_text())
+        self.assertEqual(data['source'], '#00E5FF')
+        self.assertEqual((self.home / 'reload-accent').read_text(), '#00E5FF')
+        self.assertTrue((self.home / '.config/hypr/looknfeel.lua').is_file())
+
+    def test_bg_accents_backfills_preserves_and_refreshes(self):
+        backgrounds = self.repo / 'backgrounds'
+        backgrounds.mkdir()
+        rows = []
+        for y in range(8):
+            for x in range(8):
+                rows.append('198 40 40' if x < 2 and y < 2 else '0 0 0')
+        (backgrounds / 'red.ppm').write_text('P3\n8 8\n255\n' + '\n'.join(rows) + '\n')
+        (backgrounds / 'gray.ppm').write_text('P3\n1 1\n255\n200 200 200\n')
+
+        result = self.run_script('r2-d2-theme-bg-accents')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        manifest = (backgrounds / 'accents.toml').read_text()
+        self.assertIn('"red.ppm" = "#FF2A4A"', manifest)
+        self.assertIn('"gray.ppm" = "#FFFFFF"', manifest)
+
+        (backgrounds / 'accents.toml').write_text(
+            manifest.replace('"red.ppm" = "#FF2A4A"', '"red.ppm" = "#00F59A"'))
+        result = self.run_script('r2-d2-theme-bg-accents')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"red.ppm" = "#00F59A"',
+                      (backgrounds / 'accents.toml').read_text(),
+                      'Hand-curated entries must survive a backfill')
+
+        result = self.run_script('r2-d2-theme-bg-accents', '--refresh')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('"red.ppm" = "#FF2A4A"',
+                      (backgrounds / 'accents.toml').read_text(),
+                      '--refresh must recompute every entry')
+
 
 if __name__ == '__main__':
     unittest.main()

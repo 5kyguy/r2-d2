@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Snap the active wallpaper to the nearest named accent in palette.toml.
-# Writes the result to ~/.local/state/r2-d2/theme-accent and prints it.
-# A missing or unreadable wallpaper is White. Filenames are ignored.
+# Snap a wallpaper (the active one, or --image PATH) to the nearest named
+# accent in palette.toml. Writes the result to ~/.local/state/r2-d2/theme-accent
+# and prints it. A missing or unreadable wallpaper is White. Filenames are
+# ignored by the pixel snap.
 
 set -euo pipefail
 
@@ -12,13 +13,27 @@ STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2"
 STATE_FILE="$STATE_DIR/theme-accent"
 BACKGROUND_LINK="$R2D2_ROOT/backgrounds/@background"
 
-print_only=false
-if [[ ${1:-} == "--print-only" && $# == 1 ]]; then
-  print_only=true
-elif (( $# > 0 )); then
-  echo "Usage: r2-d2-theme-accent-from-bg [--print-only]" >&2
+usage() {
+  echo "Usage: r2-d2-theme-accent-from-bg [--print-only] [--image <path>]" >&2
   exit 1
-fi
+}
+
+print_only=false
+image=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  --print-only)
+    print_only=true
+    shift
+    ;;
+  --image)
+    [[ $# -ge 2 ]] || usage
+    image="$2"
+    shift 2
+    ;;
+  *) usage ;;
+  esac
+done
 
 write_accent() {
   local accent="$1"
@@ -36,8 +51,8 @@ write_accent() {
   echo "$accent"
 }
 
-IMG=""
-if [[ -e $BACKGROUND_LINK ]]; then
+IMG="$image"
+if [[ -z $IMG && -e $BACKGROUND_LINK ]]; then
   IMG="$(readlink -f "$BACKGROUND_LINK" 2>/dev/null || realpath "$BACKGROUND_LINK")"
 fi
 

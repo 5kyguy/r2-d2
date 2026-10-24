@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Sets the specified image as the default background, extracts a wallpaper-driven
-# accent, syncs themed config to ~/.config/, and reloads desktop components.
+# Sets the specified image as the default background, applies its accent
+# (instantly from the pre-stored backgrounds/accents.toml when the image has
+# an entry), syncs themed config to ~/.config/, and reloads desktop components.
 
 set -euo pipefail
 
@@ -14,6 +15,7 @@ BACKGROUND="$1"
 R2D2_ROOT="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 BACKGROUND_DIR="$R2D2_ROOT/backgrounds"
 BACKGROUND_LINK="$BACKGROUND_DIR/@background"
+MANIFEST="$BACKGROUND_DIR/accents.toml"
 STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/theme-accent"
 
 mkdir -p "$BACKGROUND_DIR"
@@ -25,7 +27,21 @@ ln -nsf "$BACKGROUND" "$BACKGROUND_LINK"
 pkill -x swaybg
 setsid uwsm-app -- swaybg -i "$BACKGROUND_LINK" -m fill >/dev/null 2>&1 &
 
-r2-d2-theme-apply --from-background
+# Pre-mediated accent: an entry in backgrounds/accents.toml applies with no
+# pixel pass. Only images inside backgrounds/ are trusted against the store,
+# so a same-named file elsewhere falls through to the pixel snap.
+accent=""
+resolved_background="$(readlink -f "$BACKGROUND" 2>/dev/null || true)"
+if [[ -f $MANIFEST && $resolved_background == "$(readlink -f "$BACKGROUND_DIR")"/* ]]; then
+  line="$(grep -F "\"$(basename "$resolved_background")\"" "$MANIFEST" | head -n1 || true)"
+  accent="$(grep -oE '#[0-9A-Fa-f]{6}' <<<"$line" | head -n1 || true)"
+fi
+
+if [[ -n $accent ]]; then
+  r2-d2-theme-apply --accent "$accent"
+else
+  r2-d2-theme-apply --from-background
+fi
 accent="$(tr -d '[:space:]' <"$STATE_FILE")"
 r2-d2-theme-sync-live
 r2-d2-theme-reload "$accent"

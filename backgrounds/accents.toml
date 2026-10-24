@@ -1,0 +1,20 @@
+# Pre-stored wallpaper accents, applied instantly by r2-d2-theme-bg-set.
+# Keys are file names inside backgrounds/. Values are named palette sources
+# (config/theme/palette.toml) and may be hand-curated; keep the
+# "name.png" = "#RRGGBB" line shape. Backfill or recompute with:
+# r2-d2-theme-bg-accents [--refresh]
+"1000_sunny.png" = "#00E5FF"
+"black_sea.png" = "#000000"
+"evening_ride.png" = "#00E5FF"
+"floating_in_the_sky.png" = "#00E5FF"
+"ghost.png" = "#FF2A4A"
+"gold_sea.png" = "#FFD000"
+"heaven.png" = "#FFD000"
+"looking_up.png" = "#FF2A4A"
+"mountain.png" = "#FFFFFF"
+"ryu.png" = "#FFFFFF"
+"sakura.png" = "#FF2A4A"
+"through_a_space_window.png" = "#00E5FF"
+"through_the_woods.png" = "#E23CFF"
+"tokyo_night.png" = "#E23CFF"
+"velen.png" = "#FFD000"

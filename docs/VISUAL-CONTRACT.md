@@ -20,7 +20,9 @@ The portfolio does not re-derive colors. The desktop palette is the source of tr
 
 R2-D2 stays dark. The light palette belongs to the document and the portfolio.
 
-`r2-d2-theme-accent-from-bg` measures the wallpaper and prints the nearest named source. Filenames are ignored. A pixel is vivid when saturation is at least 0.35 and value is at least 0.25. If vivid pixels are at least 2% of the frame, their hue picks Cyan, Green, Red, Purple, or Gold. Otherwise the image is achromatic: a 99th-percentile luminance of at least 0.45 is White, and anything darker is Black. A missing or unreadable wallpaper is White.
+`r2-d2-theme-accent-from-bg` measures the wallpaper and prints the nearest named source. Filenames are ignored by the pixel snap. A pixel is vivid when saturation is at least 0.35 and value is at least 0.25. If vivid pixels are at least 2% of the frame, their hue picks Cyan, Green, Red, Purple, or Gold. Otherwise the image is achromatic: a 99th-percentile luminance of at least 0.45 is White, and anything darker is Black. A missing or unreadable wallpaper is White.
+
+`backgrounds/accents.toml` pre-stores each wallpaper's accent, keyed by file name inside `backgrounds/`. `r2-d2-theme-bg-accents` backfills the store by snapping every image once; `--refresh` recomputes existing entries, and hand-curated values survive plain backfills. `r2-d2-theme-bg-set` applies the stored accent directly, so picking a listed wallpaper recolors the desktop with no pixel pass. Images without an entry, or picked from outside `backgrounds/`, fall back to the pixel snap.
 
 ## Surfaces in scope
 
@@ -109,7 +111,7 @@ Run from the repository root with TMPDIR pointing to a writable scratch director
 ```bash
 python3 -m unittest discover -s tests -v
 bash -n bin/r2-d2-theme-state bin/r2-d2-theme-apply
-shellcheck bin/r2-d2-theme-state bin/r2-d2-theme-apply bin/r2-d2-theme-sync-live bin/r2-d2-config-sync-live bin/r2-d2-theme-accent-from-bg bin/r2-d2-theme-accent-apps bin/r2-d2-theme-publish
+shellcheck bin/r2-d2-theme-state bin/r2-d2-theme-apply bin/r2-d2-theme-sync-live bin/r2-d2-config-sync-live bin/r2-d2-theme-accent-from-bg bin/r2-d2-theme-accent-apps bin/r2-d2-theme-bg-set bin/r2-d2-theme-bg-accents bin/r2-d2-theme-publish
 ```
 
 The suite isolates HOME, XDG_STATE_HOME, and R2D2_PATH. It builds documents from `config/theme/palette.toml`, checks each named accent against that file, and fills real templates from those documents. It exercises actual wallpaper snaps (ImageMagick), rendering, file copies, schema checks, achromatic and missing-wallpaper snaps, invalid input, copy failures, idempotence, concurrent readers/writers, and the fixed roles in the rendered templates (including zathura and the SDDM palette). Wallpaper process management and desktop reload are replaced with test-only stubs. It does not change the user's running session, test an actual compositor reload, or make network requests.
