@@ -186,6 +186,7 @@ Item {
 
     PanelKeyCatcher {
       id: keyCatcher
+      anchors.fill: parent
       onMoveRequested: function(dx, dy) {
         if (dy !== 0) root.moveCursor(dy)
       }
