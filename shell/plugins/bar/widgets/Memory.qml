@@ -10,7 +10,7 @@ Panel {
   moduleName: "r2-d2.memory"
   ipcTarget: "r2-d2.memory"
 
-  property string label: "  --%"
+  property string label: "\uefc5  --%"
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
@@ -38,7 +38,7 @@ Panel {
     id: probe
     command: ["bash", "-c", "awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{if (t>0) printf \"%d\", (t-a)*100/t; else print 0}' /proc/meminfo"]
     stdout: SplitParser {
-      onRead: function(line) { root.label = " " + String(line).trim() + "%" }
+      onRead: function(line) { root.label = "\uefc5  " + String(line).trim() + "%" }
     }
   }
 
