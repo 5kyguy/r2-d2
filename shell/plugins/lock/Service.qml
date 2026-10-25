@@ -34,7 +34,14 @@ Item {
   property bool strandedLock: false
   property bool strandedLockResolved: false
 
-  readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
+  // sessionLock.locked is deliberately absent from this composite: this
+  // Quickshell build never signals its change on unlock (six of six unlock
+  // cycles in the journal log session-locked=true and never =false), so a
+  // binding over it holds stale-true after the first unlock. lockRequested
+  // spans the whole lock window and secure carries compositor truth, and both
+  // signal reliably. The sum form keeps QML subscribed to both operands —
+  // `||` short-circuits skip dependency tracking on whatever went unread.
+  readonly property bool locked: lockRequested + sessionLock.secure > 0
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
 
   function realScreenCount() {
@@ -512,7 +519,12 @@ Item {
 
     function lock(): string {
       if (!root.passwordPamConfigured) return "missing-pam"
-      if (!root.locked && !root.beginLock()) return "failed"
+      // The already-locked shortcut gates on compositor state, never on the
+      // composite: a stale-true composite here is the lock that does nothing.
+      // Re-running beginLock while a lock is still pending only re-arms the
+      // same request.
+      if (sessionLock.locked || sessionLock.secure) return "ok"
+      if (!root.beginLock()) return "failed"
       return "ok"
     }
 
