@@ -78,6 +78,9 @@ editor_present() {
 
 menu_state() {
   local text_size model lid dev_on editor_on dictation_on fingerprint_on fido2_on
+  local toggles="$HOME/.local/state/r2-d2/toggles"
+  local bar_on display_on mirror_on notifications_on idle_on
+  local scrolling_layout workspace_apps scaled_up screensaver_on crash_on current_scale
   text_size=$(r2-d2-display-text-size 2>/dev/null | awk '/^text size:/{print $3}')
   [[ -n $text_size ]] || text_size=12
   model=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]')
@@ -111,9 +114,38 @@ menu_state() {
     fido2_on=false
   fi
 
+  # Live state for the Trigger > Toggle rows: each key is true when the row's
+  # feature is currently on, so the menu can tag it Active.
+  bar_on=false; [[ ! -f $toggles/bar-off ]] && bar_on=true
+  display_on=false; [[ ! -f $toggles/builtin-display-disabled ]] && display_on=true
+  mirror_on=false; [[ -f $toggles/display-mirror ]] && mirror_on=true
+  notifications_on=false
+  [[ $(r2-d2-shell notifications isDnd 2>/dev/null) == "off" ]] && notifications_on=true
+  idle_on=false; pgrep -x hypridle >/dev/null 2>&1 && idle_on=true
+  scrolling_layout=false
+  [[ $(hyprctl activeworkspace -j 2>/dev/null | jq -r '.tiledLayout // ""') == "scrolling" ]] && scrolling_layout=true
+  workspace_apps=false; r2-d2-toggle-enabled workspace-apps 2>/dev/null && workspace_apps=true
+  scaled_up=false
+  current_scale=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused == true) | .scale' | head -n1)
+  if [[ $current_scale =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    awk -v s="$current_scale" 'BEGIN { exit !(s != 1) }' && scaled_up=true
+  fi
+  screensaver_on=false; [[ ! -f $toggles/screensaver-off ]] && screensaver_on=true
+  crash_on=false; ! r2-d2-toggle-enabled crash-capture-off 2>/dev/null && crash_on=true
+
   jq -n \
     --argjson recording "$(bool pgrep -f '[g]pu-screen-recorder')" \
     --argjson suspendOff "$(bool test -f "$HOME/.local/state/r2-d2/toggles/suspend-off")" \
+    --argjson toggleBar "$bar_on" \
+    --argjson toggleDisplay "$display_on" \
+    --argjson toggleMirror "$mirror_on" \
+    --argjson toggleNotifications "$notifications_on" \
+    --argjson toggleIdle "$idle_on" \
+    --argjson toggleLayout "$scrolling_layout" \
+    --argjson toggleWorkspaceApps "$workspace_apps" \
+    --argjson toggleScaling "$scaled_up" \
+    --argjson toggleScreensaver "$screensaver_on" \
+    --argjson toggleCrash "$crash_on" \
     --argjson hibernate "$(bool r2-d2-hibernation-available)" \
     --argjson laptop "$(bool r2-d2-hw-laptop)" \
     --argjson dockerSudoless "$(bool r2-d2-sudo-docker --configured)" \
@@ -139,6 +171,16 @@ menu_state() {
     '{
       recording: $recording,
       suspendOff: $suspendOff,
+      toggleBar: $toggleBar,
+      toggleDisplay: $toggleDisplay,
+      toggleMirror: $toggleMirror,
+      toggleNotifications: $toggleNotifications,
+      toggleIdle: $toggleIdle,
+      toggleLayout: $toggleLayout,
+      toggleWorkspaceApps: $toggleWorkspaceApps,
+      toggleScaling: $toggleScaling,
+      toggleScreensaver: $toggleScreensaver,
+      toggleCrash: $toggleCrash,
       hibernate: $hibernate,
       laptop: $laptop,
       dockerSudoless: $dockerSudoless,

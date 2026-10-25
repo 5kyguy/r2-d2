@@ -45,7 +45,9 @@ function item(id, parent, title, icon, extra) {
 
 // `when` is a key in the state object from `r2-d2-menu state`. "!" hides the
 // row when that key is set. `current`/`value` mark the row that is in effect.
-// `run` is the id `r2-d2-menu run` executes. No `run` means the row opens.
+// `active` tags a toggle row whose state key is set (subtitle "Active"; unset
+// rows stay blank). `run` is the id `r2-d2-menu run` executes. No `run` means
+// the row opens.
 var NODES = [
   item("apps", "root", "Apps", "󰀻", { kind: "apps", keywords: "applications launcher walker" }),
   item("trigger", "root", "Trigger", "󱓞"),
@@ -62,16 +64,16 @@ var NODES = [
   item("screenrecord", "trigger", "Screenrecord", "", { keywords: "record video capture" }),
   item("share", "trigger", "Share", ""),
 
-  item("toggle.bar", "toggle", "Top bar", "󰍜", { run: "toggle.bar" }),
-  item("toggle.display", "toggle", "Display", "󰍹", { run: "toggle.display" }),
-  item("toggle.mirror", "toggle", "Mirror", "󰍺", { run: "toggle.mirror" }),
-  item("toggle.notifications", "toggle", "Notifications", "󰂵", { run: "toggle.notifications" }),
-  item("toggle.idle", "toggle", "Idle", "󱫖", { run: "toggle.idle" }),
-  item("toggle.layout", "toggle", "Layout", "󱂬", { run: "toggle.layout" }),
-  item("toggle.workspaces", "toggle", "Workspace apps", "󰖲", { run: "toggle.workspaces" }),
-  item("toggle.scaling", "toggle", "Scaling", "󰍹", { run: "toggle.scaling" }),
-  item("toggle.screensaver", "toggle", "Screensaver", "󱄄", { run: "toggle.screensaver" }),
-  item("toggle.crash", "toggle", "Crash capture", "󰻌", { run: "toggle.crash" }),
+  item("toggle.bar", "toggle", "Top bar", "󰍜", { run: "toggle.bar", active: "toggleBar" }),
+  item("toggle.display", "toggle", "Display", "󰍹", { run: "toggle.display", active: "toggleDisplay" }),
+  item("toggle.mirror", "toggle", "Mirror", "󰍺", { run: "toggle.mirror", active: "toggleMirror" }),
+  item("toggle.notifications", "toggle", "Notifications", "󰂵", { run: "toggle.notifications", active: "toggleNotifications" }),
+  item("toggle.idle", "toggle", "Idle", "󱫖", { run: "toggle.idle", active: "toggleIdle" }),
+  item("toggle.layout", "toggle", "Layout", "󱂬", { run: "toggle.layout", active: "toggleLayout" }),
+  item("toggle.workspaces", "toggle", "Workspace apps", "󰖲", { run: "toggle.workspaces", active: "toggleWorkspaceApps" }),
+  item("toggle.scaling", "toggle", "Scaling", "󰍹", { run: "toggle.scaling", active: "toggleScaling" }),
+  item("toggle.screensaver", "toggle", "Screensaver", "󱄄", { run: "toggle.screensaver", active: "toggleScreensaver" }),
+  item("toggle.crash", "toggle", "Crash capture", "󰻌", { run: "toggle.crash", active: "toggleCrash" }),
 
   item("screenrecord.stop", "screenrecord", "Stop recording", "", { run: "screenrecord.stop", when: "recording" }),
   item("screenrecord.none", "screenrecord", "With no audio", "", { run: "screenrecord.none", when: "!recording" }),
@@ -316,6 +318,7 @@ function shape(node, state, score, searching) {
   var path = crumb(node)
   var subtitle = ""
   if (isCurrent(node, state)) subtitle = "Current"
+  else if (node.active && flag(state, node.active)) subtitle = "Active"
   else if (searching && path) subtitle = path
   var run
   if (branch) run = { kind: "menu", target: openId, label: "open" }
