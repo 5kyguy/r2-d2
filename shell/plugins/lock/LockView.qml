@@ -45,19 +45,13 @@ Item {
   signal clearFailureRequested()
   signal wakeRequested()
 
-  // The same media service the bar widget controls, so both act on the same
-  // active player. Controls are mouse-only; nothing here takes keyboard focus
-  // from the password field.
+  // The same media service the bar widget controls, so the lock shows the
+  // same active player. The card is read-only: playback stays behind the
+  // lock, so nobody at the locked screen can change the track.
   readonly property var mediaService: shell ? shell.firstPartyServiceFor("r2-d2.media") : null
-  readonly property var mediaPlayer: mediaService ? mediaService.activePlayer : null
   readonly property bool mediaPresent: !!(mediaService && mediaService.hasMedia)
   readonly property string mediaTitle: mediaService ? (mediaService.title || "") : ""
   readonly property string mediaArtUrl: mediaService ? (mediaService.artUrl || "") : ""
-  readonly property bool mediaPlaying: mediaPlayer ? mediaPlayer.isPlaying : false
-
-  function mediaButton(action) {
-    if (mediaService) mediaService.runAction(action, false)
-  }
 
   // Cache-busts the lock background by appending `?v=`. Adding a query
   // string keeps Image's loader happy while forcing it to reload when the
@@ -258,8 +252,8 @@ Item {
 
     }
 
-    // Bottom-right now-playing: album art, track title, prev/play-pause/next.
-    // Controls only — no artist, no shuffle, no progress bar.
+    // Bottom-right now-playing: album art and track title, read-only.
+    // No artist, no controls — a locked screen must not drive playback.
     Rectangle {
       visible: root.mediaPresent
       anchors.right: parent.right
@@ -314,54 +308,6 @@ Item {
           styleColor: Qt.rgba(0, 0, 0, 0.35)
           elide: Text.ElideRight
           width: Math.min(implicitWidth, 240)
-        }
-
-        Text {
-          anchors.verticalCenter: parent.verticalCenter
-          text: "󰒮"
-          color: Colors.lock.text
-          font.family: Style.font.family
-          font.pixelSize: 24
-          style: Text.Outline
-          styleColor: Qt.rgba(0, 0, 0, 0.35)
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.mediaButton("previous")
-          }
-        }
-
-        Text {
-          anchors.verticalCenter: parent.verticalCenter
-          text: root.mediaPlaying ? "󰏤" : "󰐊"
-          color: Colors.lock.text
-          font.family: Style.font.family
-          font.pixelSize: 24
-          style: Text.Outline
-          styleColor: Qt.rgba(0, 0, 0, 0.35)
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.mediaButton("playPause")
-          }
-        }
-
-        Text {
-          anchors.verticalCenter: parent.verticalCenter
-          text: "󰒭"
-          color: Colors.lock.text
-          font.family: Style.font.family
-          font.pixelSize: 24
-          style: Text.Outline
-          styleColor: Qt.rgba(0, 0, 0, 0.35)
-
-          MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.mediaButton("next")
-          }
         }
       }
     }
