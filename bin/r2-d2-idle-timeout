@@ -18,7 +18,7 @@ case ${1:-} in
 lock)
   loginctl lock-session
   for _ in {1..50}; do
-    if r2-d2-shell -q lock isLocked 2>/dev/null | grep -qx true; then
+    if r2-d2-shell lock isLocked 2>/dev/null | grep -qx true; then
       break
     fi
     sleep 0.1
