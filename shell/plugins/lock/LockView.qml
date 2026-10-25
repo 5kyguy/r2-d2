@@ -46,12 +46,24 @@ Item {
   signal wakeRequested()
 
   // The same media service the bar widget controls, so the lock shows the
-  // same active player. The card is read-only: playback stays behind the
-  // lock, so nobody at the locked screen can change the track.
+  // same active player. The card is read-only; playback stays keyboard-only:
+  // a session lock owns the keyboard (compositor binds do not fire), so the
+  // media keys are handled here instead.
   readonly property var mediaService: shell ? shell.firstPartyServiceFor("r2-d2.media") : null
   readonly property bool mediaPresent: !!(mediaService && mediaService.hasMedia)
   readonly property string mediaTitle: mediaService ? (mediaService.title || "") : ""
   readonly property string mediaArtUrl: mediaService ? (mediaService.artUrl || "") : ""
+
+  function mediaActionForKey(key) {
+    if (key === Qt.Key_MediaTogglePlayPause || key === Qt.Key_MediaPlay || key === Qt.Key_MediaPause) return "playPause"
+    if (key === Qt.Key_MediaNext) return "next"
+    if (key === Qt.Key_MediaPrevious) return "previous"
+    return ""
+  }
+
+  function runMediaAction(action) {
+    if (mediaService) mediaService.runAction(action, false)
+  }
 
   // Cache-busts the lock background by appending `?v=`. Adding a query
   // string keeps Image's loader happy while forcing it to reload when the
@@ -231,6 +243,12 @@ Item {
           root.wakeRequested()
           if (event.key === Qt.Key_Escape || (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_U)) {
             root.passwordTextEdited("")
+            event.accepted = true
+            return
+          }
+          var mediaAction = root.mediaActionForKey(event.key)
+          if (mediaAction) {
+            root.runMediaAction(mediaAction)
             event.accepted = true
           }
         }
