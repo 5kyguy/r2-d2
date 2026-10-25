@@ -3,17 +3,6 @@
 # Idle steps for hypridle. Locking runs first; the screensaver starts after the
 # lock screen is up so the lock command's screensaver kill has already finished.
 
-on_ac() {
-  local supply
-  for supply in /sys/class/power_supply/*; do
-    [[ -r $supply/type ]] || continue
-    [[ $(<"$supply/type") == "Mains" ]] || continue
-    [[ -r $supply/online ]] || continue
-    [[ $(<"$supply/online") == "1" ]] && return 0
-  done
-  return 1
-}
-
 case ${1:-} in
 lock)
   loginctl lock-session
@@ -26,7 +15,7 @@ lock)
   r2-d2-launch-screensaver || true
   ;;
 screen-off)
-  on_ac && exit 0
+  r2-d2-hw-on-ac && exit 0
   hyprctl dispatch "hl.dsp.dpms(false)"
   ;;
 *)

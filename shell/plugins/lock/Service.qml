@@ -417,7 +417,10 @@ Item {
 
   Process {
     id: blankProcess
-    command: ["bash", "-c", "r2-d2-brightness-keyboard off; r2-d2-brightness-display off"]
+    // The keyboard backlight always sleeps with the lock; the display blanks
+    // only on battery — on AC the lock screen (and its media controls) stay
+    // visible, matching the battery-only idle screen-off.
+    command: ["bash", "-c", "r2-d2-brightness-keyboard off; r2-d2-hw-on-ac || r2-d2-brightness-display off"]
   }
 
   Timer {
