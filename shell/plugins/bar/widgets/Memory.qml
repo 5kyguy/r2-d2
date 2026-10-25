@@ -2,13 +2,25 @@ import QtQuick
 import Quickshell.Io
 import qs.Ui
 
-BarWidget {
+// Memory percent for the bar. Click opens the shared process list
+// (ProcessesPanel.qml) anchored under this widget — CPU and Temperature
+// host the same panel — instead of dropping into a btop terminal.
+Panel {
   id: root
   moduleName: "r2-d2.memory"
+  ipcTarget: "r2-d2.memory"
 
-  property string label: "  --%"
+  property string label: "  --%"
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
+
+  function injectPanel() {
+    var target = panelLoader.item
+    if (!target) return
+    if ("bar" in target) target.bar = root.bar
+    if ("anchorItem" in target) target.anchorItem = button
+    if ("owner" in target) target.owner = root
+  }
 
   WidgetButton {
     id: button
@@ -18,7 +30,7 @@ BarWidget {
     tooltipText: "Memory"
     horizontalMargin: 6
     onPressed: function() {
-      if (root.bar) root.bar.run("r2-d2-launch-tui btop")
+      root.toggle()
     }
   }
 
@@ -26,7 +38,7 @@ BarWidget {
     id: probe
     command: ["bash", "-c", "awk '/MemTotal/{t=$2} /MemAvailable/{a=$2} END{if (t>0) printf \"%d\", (t-a)*100/t; else print 0}' /proc/meminfo"]
     stdout: SplitParser {
-      onRead: function(line) { root.label = "  " + String(line).trim() + "%" }
+      onRead: function(line) { root.label = " " + String(line).trim() + "%" }
     }
   }
 
@@ -37,4 +49,16 @@ BarWidget {
     triggeredOnStart: true
     onTriggered: if (!probe.running) probe.running = true
   }
+
+  Loader {
+    id: panelLoader
+    source: Qt.resolvedUrl("ProcessesPanel.qml")
+    visible: false
+    onLoaded: {
+      root.injectPanel()
+      Qt.callLater(root.injectPanel)
+    }
+  }
+
+  onBarChanged: injectPanel()
 }
