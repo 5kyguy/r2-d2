@@ -30,52 +30,10 @@ BarWidget {
   property string searchError: ""
   property bool searchQueued: false
   property bool searchSettled: false
-  property real playbackRatio: 0
-  property string progressTrack: ""
-  property bool progressHeld: false
-  property real progressHeldElapsed: 0
-  property double progressHeldAt: 0
-  property real progressLastReported: 0
   readonly property int artBasisWidth: Style.space(280)
   readonly property int artBasisCover: Style.space(64)
   readonly property real artScale: artBasisWidth > 0 ? titleSlot.width / artBasisWidth : 1
   readonly property int artCoverSide: Math.max(artBasisCover, card.contentHeight - card.verticalContentInset)
-
-  function refreshProgress() {
-    var player = activePlayer
-    var key = title + "\n" + artist
-    var now = Date.now()
-    if (key !== progressTrack) {
-      var hadTrack = progressTrack !== ""
-      progressTrack = key
-      progressLastReported = player ? player.position : 0
-      progressHeld = hadTrack && progressLastReported > 1.5
-      progressHeldElapsed = 0
-      progressHeldAt = now
-      playbackRatio = 0
-      if (progressHeld) return
-    }
-    if (!player || !(player.length > 0)) {
-      playbackRatio = 0
-      progressHeldAt = now
-      return
-    }
-    var reported = player.position
-    if (progressHeld) {
-      var jumpedBack = progressLastReported > 2 && reported + 1 < progressLastReported
-      if (jumpedBack || reported < 1.5) {
-        progressHeld = false
-      } else {
-        if (player.isPlaying) progressHeldElapsed += Math.max(0, (now - progressHeldAt) / 1000)
-        progressHeldAt = now
-        progressLastReported = reported
-        playbackRatio = Math.max(0, Math.min(1, progressHeldElapsed / player.length))
-        return
-      }
-    }
-    progressLastReported = reported
-    playbackRatio = Math.max(0, Math.min(1, reported / player.length))
-  }
 
   function close() {
     cardOpen = false
@@ -163,31 +121,10 @@ BarWidget {
   implicitHeight: barSize
 
   onHasMediaChanged: if (!hasMedia) close()
-  onActivePlayerChanged: refreshProgress()
-  onTitleChanged: refreshProgress()
-  onArtistChanged: refreshProgress()
 
-  Timer {
-    interval: 500
-    repeat: true
-    running: root.hasMedia
-    onTriggered: root.refreshProgress()
-  }
-
-  Rectangle {
-    anchors.fill: parent
-    radius: Math.min(height / 2, Style.cornerRadius)
-    color: Qt.rgba(root.ink.r, root.ink.g, root.ink.b, 0.1)
-  }
-
-  Rectangle {
-    anchors.left: parent.left
-    anchors.top: parent.top
-    anchors.bottom: parent.bottom
-    width: parent.width * root.playbackRatio
-    radius: Math.min(height / 2, Style.cornerRadius)
-    color: Qt.rgba(root.ink.r, root.ink.g, root.ink.b, 0.28)
-  }
+  // No pill behind the buttons: every other bar widget paints its marks on
+  // the bar itself, and a filled outline made this one read as a different
+  // control. The track's position lives in the hover card, not the bar.
 
   Row {
     id: row
@@ -195,7 +132,6 @@ BarWidget {
     anchors.leftMargin: Style.space(8)
     anchors.verticalCenter: parent.verticalCenter
     spacing: Style.space(6)
-    z: 1
 
     WidgetButton {
       bar: root.bar
