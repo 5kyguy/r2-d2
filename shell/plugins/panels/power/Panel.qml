@@ -278,7 +278,7 @@ Panel {
     anchors.fill: parent
     bar: root.bar
     text: root.showPercentage && !vertical
-      ? Math.round(root.batteryFraction * 100) + "% " + root.batteryIcon()
+      ? root.batteryIcon() + " " + Math.round(root.batteryFraction * 100) + "%"
       : root.batteryIcon()
     slotSize: Style.bar.iconSlot * (root.showPercentage && !vertical ? 2 : 1)
     tooltipText: ""

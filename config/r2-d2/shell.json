@@ -25,9 +25,9 @@
         }
       ],
       "right": [
-        { "id": "r2-d2.cpu" },
-        { "id": "r2-d2.memory" },
         { "id": "r2-d2.temperature" },
+        { "id": "r2-d2.memory" },
+        { "id": "r2-d2.cpu" },
         { "id": "r2-d2.bluetooth" },
         { "id": "r2-d2.network" },
         { "id": "r2-d2.audio" },
