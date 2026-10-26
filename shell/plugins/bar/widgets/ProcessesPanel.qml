@@ -175,7 +175,7 @@ Item {
     bar: root.bar
     open: root.owner && root.owner.opened
     focusTarget: keyCatcher
-    contentWidth: panel.fittedContentWidth(Style.space(480))
+    contentWidth: panel.fittedContentWidth(Style.space(540))
     contentHeight: panel.fittedContentHeight(panelColumn.implicitHeight, Style.space(560))
 
     onOpenChanged: if (!open) {
@@ -341,8 +341,8 @@ Item {
   // and the name takes whatever is left.
   readonly property real killSlotWidth: Style.space(28)
   readonly property real userColWidth: Style.space(96)
-  readonly property real cpuColWidth: Style.space(52)
-  readonly property real memColWidth: Style.space(52)
+  readonly property real cpuColWidth: Style.space(56)
+  readonly property real memColWidth: Style.space(60)
 
   // One process row: kill button at the left edge, then name with pid, user,
   // cpu and mem. The highlight comes from hasCursor only — hover moves the
