@@ -1,9 +1,18 @@
 #!/bin/bash
 
-if pgrep -x hypridle >/dev/null; then
-  pkill -x hypridle
-  notify-send "󱫖    Stop locking computer when idle"
+# Toggle the idle lock (hypridle). The preference persists in the toggle
+# state file and survives reboots; autostart starts hypridle only when the
+# file exists. The running daemon is started or stopped to apply now.
+
+STATE_FILE=~/.local/state/r2-d2/toggles/idle-lock
+
+if [[ -f $STATE_FILE ]]; then
+  rm -f $STATE_FILE
+  pkill -x hypridle 2>/dev/null || true
+  r2-d2-notification-send --app-name r2-d2-action "󱫖    Stop locking computer when idle"
 else
-  uwsm-app -- hypridle >/dev/null 2>&1 &
-  notify-send "󱫖    Now locking computer when idle"
+  mkdir -p "$(dirname "$STATE_FILE")"
+  touch $STATE_FILE
+  pgrep -x hypridle >/dev/null || uwsm-app -- hypridle >/dev/null 2>&1 &
+  r2-d2-notification-send --app-name r2-d2-action "󱫖    Now locking computer when idle"
 fi

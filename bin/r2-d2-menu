@@ -121,7 +121,7 @@ menu_state() {
   mirror_on=false; [[ -f $toggles/display-mirror ]] && mirror_on=true
   notifications_on=false
   [[ $(r2-d2-shell notifications isDnd 2>/dev/null) == "off" ]] && notifications_on=true
-  idle_on=false; pgrep -x hypridle >/dev/null 2>&1 && idle_on=true
+  idle_on=false; [[ -f $toggles/idle-lock ]] && idle_on=true
   scrolling_layout=false
   [[ $(hyprctl activeworkspace -j 2>/dev/null | jq -r '.tiledLayout // ""') == "scrolling" ]] && scrolling_layout=true
   workspace_apps=false; r2-d2-toggle-enabled workspace-apps 2>/dev/null && workspace_apps=true

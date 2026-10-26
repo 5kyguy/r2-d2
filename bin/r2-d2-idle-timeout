@@ -1,25 +1,15 @@
 #!/bin/bash
 
-# Idle steps for hypridle. Locking runs first; the screensaver starts after the
-# lock screen is up so the lock command's screensaver kill has already finished.
+# Idle step for hypridle: lock the session. Everything that follows the lock
+# (screensaver after two minutes on AC, battery display blanking) is owned by
+# the shell lock service, which arms its timers per lock.
 
 case ${1:-} in
-lock)
-  loginctl lock-session
-  for _ in {1..50}; do
-    if r2-d2-shell lock isLocked 2>/dev/null | grep -qx true; then
-      break
-    fi
-    sleep 0.1
-  done
-  r2-d2-launch-screensaver || true
-  ;;
-screen-off)
-  r2-d2-hw-on-ac && exit 0
-  hyprctl dispatch "hl.dsp.dpms(false)"
-  ;;
-*)
-  echo "Usage: r2-d2-idle-timeout <lock|screen-off>" >&2
-  exit 1
-  ;;
+  lock)
+    loginctl lock-session
+    ;;
+  *)
+    echo "Usage: r2-d2-idle-timeout <lock>" >&2
+    exit 1
+    ;;
 esac

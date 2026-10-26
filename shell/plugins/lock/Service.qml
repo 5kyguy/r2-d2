@@ -23,6 +23,7 @@ Item {
   property bool passwordPamConfigured: false
   property bool fingerprintConfigured: false
   property bool previewVisible: false
+  property bool saverActive: false
   property string enteredPassword: ""
   property string pendingPassword: ""
   property string failureMessage: ""
@@ -140,7 +141,9 @@ Item {
 
     resetAuthenticationState()
     lockRequested = true
+    saverActive = false
     armBlankTimer()
+    armSaverTimer()
     logEvent("lock-requested")
     queueSessionLock()
 
@@ -161,6 +164,9 @@ Item {
     pendingSessionLockTimer.stop()
     resetAuthenticationState()
     idleBlankTimer.stop()
+    saverTimer.stop()
+    saverActive = false
+    killStraySavers()
     sessionLock.locked = false
     logEvent("unlocked")
     runWake()
@@ -171,9 +177,28 @@ Item {
     idleBlankTimer.restart()
   }
 
+  function armSaverTimer() {
+    saverTimer.armedAt = Date.now()
+    saverTimer.restart()
+  }
+
+  function runSaver() {
+    if (!saverCheckProc.running) saverCheckProc.running = true
+  }
+
+  // Any manually started alacritty screensaver (System → Screensaver) has no
+  // place above a lock or after an unlock; bring it down on both ends.
+  function killStraySavers() {
+    if (!saverKillProc.running) saverKillProc.running = true
+  }
+
   function runWake() {
+    if (saverActive) saverActive = false
     if (!wakeProcess.running) wakeProcess.running = true
-    if (lockRequested) armBlankTimer()
+    if (lockRequested) {
+      armBlankTimer()
+      armSaverTimer()
+    }
   }
 
   function runBlank() {
@@ -261,9 +286,12 @@ Item {
       if (!locked && root.lockRequested) {
         root.lockRequested = false
         root.pendingSessionLock = false
-        sessionLockStabilizeTimer.stop()
-        pendingSessionLockTimer.stop()
+        root.sessionLockStabilizeTimer.stop()
+        root.pendingSessionLockTimer.stop()
         root.resetAuthenticationState()
+        root.saverTimer.stop()
+        root.saverActive = false
+        root.killStraySavers()
         root.runWake()
       }
     }
@@ -284,6 +312,7 @@ Item {
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked
+        saverActive: root.saverActive
         passwordText: root.enteredPassword
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
@@ -415,12 +444,33 @@ Item {
     command: ["bash", "-c", "r2-d2-system-wake"]
   }
 
+  // Screensaver eligibility at fire time, not lock time: the screensaver
+  // toggle and the power state must hold when the timer actually goes off.
+  // r2-d2-power-present (not r2-d2-hw-on-ac) so USB-C-only machines count
+  // plugged-in as external power.
+  Process {
+    id: saverCheckProc
+    command: ["bash", "-c", "[[ ! -f \"$HOME/.local/state/r2-d2/toggles/screensaver-off\" ]] && r2-d2-power-present"]
+    onExited: function(exitCode) {
+      if (exitCode === 0 && root.lockRequested) {
+        root.logEvent("screensaver-on")
+        root.saverActive = true
+      }
+    }
+  }
+
+  Process {
+    id: saverKillProc
+    command: ["bash", "-c", "pkill -f org.r2d2.screensaver 2>/dev/null || true"]
+  }
+
   Process {
     id: blankProcess
     // The keyboard backlight always sleeps with the lock; the display blanks
-    // only on battery — on AC the lock screen (and its media controls) stay
-    // visible, matching the battery-only idle screen-off.
-    command: ["bash", "-c", "r2-d2-brightness-keyboard off; r2-d2-hw-on-ac || r2-d2-brightness-display off"]
+    // only on battery — on external power the lock screen (and its media
+    // controls) stay visible until the screensaver takes over, matching the
+    // battery-only idle blanking.
+    command: ["bash", "-c", "r2-d2-brightness-keyboard off; r2-d2-power-present || r2-d2-brightness-display off"]
   }
 
   Timer {
@@ -440,6 +490,27 @@ Item {
       // fingerprint PAM stays armed for the whole lock, so gating on
       // `authenticating` here would keep the panel lit until unlock.
       if (root.lockRequested && !root.authenticatingPassword) root.runBlank()
+    }
+  }
+
+  // Two minutes after a lock — manual or idle — the screensaver takes the
+  // lock screen on external power. On battery the display has already
+  // blanked via the blank timer, so nothing engages here.
+  Timer {
+    id: saverTimer
+    interval: 120000
+    repeat: false
+    property double armedAt: 0
+    onTriggered: {
+      // Same suspend-frozen countdown guard as the blank timer: re-arm
+      // instead of springing the screensaver right after a resume. The slack
+      // is looser than the blank timer's — a busy compositor can deliver a
+      // two-minute timer a few seconds late without it being a suspend.
+      if (Date.now() - armedAt > interval + 5000) {
+        root.armSaverTimer()
+        return
+      }
+      if (root.lockRequested && !root.authenticatingPassword) root.runSaver()
     }
   }
 
@@ -489,8 +560,13 @@ Item {
 
   onAuthenticatingPasswordChanged: {
     if (!lockRequested) return
-    if (authenticatingPassword) idleBlankTimer.stop()
-    else armBlankTimer()
+    if (authenticatingPassword) {
+      idleBlankTimer.stop()
+      saverTimer.stop()
+    } else {
+      armBlankTimer()
+      armSaverTimer()
+    }
   }
 
   FileView {
@@ -544,6 +620,7 @@ Item {
         pending: root.pendingSessionLock,
         sessionLocked: sessionLock.locked,
         secure: sessionLock.secure,
+        saver: root.saverActive,
         realScreens: root.realScreenCount(),
         passwordPam: root.passwordPamConfigured,
         fingerprint: root.fingerprintConfigured,

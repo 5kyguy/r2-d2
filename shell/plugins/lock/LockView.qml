@@ -14,6 +14,7 @@ Item {
   property int failedAttempts: 0
   property bool inputEnabled: true
   property bool loadBackground: true
+  property bool saverActive: false
   property string passwordText: ""
   property bool syncingPasswordText: false
   // The host shell, for reaching first-party services (the media service).
@@ -241,6 +242,12 @@ Item {
 
         Keys.onPressed: function(event) {
           root.wakeRequested()
+          // The screensaver owns the screen: the first input dismisses it
+          // and is consumed, so no stray character reaches the password.
+          if (root.saverActive) {
+            event.accepted = true
+            return
+          }
           if (event.key === Qt.Key_Escape || (event.modifiers & Qt.ControlModifier && event.key === Qt.Key_U)) {
             root.passwordTextEdited("")
             event.accepted = true
@@ -328,6 +335,17 @@ Item {
           width: Math.min(implicitWidth, 240)
         }
       }
+    }
+
+    // The screensaver: opaque matrix rain laid over the whole lock view, so
+    // the clock, field, and media card keep their state beneath it and any
+    // input simply dismisses the overlay. Fading the black canvas in and out
+    // keeps the hand-off to and from the lock view soft.
+    MatrixRain {
+      anchors.fill: parent
+      visible: opacity > 0
+      opacity: root.saverActive ? 1 : 0
+      Behavior on opacity { NumberAnimation { duration: 400 } }
     }
   }
 }
