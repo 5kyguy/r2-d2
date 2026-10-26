@@ -2,25 +2,13 @@ import QtQuick
 import Quickshell.Io
 import qs.Ui
 
-// CPU percent for the bar. Click opens the shared process list
-// (ProcessesPanel.qml) anchored under this widget — Memory and Temperature
-// host the same panel — instead of dropping into a btop terminal.
-Panel {
+BarWidget {
   id: root
   moduleName: "r2-d2.cpu"
-  ipcTarget: "r2-d2.cpu"
 
   property string label: "󰍛 --%"
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
-
-  function injectPanel() {
-    var target = panelLoader.item
-    if (!target) return
-    if ("bar" in target) target.bar = root.bar
-    if ("anchorItem" in target) target.anchorItem = button
-    if ("owner" in target) target.owner = root
-  }
 
   WidgetButton {
     id: button
@@ -30,7 +18,7 @@ Panel {
     tooltipText: "CPU"
     horizontalMargin: 6
     onPressed: function() {
-      root.toggle()
+      if (root.bar) root.bar.run("r2-d2-launch-tui btop")
     }
   }
 
@@ -52,16 +40,4 @@ Panel {
     triggeredOnStart: true
     onTriggered: if (!probe.running) probe.running = true
   }
-
-  Loader {
-    id: panelLoader
-    source: Qt.resolvedUrl("ProcessesPanel.qml")
-    visible: false
-    onLoaded: {
-      root.injectPanel()
-      Qt.callLater(root.injectPanel)
-    }
-  }
-
-  onBarChanged: injectPanel()
 }
