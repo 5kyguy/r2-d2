@@ -272,7 +272,7 @@ Item {
             width: parent.width
             leftPadding: Style.space(6)
             rightPadding: Style.space(6)
-            spacing: Style.space(10)
+            spacing: root.colGap
 
             Item {
               width: killSlotWidth
@@ -286,7 +286,7 @@ Item {
               font.pixelSize: Style.font.caption
               font.letterSpacing: 1
               font.bold: true
-              width: parent.width - killSlotWidth - userColWidth - cpuColWidth - memColWidth - parent.spacing * 3
+              width: root.nameColWidth
               elide: Text.ElideRight
             }
 
@@ -338,11 +338,18 @@ Item {
 
   // Shared column metrics so the headings and every row line up without a
   // layout engine: the kill button slot, then fixed user/cpu/mem columns,
-  // and the name takes whatever is left.
+  // and the name takes whatever is left. The rows pad their Row by 6 on a
+  // side, so the name column absorbs that padding too — otherwise the mem
+  // column sits past the scroll area's clip edge no matter how wide the
+  // panel is.
   readonly property real killSlotWidth: Style.space(28)
   readonly property real userColWidth: Style.space(96)
   readonly property real cpuColWidth: Style.space(56)
   readonly property real memColWidth: Style.space(60)
+  readonly property real colGap: Style.space(10)
+  readonly property real nameColWidth: Math.max(Style.space(40),
+    panelColumn.width - killSlotWidth - userColWidth - cpuColWidth - memColWidth
+    - colGap * 3 - Style.space(12))
 
   // One process row: kill button at the left edge, then name with pid, user,
   // cpu and mem. The highlight comes from hasCursor only — hover moves the
@@ -371,7 +378,7 @@ Item {
       anchors.verticalCenter: parent.verticalCenter
       anchors.leftMargin: Style.space(6)
       anchors.rightMargin: Style.space(6)
-      spacing: Style.space(10)
+      spacing: root.colGap
 
       PanelActionButton {
         id: killButton
@@ -393,8 +400,7 @@ Item {
         font.family: root.bar ? root.bar.fontFamily : Style.font.family
         font.pixelSize: Style.font.body
         elide: Text.ElideRight
-        // Name takes the row width minus the fixed columns.
-        width: parent.width - root.killSlotWidth - root.userColWidth - root.cpuColWidth - root.memColWidth - parent.spacing * 3
+        width: root.nameColWidth
       }
 
       Text {
