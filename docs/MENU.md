@@ -120,7 +120,7 @@ Bindings live under `~/.config/hypr/bindings/` (override in `bindings.lua`). The
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | Cursor |
 | **Super + M** | Brook with no window, or quit it when it is running |
-| **Super + N** | Thunar |
+| **Super + N** | Robin (file manager) |
 | **Super + C / V / X** | Copy / paste / cut |
 
 ### Apps (Super + Ctrl + letter)

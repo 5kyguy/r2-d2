@@ -4,7 +4,7 @@ r2-d2-refresh-applications
 update-desktop-database ~/.local/share/applications
 
 # Open directories in the file manager
-xdg-mime default thunar.desktop inode/directory
+xdg-mime default robin.desktop inode/directory
 
 # Open images with Omaroll
 xdg-mime default io.github.tsouth89.omaroll.desktop image/png

@@ -36,7 +36,7 @@ Default Hyprland chords. They live under `config/hypr/bindings/` and are copied 
 | **Super + Alt + B** | Browser (private) |
 | **Super + I** | IDE (Cursor) |
 | **Super + M** | Brook with no window, or quit it when it is running |
-| **Super + N** | Thunar |
+| **Super + N** | Robin (file manager; Thunar stays as fallback) |
 | **Super + C** | Copy |
 | **Super + V** | Paste |
 | **Super + X** | Cut |

@@ -38,3 +38,7 @@ hl.window_rule({
   match = { class = "org.xfce.thunar" },
   opacity = "0.98 1",
 })
+hl.window_rule({
+  match = { class = "dev.skyguy.robin" },
+  opacity = "0.98 1",
+})

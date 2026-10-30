@@ -58,6 +58,11 @@ main() {
     mkdir -p "$(dirname "$stamp")"
     printf '%s\n' "$tag" >"$stamp"
   fi
+
+  # Robin is the default file manager; Thunar stays installed as the fallback.
+  if [[ -f "${XDG_DATA_HOME:-$HOME/.local/share}/applications/robin.desktop" ]]; then
+    xdg-mime default robin.desktop inode/directory
+  fi
 }
 
 main "$@"
