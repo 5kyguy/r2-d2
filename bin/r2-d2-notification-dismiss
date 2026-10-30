@@ -1,10 +1,27 @@
 #!/bin/bash
 
-# Dismiss a shell notification on the basis of its summary. Used by the first-run notifications to dismiss them after clicking for action.
+# Close the notification cards currently on screen.
+# den-den-mushi addresses cards by id. A summary argument is accepted so
+# older callers still run; it does not select a single card.
 
-if (($# == 0)); then
-  echo "Usage: r2-d2-notification-dismiss <summary>"
+set -euo pipefail
+
+if (($# > 1)); then
+  echo "Usage: r2-d2-notification-dismiss [summary]" >&2
   exit 1
 fi
 
-r2-d2-shell -q notifications dismiss "$1" || true
+daemon="${HOME}/.local/bin/den-den-mushi"
+if [[ ! -x $daemon ]]; then
+  daemon=$(command -v den-den-mushi || true)
+fi
+[[ -n $daemon ]] || exit 0
+
+while read -r id; do
+  [[ $id =~ ^[0-9]+$ ]] || continue
+  busctl --user call \
+    org.freedesktop.Notifications \
+    /org/freedesktop/Notifications \
+    org.freedesktop.Notifications \
+    CloseNotification u "$id" >/dev/null || true
+done < <("$daemon" visible 2>/dev/null || true)

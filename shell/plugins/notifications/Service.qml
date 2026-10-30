@@ -1,4 +1,6 @@
 // Notification service for the omarchy shell.
+// den-den-mushi owns org.freedesktop.Notifications. This plugin stays
+// unloaded (shell.json disabledPlugins) and does not claim that name.
 
 import QtQuick
 import QtQuick.Layouts
@@ -928,21 +930,9 @@ Item {
     function ping(): string { return "ok" }
   }
 
-  // ---------------------------------------------------- server
-
-  NotificationServer {
-    id: server
-    keepOnReload: false
-    imageSupported: true
-    actionsSupported: true
-    bodyMarkupSupported: true
-    bodyHyperlinksSupported: true
-    persistenceSupported: true
-
-    onNotification: function(notification) {
-      service.handleNotification(notification)
-    }
-  }
+  // den-den-mushi is the notification server. Leaving NotificationServer
+  // out keeps this plugin from taking org.freedesktop.Notifications if it
+  // is loaded again.
 
   // -------------------------------------------------------------- popup UI
   //

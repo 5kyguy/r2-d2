@@ -374,8 +374,15 @@ class ThemeStateTests(unittest.TestCase):
             self.repo / 'default/config/walker/themes/default/style.css',
             self.repo / 'config/zathura/zathurarc',
             self.repo / 'default/sddm/r2-d2/Palette.qml',
+            self.repo / 'config/den-den-mushi/style.css',
         ):
             self.assertNotIn('{{', rendered.read_text())
+
+        cards = (self.repo / 'config/den-den-mushi/style.css').read_text()
+        self.assertIn(f'@define-color bg {dark["bg"].lower()};', cards)
+        self.assertIn(f'@define-color accent {dark["accent"].lower()};', cards)
+        self.assertIn(f'@define-color danger {dark["danger"].lower()};', cards)
+        self.assertIn('JetBrainsMono Nerd Font', cards)
 
         gtk4 = (self.repo / 'config/gtk-4.0/gtk.css').read_text()
         self.assertIn(f'@define-color accent_bg_color #{primary};', gtk4)

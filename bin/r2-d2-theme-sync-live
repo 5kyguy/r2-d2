@@ -38,6 +38,9 @@ done
 mkdir -p ~/.config/walker/themes/default
 cp -T "$R2D2_PATH/default/config/walker/themes/default/style.css" ~/.config/walker/themes/default/style.css
 
+mkdir -p ~/.config/den-den-mushi
+cp -T "$R2D2_PATH/config/den-den-mushi/style.css" ~/.config/den-den-mushi/style.css
+
 mkdir -p ~/.config/hyprland-preview-share-picker
 cp -T "$R2D2_PATH/default/config/hyprland-preview-share-picker/style.css" ~/.config/hyprland-preview-share-picker/style.css
 

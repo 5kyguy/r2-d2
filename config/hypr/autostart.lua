@@ -6,6 +6,7 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("rm -f ~/.local/state/r2-d2/toggles/builtin-display-disabled ~/.local/state/r2-d2/toggles/builtin-display-clamshell")
   -- Start the idle lock only when its toggle was enabled on a previous boot.
   hl.exec_cmd("bash -c '[[ -f ~/.local/state/r2-d2/toggles/idle-lock ]] && uwsm-app -- hypridle'")
+  hl.exec_cmd("uwsm-app -- ~/.local/bin/den-den-mushi --replace")
   hl.exec_cmd("uwsm-app -- r2-d2-launch-shell")
   hl.exec_cmd("uwsm-app -- swaybg -i ~/.local/share/r2-d2/backgrounds/@background -m fill")
   hl.exec_cmd("uwsm-app -- udiskie --automount --no-notify --no-tray")

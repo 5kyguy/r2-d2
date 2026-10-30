@@ -4,7 +4,7 @@
   "name": "Notifications",
   "version": "1.0.0",
   "author": "Omarchy",
-  "description": "Notification daemon, popups, DND, and history",
+  "description": "Retired shell notification server. den-den-mushi draws cards; this plugin stays disabled.",
   "kinds": [
     "service"
   ],

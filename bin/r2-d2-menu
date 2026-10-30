@@ -119,8 +119,12 @@ menu_state() {
   bar_on=false; [[ ! -f $toggles/bar-off ]] && bar_on=true
   display_on=false; [[ ! -f $toggles/builtin-display-disabled ]] && display_on=true
   mirror_on=false; [[ -f $toggles/display-mirror ]] && mirror_on=true
-  notifications_on=false
-  [[ $(r2-d2-shell notifications isDnd 2>/dev/null) == "off" ]] && notifications_on=true
+  notifications_on=true
+  dnd_daemon="${HOME}/.local/bin/den-den-mushi"
+  [[ -x $dnd_daemon ]] || dnd_daemon=$(command -v den-den-mushi || true)
+  if [[ -n $dnd_daemon && $($dnd_daemon dnd status 2>/dev/null) == "on" ]]; then
+    notifications_on=false
+  fi
   idle_on=false; [[ -f $toggles/idle-lock ]] && idle_on=true
   scrolling_layout=false
   [[ $(hyprctl activeworkspace -j 2>/dev/null | jq -r '.tiledLayout // ""') == "scrolling" ]] && scrolling_layout=true
