@@ -59,6 +59,10 @@ output_path = "accent-apps/opencode.json"
 input_path = "templates/zathurarc"
 output_path = "../zathura/zathurarc"
 
+[templates.den-den-mushi]
+input_path = "templates/den-den-mushi.css"
+output_path = "../den-den-mushi/style.css"
+
 [templates.sddm-palette]
 input_path = "templates/sddm-palette.qml"
 output_path = "../../default/sddm/r2-d2/Palette.qml"

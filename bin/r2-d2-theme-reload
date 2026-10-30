@@ -10,6 +10,9 @@ accent="${1:-}"
 r2-d2-theme-hyprland-apply >/dev/null 2>&1 || true
 
 r2-d2-restart-walker >/dev/null 2>&1 || true
+if [[ -x $HOME/.local/bin/den-den-mushi ]]; then
+  "$HOME/.local/bin/den-den-mushi" reload >/dev/null 2>&1 || true
+fi
 if [[ -f $HOME/.config/r2-d2/colors.toml && -f $HOME/.config/r2-d2/shell.toml ]]; then
   colors=$(base64 -w0 "$HOME/.config/r2-d2/colors.toml")
   shell_theme=$(base64 -w0 "$HOME/.config/r2-d2/shell.toml")

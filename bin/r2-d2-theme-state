@@ -51,6 +51,7 @@ REQUIRED_OUTPUTS = [
     'default/config/walker/themes/default/style.css',
     'default/config/hyprland-preview-share-picker/style.css',
     'default/sddm/r2-d2/Palette.qml',
+    'config/den-den-mushi/style.css',
 ]
 
 

@@ -35,5 +35,6 @@
       ]
     }
   },
-  "plugins": []
+  "plugins": [],
+  "disabledPlugins": ["r2-d2.notifications"]
 }

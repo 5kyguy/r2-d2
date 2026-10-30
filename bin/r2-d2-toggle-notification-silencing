@@ -1,6 +1,10 @@
 #!/bin/bash
 
-state=$(r2-d2-shell notifications toggleDnd || true)
+daemon="${HOME}/.local/bin/den-den-mushi"
+if [[ ! -x $daemon ]]; then
+  daemon=$(command -v den-den-mushi || true)
+fi
+state=$([[ -n $daemon ]] && "$daemon" dnd toggle || true)
 
 if [[ $state == "on" ]]; then
   r2-d2-notification-send --app-name r2-d2-action "󰂛    Silenced notifications"

@@ -129,7 +129,9 @@ pacman-contrib
 
 ### Shell
 
-quickshell draws the bar, panels, on-screen display, notifications, and lock screen.
+quickshell draws the bar, panels, on-screen display, and lock screen.
+
+den-den-mushi draws notification cards. Install builds the pinned revision in `install/packaging/den-den-mushi.sh` into `~/.local/bin/den-den-mushi`, and Hyprland starts it with `--replace`. Do-not-disturb is `den-den-mushi dnd`. Colors come from `config/theme/templates/den-den-mushi.css`, rendered to `config/den-den-mushi/style.css`.
 
 ### Apps and tools (user-facing)
 
