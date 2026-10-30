@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Install or upgrade den-den-mushi from GitHub releases into ~/.local/bin.
+# den-den-mushi is the default R2-D2 notification daemon; autostart.lua
+# starts it with --replace. Stamps the release tag in the r2-d2 state dir,
+# so re-running is a no-op when the newest release is already installed.
+
+set -euo pipefail
+
+repo=5kyguy/den-den-mushi
+bin="${HOME}/.local/bin/den-den-mushi"
+stamp="${XDG_STATE_HOME:-$HOME/.local/state}/r2-d2/den-den-mushi-rev"
+
+main() {
+  local json tag name url sums dir
+
+  json=$(curl -fsSL -A r2-d2 "https://api.github.com/repos/$repo/releases/latest") || {
+    echo "Could not reach GitHub for den-den-mushi." >&2
+    return 1
+  }
+
+  tag=$(jq -r .tag_name <<<"$json")
+  name=$(jq -r '[.assets[].name | select(test("^den-den-mushi-.*-x86_64-linux\\.tar\\.gz$"))][0] // empty' <<<"$json")
+  sums=$(jq -r '.assets[] | select(.name == "SHA256SUMS") | .browser_download_url' <<<"$json")
+  url=$(jq -r --arg name "$name" '.assets[] | select(.name == $name) | .browser_download_url' <<<"$json")
+
+  [[ -n $tag && $tag != "null" && -n $name && $name != "null" && -n $url && $url != "null" && -n $sums && $sums != "null" ]] || {
+    echo "den-den-mushi release is missing a tarball or checksum." >&2
+    return 1
+  }
+
+  if [[ -x $bin && -f $stamp && $(<"$stamp") == "$tag" ]]; then
+    echo "den-den-mushi $tag is already installed"
+  else
+    if r2-d2-pkg-missing gtk4-layer-shell; then
+      r2-d2-pkg-add gtk4-layer-shell ttf-jetbrains-mono-nerd
+    fi
+
+    dir=$(mktemp -d)
+    trap 'rm -rf "$dir"' RETURN
+
+    curl -fL -A r2-d2 -o "$dir/$name" "$url"
+    curl -fL -A r2-d2 -o "$dir/SHA256SUMS" "$sums"
+    (cd "$dir" && sha256sum -c --ignore-missing SHA256SUMS | grep -F -- "$name: OK")
+
+    tar -C "$dir" -xzf "$dir/$name"
+    install -Dm 755 "$dir/${name%-x86_64-linux.tar.gz}/den-den-mushi" "$bin"
+
+    mkdir -p "$(dirname "$stamp")"
+    printf '%s\n' "$tag" >"$stamp"
+  fi
+
+  # A running session takes the new binary immediately.
+  if [[ -n ${WAYLAND_DISPLAY:-} && -x $bin ]]; then
+    setsid -f uwsm-app -- "$bin" --replace >/dev/null 2>&1 \
+      || setsid -f "$bin" --replace >/dev/null 2>&1 \
+      || true
+  fi
+}
+
+main "$@"

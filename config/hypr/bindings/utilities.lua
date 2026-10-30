@@ -21,6 +21,8 @@ hl.bind("SUPER + SHIFT + T", hl.dsp.exec_cmd("r2-d2-toggle-waybar"), { descripti
 hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd("r2-d2-toggle-builtin-display"), { description = "Toggle device display" })
 hl.bind("SUPER + SHIFT + M", hl.dsp.exec_cmd("r2-d2-toggle-display-mirror"), { description = "Toggle display mirror" })
 hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd("r2-d2-toggle-notification-silencing"), { description = "Toggle notification silencing" })
+hl.bind("SUPER + ALT + N", hl.dsp.exec_cmd("uwsm-app -- den-den-mushi panel"), { description = "Notification history" })
+hl.bind("SUPER + CTRL + N", hl.dsp.exec_cmd("den-den-mushi dismiss --all"), { description = "Dismiss notifications" })
 hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.power"), { description = "Power panel" })
 hl.bind("SUPER + ALT + T", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.screentime"), { description = "Screen time panel" })
 hl.bind("SUPER + ALT + C", hl.dsp.exec_cmd("r2-d2-shell shell toggle r2-d2.pomodoro"), { description = "Pomodoro timer" })
