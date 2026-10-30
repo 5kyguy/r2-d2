@@ -103,6 +103,7 @@ If you want all default configs reset, use `r2-d2-reinstall-configs`. If you wan
 - **base.sh** — Install all packages from `install/r2-d2-base.packages` (pacman) and `install/r2-d2-base.aur.packages` (AUR via yay). See `docs/PACKAGE-LIST.md` for what is installed.
 - **omaroll.sh** — Install Omaroll from GitHub releases and point images and videos at it (`r2-d2-install-omaroll`)
 - **den-den-mushi.sh** — Install the den-den-mushi notification daemon from GitHub releases (`r2-d2-install-den-den-mushi`)
+- **robin.sh** — Install the Robin file manager from GitHub releases (`r2-d2-install-robin`)
 - **fonts.sh** — Copy `r2-d2.ttf` and `manrope-variable.ttf` to `~/.local/share/fonts`, run fc-cache
 - **icons.sh** — Copy bundled icons to `~/.local/share/applications/icons`
 - **webapps.sh** — Create web app shortcuts (WhatsApp, YouTube, X, Telegram) in the default browser (Brave Origin)

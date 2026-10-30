@@ -133,6 +133,8 @@ quickshell draws the bar, panels, on-screen display, and lock screen.
 
 den-den-mushi draws notification cards. `r2-d2-install-den-den-mushi` downloads the GitHub release (verified against `SHA256SUMS`) into `~/.local/bin/den-den-mushi`, install and the migration run it, and Hyprland starts it with `--replace`. Deps (`gtk4-layer-shell`, `ttf-jetbrains-mono-nerd`) are in the pacman list. Run the installer again to upgrade; a running session is replaced immediately. Do-not-disturb is `den-den-mushi dnd` (**Super+Shift+N**), the history panel is **Super+Alt+N**, and **Super+Ctrl+N** dismisses all cards. Colors come from `config/theme/templates/den-den-mushi.css`, rendered to `config/den-den-mushi/style.css`.
 
+Robin is the file manager in progress (Rust + Slint, the R2-D2 theme). `r2-d2-install-robin` downloads the GitHub release (verified against `SHA256SUMS`) into `~/.local/bin/robin`; `poppler` is added for PDF thumbnails when missing. Thunar stays the default file manager — a later migration flips `inode/directory` and Super+N once Robin proves stable.
+
 ### Apps and tools (user-facing)
 
 qalculate-gtk, gnome-themes-extra, kvantum-qt5, zathura, zathura-pdf-mupdf, pinta, kdenlive, obs-studio, steam
