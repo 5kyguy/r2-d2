@@ -8,6 +8,8 @@ curl -fsSL https://raw.githubusercontent.com/5kyguy/r2-d2/refs/heads/master/boot
 
 R2-D2 was originally forked from [Omarchy](https://github.com/basecamp/omarchy) and has since diverged into its own distribution.
 
+Releases are tagged `vX.Y.Z` with notes from [CHANGELOG.md](CHANGELOG.md); pushing a tag publishes the GitHub release in CI.
+
 ## License
 
 R2-D2 is released under the [MIT License](https://opensource.org/licenses/MIT).
