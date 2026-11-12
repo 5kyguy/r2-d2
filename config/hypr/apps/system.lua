@@ -25,14 +25,6 @@ hl.window_rule({
   center = true,
 })
 hl.window_rule({
-  match = { class = "^io\\.github\\.tsouth89\\.omaroll$", title = ".* · Omaroll" },
-  float = true,
-})
-hl.window_rule({
-  match = { class = "^io\\.github\\.tsouth89\\.omaroll$", title = ".* · Omaroll" },
-  center = true,
-})
-hl.window_rule({
   match = {
     class = "(xdg-desktop-portal-gtk|sublime_text|DesktopEditors|org.xfce.thunar)",
     title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)",

@@ -95,9 +95,9 @@ xdg-desktop-portal-gtk, xdg-desktop-portal-hyprland
 
 grim, slurp, imagemagick, gpu-screen-recorder, wl-clipboard, ffmpegthumbnailer, zbar, tesseract, tesseract-data-eng
 
-### File manager and GVfs
+### File manager and archives
 
-thunar, thunar-archive-plugin, file-roller, tumbler, gvfs-mtp, gvfs-nfs, gvfs-smb, webp-pixbuf-loader, udiskie
+file-roller, webp-pixbuf-loader, udiskie
 
 ### Browsers and default apps
 
@@ -133,13 +133,13 @@ quickshell draws the bar, panels, on-screen display, and lock screen.
 
 den-den-mushi draws notification cards. `r2-d2-install-den-den-mushi` downloads the GitHub release (verified against `SHA256SUMS`) into `~/.local/bin/den-den-mushi`, install and the migration run it, and Hyprland starts it with `--replace`. Deps (`gtk4-layer-shell`, `ttf-jetbrains-mono-nerd`) are in the pacman list. Run the installer again to upgrade; a running session is replaced immediately. Do-not-disturb is `den-den-mushi dnd` (**Super+Shift+N**), the history panel is **Super+Alt+N**, and **Super+Ctrl+N** dismisses all cards. Colors come from `config/theme/templates/den-den-mushi.css`, rendered to `config/den-den-mushi/style.css`.
 
-Robin is the file manager in progress (Rust + Slint, the R2-D2 theme). `r2-d2-install-robin` downloads the GitHub release (verified against `SHA256SUMS`) into `~/.local/bin/robin`; `poppler` is added for PDF thumbnails when missing. Robin is the default file manager — `inode/directory` and **Super+N** point at it, with the same window opacity rule as Thunar, which stays installed as the fallback.
+Robin is the file manager and media viewer (Rust + Slint, the R2-D2 theme). `r2-d2-install-robin` downloads the GitHub release (verified against `SHA256SUMS`) into `~/.local/bin/robin`; `poppler` is added for PDF thumbnails when missing. Directories (**Super+N**), images, video, and audio open in Robin — it replaced Thunar and Omaroll, which are no longer installed. PDFs still open in Zathura and archives in File Roller.
 
 ### Apps and tools (user-facing)
 
 qalculate-gtk, gnome-themes-extra, kvantum-qt5, zathura, zathura-pdf-mupdf, pinta, kdenlive, obs-studio, steam
 
-Omaroll is the image and video viewer. It is not in the pacman list. Install and the migration run `r2-d2-install-omaroll`, which downloads the GitHub release. Run that command again to upgrade it. Screenshots open in Tensaku (`tensaku-bin` on the AUR list).
+Omaroll is gone; Robin is the image and video viewer. Screenshots open in Tensaku (`tensaku-bin` on the AUR list).
 
 ### Firewall and security
 
@@ -190,7 +190,7 @@ Background/wallpaper and accent theme are set via the background selector (**Sup
 
 - **Base pacman packages:** 152 (from `install/r2-d2-base.packages`).
 - **Base AUR packages:** 30 (from `install/r2-d2-base.aur.packages`) — browsers, walker/elephant stack, limine helpers, localsend, tensaku, voxtype, xdg-terminal-exec, yay, and related AUR-only deps.
-- **Omaroll:** default image and video viewer, installed from GitHub releases by `r2-d2-install-omaroll`.
+- **Robin:** file manager and media viewer, installed from GitHub releases by `r2-d2-install-robin`.
 - **SSH:** `openssh` installed; `sshd` not enabled by default.
 - **Conditional:** vulkan-radeon (AMD GPU); limine-snapper-sync + limine-mkinitcpio-hook also applied from login when limine is present.
 - **Default web apps:** 4 (WhatsApp, YouTube, X, Telegram).

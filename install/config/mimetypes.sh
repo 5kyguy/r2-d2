@@ -6,13 +6,13 @@ update-desktop-database ~/.local/share/applications
 # Open directories in the file manager
 xdg-mime default robin.desktop inode/directory
 
-# Open images with Omaroll
-xdg-mime default io.github.tsouth89.omaroll.desktop image/png
-xdg-mime default io.github.tsouth89.omaroll.desktop image/jpeg
-xdg-mime default io.github.tsouth89.omaroll.desktop image/gif
-xdg-mime default io.github.tsouth89.omaroll.desktop image/webp
-xdg-mime default io.github.tsouth89.omaroll.desktop image/bmp
-xdg-mime default io.github.tsouth89.omaroll.desktop image/tiff
+# Open images with Robin
+xdg-mime default robin.desktop image/png
+xdg-mime default robin.desktop image/jpeg
+xdg-mime default robin.desktop image/gif
+xdg-mime default robin.desktop image/webp
+xdg-mime default robin.desktop image/bmp
+xdg-mime default robin.desktop image/tiff
 
 # Open editable images with Pinta
 xdg-mime default com.github.PintaProject.Pinta.desktop image/x-xcf
@@ -25,21 +25,29 @@ xdg-settings set default-web-browser brave-origin-nightly.desktop
 xdg-mime default brave-origin-nightly.desktop x-scheme-handler/http
 xdg-mime default brave-origin-nightly.desktop x-scheme-handler/https
 
-# Open video files with Omaroll
-xdg-mime default io.github.tsouth89.omaroll.desktop video/mp4
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-msvideo
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-matroska
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-flv
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-ms-wmv
-xdg-mime default io.github.tsouth89.omaroll.desktop video/mpeg
-xdg-mime default io.github.tsouth89.omaroll.desktop video/ogg
-xdg-mime default io.github.tsouth89.omaroll.desktop video/webm
-xdg-mime default io.github.tsouth89.omaroll.desktop video/quicktime
-xdg-mime default io.github.tsouth89.omaroll.desktop video/3gpp
-xdg-mime default io.github.tsouth89.omaroll.desktop video/3gpp2
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-ms-asf
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-ogm+ogg
-xdg-mime default io.github.tsouth89.omaroll.desktop video/x-theora+ogg
+# Open video and audio files with Robin
+xdg-mime default robin.desktop video/mp4
+xdg-mime default robin.desktop video/x-msvideo
+xdg-mime default robin.desktop video/x-matroska
+xdg-mime default robin.desktop video/x-flv
+xdg-mime default robin.desktop video/x-ms-wmv
+xdg-mime default robin.desktop video/mpeg
+xdg-mime default robin.desktop video/ogg
+xdg-mime default robin.desktop video/webm
+xdg-mime default robin.desktop video/quicktime
+xdg-mime default robin.desktop video/3gpp
+xdg-mime default robin.desktop video/3gpp2
+xdg-mime default robin.desktop video/x-ms-asf
+xdg-mime default robin.desktop video/x-ogm+ogg
+xdg-mime default robin.desktop video/x-theora+ogg
+xdg-mime default robin.desktop audio/mpeg
+xdg-mime default robin.desktop audio/flac
+xdg-mime default robin.desktop audio/ogg
+xdg-mime default robin.desktop audio/wav
+xdg-mime default robin.desktop audio/x-wav
+xdg-mime default robin.desktop audio/mp4
+xdg-mime default robin.desktop audio/aac
+xdg-mime default robin.desktop audio/x-m4a
 
 # Open text files with nano
 xdg-mime default Nano.desktop text/plain

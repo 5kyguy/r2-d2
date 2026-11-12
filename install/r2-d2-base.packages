@@ -47,9 +47,6 @@ grim
 gst-plugin-pipewire
 gtk4-layer-shell
 gum
-gvfs-mtp
-gvfs-nfs
-gvfs-smb
 hypridle
 hyprland
 hyprland-guiutils
@@ -120,15 +117,12 @@ steam
 swaybg
 tesseract
 tesseract-data-eng
-thunar
-thunar-archive-plugin
 system-config-printer
 tldr
 tmux
 tree
 ttf-cascadia-mono-nerd
 ttf-jetbrains-mono-nerd
-tumbler
 ufw
 udiskie
 unzip

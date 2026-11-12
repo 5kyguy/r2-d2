@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Install or upgrade Robin from GitHub releases into ~/.local/bin.
-# Robin is the R2-D2 file manager in progress; Thunar stays the default
-# handler until a later migration flips inode/directory and Super+N.
+# Robin is the R2-D2 file manager and media viewer: directories, images,
+# video, and audio open in it. Thunar and Omaroll are gone.
 # Stamps the release tag in the r2-d2 state dir, so re-running is a no-op
 # when the newest release is already installed.
 
@@ -59,9 +59,17 @@ main() {
     printf '%s\n' "$tag" >"$stamp"
   fi
 
-  # Robin is the default file manager; Thunar stays installed as the fallback.
+  # Robin is the default file manager and media viewer.
   if [[ -f "${XDG_DATA_HOME:-$HOME/.local/share}/applications/robin.desktop" ]]; then
-    xdg-mime default robin.desktop inode/directory
+    for mime in inode/directory \
+      image/png image/jpeg image/gif image/webp image/bmp image/tiff \
+      video/mp4 video/x-msvideo video/x-matroska video/x-flv video/x-ms-wmv \
+      video/mpeg video/ogg video/webm video/quicktime video/3gpp video/3gpp2 \
+      video/x-ms-asf video/x-ogm+ogg video/x-theora+ogg \
+      audio/mpeg audio/flac audio/ogg audio/wav audio/x-wav audio/mp4 \
+      audio/aac audio/x-m4a; do
+      xdg-mime default robin.desktop "$mime"
+    done
   fi
 }
 
