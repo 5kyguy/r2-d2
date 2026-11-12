@@ -2,6 +2,10 @@
 
 # Run all pending migrations to bring the system in line with the installed version.
 
+# The migrations directory can be empty (the history was cleared at v0.1.0):
+# without nullglob the loop would run the literal "*.sh" pattern and fail.
+shopt -s nullglob
+
 # Where we store an empty file for each migration that has already been performed.
 STATE_DIR="$HOME/.local/state/r2-d2/migrations"
 mkdir -p "$STATE_DIR"

@@ -19,14 +19,12 @@ First R2-D2 version: the desktop as it works today, daily-driven.
 
 - **Arch Linux + Hyprland (Lua config), installed by one curl script** — no
   ISO. Fresh installs, repairs, and resets run the same pipeline;
-  in-session updates sync `config/` and run one-shot `migrations/` (27 so
-  far).
+  in-session updates sync `config/` and run one-shot `migrations/`.
 - **Shell and services.** quickshell draws the bar, panels, OSD, and lock
   screen; den-den-mushi renders notification cards on a layer-shell overlay.
   Both follow the live theme.
 - **Robin is the file manager and media viewer** (v0.1.0): directories,
-  images, video, and audio open in it — it replaced Thunar and Omaroll this
-  release. PDFs open in Zathura, archives in File Roller.
+  images, video, and audio open in it. PDFs open in Zathura, archives in File Roller.
 - **K-2SO**, the background agent daemon (`k2so` on npm), runs an OpenCode
   session with `r2d2-mcp` tools and its own memory MCP; R2-D2 ships the
   hotkeys, voice ingress, and the integration doc.
