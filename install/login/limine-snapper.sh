@@ -11,7 +11,9 @@ MODULES+=(thunderbolt)
 EOF
 
   # Detect boot mode
-  [[ -d /sys/firmware/efi ]] && EFI=true
+  if [[ -d /sys/firmware/efi ]]; then
+    EFI=true
+  fi
 
   # Find config location
   if [[ -f /boot/EFI/arch-limine/limine.conf ]]; then
@@ -39,7 +41,8 @@ EOF
 
   # Append any drop-in kernel cmdline configs (from hardware fix scripts, etc.)
   for dropin in /etc/limine-entry-tool.d/*.conf; do
-    [ -f "$dropin" ] && cat "$dropin" | sudo tee -a /etc/default/limine >/dev/null
+    [[ -f $dropin ]] || continue
+    cat "$dropin" | sudo tee -a /etc/default/limine >/dev/null
   done
 
   # UKI and EFI fallback are EFI only
@@ -100,6 +103,6 @@ fi
 if [[ -n $EFI ]] && efibootmgr &>/dev/null; then
   # Remove the archinstall-created Limine entry
   while IFS= read -r bootnum; do
-    sudo efibootmgr -b "$bootnum" -B >/dev/null 2>&1
+    sudo efibootmgr -b "$bootnum" -B >/dev/null 2>&1 || true
   done < <(efibootmgr | grep -E "^Boot[0-9]{4}\*? Arch Linux Limine" | sed 's/^Boot\([0-9]\{4\}\).*/\1/')
 fi

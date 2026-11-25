@@ -161,11 +161,17 @@ run_logged() {
   ensure_install_log
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting: $script" >>"$R2D2_INSTALL_LOG_FILE"
 
+  # Fail fast inside the script: without set -e, a mid-script failure is
+  # swallowed and the child exits with the last command's status, so the
+  # Completed/Failed markers can lie. The ERR trap logs the failing command
+  # as a signal line for the live log and the error tail.
   bash -c "
+    set -eEo pipefail
     export PATH=\"$R2D2_PATH/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:\${PATH}\"
     export R2D2_PATH=\"$R2D2_PATH\"
     export R2D2_INSTALL=\"$R2D2_INSTALL\"
     export R2D2_INSTALL_LOG_FILE=\"$R2D2_INSTALL_LOG_FILE\"
+    trap 'echo \"ERROR: command failed (exit \$?): \$BASH_COMMAND\" >&2' ERR
     source '$R2D2_INSTALL/helpers/chroot.sh'
     source '$script'
   " </dev/null >>"$R2D2_INSTALL_LOG_FILE" 2>&1
