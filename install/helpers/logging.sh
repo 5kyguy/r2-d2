@@ -14,6 +14,9 @@ start_log_output() {
   local ANSI_HIDE_CURSOR="\033[?25l"
   local ANSI_RESET="\033[0m"
   local ANSI_GRAY="\033[90m"
+  local ANSI_RED="\033[31m"
+  local ANSI_GREEN="\033[32m"
+  local ANSI_CYAN="\033[36m"
 
   # Save cursor position and hide cursor
   printf $ANSI_SAVE_CURSOR
@@ -41,9 +44,25 @@ start_log_output() {
           line="${line:0:max_line_width}..."
         fi
 
-        # Add clear line escape and formatted output for each line (full width, no centering)
+        # Add clear line escape and formatted output for each line (full width,
+        # no centering). Marker lines get a render color; the file stays plain.
         if [[ -n $line ]]; then
-          output+="${ANSI_CLEAR_LINE}${ANSI_GRAY}${line}${ANSI_RESET}\n"
+          # run_logged markers carry a "[timestamp] " prefix — strip it for matching
+          bare=${line#\[*\] }
+          color=$ANSI_GRAY
+          case $bare in
+          "Failed:"* | "ERROR:"* | "Error:"* | "error:"*)
+            color=$ANSI_RED
+            ;;
+          "Completed:"*)
+            color=$ANSI_GREEN
+            ;;
+          "Starting:"*)
+            color=$ANSI_CYAN
+            ;;
+          esac
+
+          output+="${ANSI_CLEAR_LINE}${color}${line}${ANSI_RESET}\n"
         else
           output+="${ANSI_CLEAR_LINE}\n"
         fi
