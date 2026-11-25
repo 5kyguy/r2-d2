@@ -22,10 +22,24 @@ if [[ -f $marker ]]; then
 fi
 
 current=$(voxtype config get whisper.model 2>/dev/null | tr -d '[:space:]' || true)
+
+# The whisper model (~465 MB for small.en) is a single curl download whose
+# carriage-return progress bar never shows up in the install log, so say what
+# is happening. Bound it too — a stalled huggingface.co connection would hang
+# the install forever otherwise.
+echo "Downloading the whisper model (~465 MB) — this can take a while..."
+download_timeout=900
+
+download_failed=0
 if [[ -z $current || $current == "base.en" ]]; then
-  voxtype setup --download --model small.en --activate --no-post-install
+  timeout "$download_timeout" voxtype setup --download --model small.en --activate --no-post-install || download_failed=1
 else
-  voxtype setup --download --model "$current" --no-post-install
+  timeout "$download_timeout" voxtype setup --download --model "$current" --no-post-install || download_failed=1
+fi
+
+if (( download_failed )); then
+  echo "Whisper model download failed or timed out — skipping voxtype provisioning; it retries on the next r2-d2-update." >&2
+  exit 0
 fi
 
 if r2-d2-hw-vulkan; then
