@@ -8,7 +8,9 @@ show_cursor() {
   printf "\033[?25h"
 }
 
-# Display truncated log lines from the install log
+# Display signal lines from the install log (failures, errors, warnings),
+# preferring them over the raw tail so the cause isn't buried under package
+# noise. Falls back to the raw tail when nothing matches.
 show_log_tail() {
   if [[ ! -f ${R2D2_INSTALL_LOG_FILE:-} ]]; then
     return 0
@@ -18,7 +20,18 @@ show_log_tail() {
   ((log_lines < 1)) && log_lines=20
   local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
 
-  tail -n "$log_lines" "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines | while IFS= read -r line; do
+  local recent lines
+  recent=$(tail -n 50 "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines)
+
+  # Tool error/warning lines first (pacman, makepkg, helpers). The Failed:
+  # marker is skipped on purpose — the failed script is shown separately below
+  lines=$(grep -E '^(ERROR:|Error:|error:|WARNING:|warning:|==> (ERROR:|error:))' <<<"$recent" | tail -n "$log_lines")
+  if [[ -z $lines ]]; then
+    lines=$(tail -n "$log_lines" <<<"$recent")
+  fi
+
+  if [[ -n $lines ]]; then
+    while IFS= read -r line; do
       if ((${#line} > max_line_width)); then
         local truncated_line="${line:0:max_line_width}..."
       else
@@ -26,8 +39,10 @@ show_log_tail() {
       fi
 
       gum style "$truncated_line"
-    done || true
+    done <<<"$lines"
+  fi
 
+  gum style "Full log: $R2D2_INSTALL_LOG_FILE"
   echo
 }
 
