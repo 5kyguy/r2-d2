@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Strip ANSI escapes and collapse \r progress bars (pacman/yay) to their final
+# segment, for display only. The log file itself stays raw; this runs on the
+# read path (live monitor and error tail).
+sanitize_log_lines() {
+  sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/^.*\r//'
+}
+
 start_log_output() {
   local ANSI_SAVE_CURSOR="\033[s"
   local ANSI_RESTORE_CURSOR="\033[u"
@@ -21,8 +28,8 @@ start_log_output() {
     local max_line_width=${LOG_LINE_WIDTH:-$TERM_WIDTH}
 
     while true; do
-      # Read the last N lines into an array
-      mapfile -t current_lines < <(tail -n $log_lines "$R2D2_INSTALL_LOG_FILE" 2>/dev/null)
+      # Read the last N lines into an array, sanitized for display
+      mapfile -t current_lines < <(tail -n $log_lines "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines)
 
       # Build complete output buffer with escape sequences
       output=""

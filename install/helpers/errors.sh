@@ -18,7 +18,7 @@ show_log_tail() {
   ((log_lines < 1)) && log_lines=20
   local max_line_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
 
-  tail -n "$log_lines" "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | while IFS= read -r line; do
+  tail -n "$log_lines" "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines | while IFS= read -r line; do
       if ((${#line} > max_line_width)); then
         local truncated_line="${line:0:max_line_width}..."
       else
