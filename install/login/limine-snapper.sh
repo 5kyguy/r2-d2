@@ -15,23 +15,42 @@ EOF
     EFI=true
   fi
 
-  # Find config location
-  if [[ -f /boot/EFI/arch-limine/limine.conf ]]; then
-    limine_config="/boot/EFI/arch-limine/limine.conf"
-  elif [[ -f /boot/EFI/BOOT/limine.conf ]]; then
-    limine_config="/boot/EFI/BOOT/limine.conf"
-  elif [[ -f /boot/EFI/limine/limine.conf ]]; then
-    limine_config="/boot/EFI/limine/limine.conf"
-  elif [[ -f /boot/limine/limine.conf ]]; then
-    limine_config="/boot/limine/limine.conf"
-  elif [[ -f /boot/limine.conf ]]; then
-    limine_config="/boot/limine.conf"
-  else
-    echo "Error: Limine config not found" >&2
-    exit 1
+  # Find config location (known layouts first, then any limine.conf on the ESP)
+  limine_config=""
+  for candidate in \
+    /boot/EFI/arch-limine/limine.conf \
+    /boot/EFI/BOOT/limine.conf \
+    /boot/EFI/limine/limine.conf \
+    /boot/limine/limine.conf \
+    /boot/limine.conf; do
+    if [[ -f $candidate ]]; then
+      limine_config=$candidate
+      break
+    fi
+  done
+
+  # Unusual ESP layouts: archinstall or manual installs may place the config
+  # elsewhere under /boot
+  if [[ -z $limine_config ]]; then
+    limine_config=$(sudo find /boot -name 'limine.conf' -print -quit 2>/dev/null)
   fi
 
-  CMDLINE=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//')
+  CMDLINE=""
+  if [[ -n $limine_config ]]; then
+    CMDLINE=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//')
+  fi
+
+  # No config anywhere, or no cmdline line in it: this system was booted by
+  # that old entry, so /proc/cmdline carries exactly the cmdline to preserve.
+  if [[ -z $CMDLINE ]]; then
+    echo "No limine.conf cmdline found; using the running kernel's /proc/cmdline."
+    CMDLINE=$(cat /proc/cmdline)
+  fi
+
+  if [[ -z $CMDLINE ]]; then
+    echo "Error: could not determine the kernel cmdline" >&2
+    exit 1
+  fi
 
   sudo cp $R2D2_PATH/default/limine/default.conf /etc/default/limine
   sudo sed -i "s|@@CMDLINE@@|$CMDLINE|g" /etc/default/limine
