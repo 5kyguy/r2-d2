@@ -7,6 +7,47 @@ sanitize_log_lines() {
   sed -e 's/\x1b\[[0-9;?]*[A-Za-z]//g' -e 's/^.*\r//'
 }
 
+# Compose the status bar line: current script, progress bar, elapsed time.
+build_install_status() {
+  local scripts_done=$1 total_scripts=$2 current_script=$3 start_epoch=$4
+  local pad=${PADDING_LEFT:-0}
+  local width=${LOG_LINE_WIDTH:-80}
+
+  local name
+  name=$(basename "${current_script:-starting...}")
+  if ((${#name} > 24)); then
+    name="${name:0:21}..."
+  fi
+
+  local elapsed=0
+  if ((start_epoch > 0)); then
+    elapsed=$(date +%s)
+    elapsed=$((elapsed - start_epoch))
+  fi
+  local mins=$((elapsed / 60))
+  local secs=$((elapsed % 60))
+
+  # Fit the bar into the width left over after the fixed text
+  local text="Installing: $name  ["
+  local suffix="]  ${scripts_done}/${total_scripts}  ${mins}m ${secs}s"
+  local bar_width=$((width - pad - ${#text} - ${#suffix}))
+  ((bar_width < 10)) && bar_width=10
+  ((total_scripts < 1)) && total_scripts=1
+
+  local filled=$((bar_width * scripts_done / total_scripts))
+  ((filled > bar_width)) && filled=$bar_width
+
+  local bar="" i
+  for ((i = 0; i < filled; i++)); do
+    bar+="█"
+  done
+  for ((i = filled; i < bar_width; i++)); do
+    bar+="░"
+  done
+
+  printf '%s%s%s' "$text" "$bar" "$suffix"
+}
+
 start_log_output() {
   local ANSI_SAVE_CURSOR="\033[s"
   local ANSI_RESTORE_CURSOR="\033[u"
@@ -23,20 +64,65 @@ start_log_output() {
   printf $ANSI_HIDE_CURSOR
 
   (
-    # Use all available lines under the logo for logs
+    # Row 0 is the status bar; the remaining rows show the log
     local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 2))
-    ((log_lines < 1)) && log_lines=1
+    ((log_lines < 2)) && log_lines=2
 
     # Use full terminal width (bounded by LOG_LINE_WIDTH)
     local max_line_width=${LOG_LINE_WIDTH:-$TERM_WIDTH}
 
+    # Total scripts in the pipeline: one run_logged line per script in the
+    # phase all.sh files — self-maintaining as scripts are added or removed
+    local total_scripts=0
+    total_scripts=$(grep -ch '^run_logged' "$R2D2_INSTALL"/*/all.sh 2>/dev/null | awk '{s+=$1} END{print s+0}' || true)
+
+    # Elapsed time anchor, set by start_install_log
+    local start_epoch=0
+    if [[ -n ${R2D2_START_TIME:-} ]]; then
+      start_epoch=$(date -d "$R2D2_START_TIME" +%s 2>/dev/null || echo 0)
+    fi
+
+    # Progress state, refreshed about once a second: the scan walks the log
+    # backwards to the attempt marker, while the display tail reads only the
+    # last few lines
+    local status="" status_tick=0 scripts_done=0 current_script=""
+
     while true; do
-      # Read the last N lines into an array, sanitized for display
-      mapfile -t current_lines < <(tail -n $log_lines "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines)
+      # Read the last N-1 log lines into an array, sanitized for display
+      mapfile -t current_lines < <(tail -n $((log_lines - 1)) "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | sanitize_log_lines)
+
+      if ((status_tick % 10 == 0)); then
+        # Scripts started since the last attempt marker (retry-safe) and the
+        # most recent one
+        read -r scripts_done current_script < <(
+          tac "$R2D2_INSTALL_LOG_FILE" 2>/dev/null | awk '
+            /\] Starting: / {
+              count++
+              if (current == "") {
+                current = $0
+                sub(/.*\] Starting: /, "", current)
+              }
+            }
+            /=== R2-D2 Installation Started/ { exit }
+            END { print count, current }
+          '
+        ) || true
+        scripts_done=${scripts_done:-0}
+        status=$(build_install_status "$scripts_done" "$total_scripts" "$current_script" "$start_epoch")
+      fi
+      status_tick=$((status_tick + 1))
 
       # Build complete output buffer with escape sequences
       output=""
-      for ((i = 0; i < log_lines; i++)); do
+
+      # Row 0: the status bar, aligned under the logo like the old header
+      status_display=$status
+      if ((${#status_display} > max_line_width)); then
+        status_display="${status_display:0:max_line_width}..."
+      fi
+      output+="${ANSI_CLEAR_LINE}${ANSI_CYAN}${PADDING_LEFT_SPACES}${status_display}${ANSI_RESET}\n"
+
+      for ((i = 0; i < log_lines - 1; i++)); do
         line="${current_lines[i]:-}"
 
         # Truncate if needed
