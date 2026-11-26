@@ -92,6 +92,10 @@ catch_errors() {
   set +o pipefail
 
   stop_log_output
+  # Nothing from the install may touch sudo while the menu owns the tty in
+  # raw mode: a background sudo prompt would race the menu's key reader and
+  # eat the typed password. Retries re-authenticate visibly via begin.sh.
+  stop_sudo_keeper
   restore_outputs
 
   clear_logo

@@ -258,6 +258,10 @@ run_logged() {
     export R2D2_INSTALL=\"$R2D2_INSTALL\"
     export R2D2_INSTALL_LOG_FILE=\"$R2D2_INSTALL_LOG_FILE\"
     trap 'echo \"ERROR: command failed (exit \$?): \$BASH_COMMAND\" >&2' ERR
+    sudo -n -v 2>/dev/null || {
+      echo \"ERROR: sudo credentials expired — select 'Retry installation' to re-authenticate\"
+      exit 1
+    }
     source '$R2D2_INSTALL/helpers/chroot.sh'
     source '$script'
   " </dev/null >>"$R2D2_INSTALL_LOG_FILE" 2>&1
