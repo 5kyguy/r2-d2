@@ -15,7 +15,9 @@ EOF
     EFI=true
   fi
 
-  # Find config location (known layouts first, then any limine.conf on the ESP)
+  # Find config location (known layouts first, then any limine.conf on the
+  # ESP). All checks go through sudo: the ESP is often root-only, which makes
+  # user-side -f checks and reads fail with permission errors.
   limine_config=""
   for candidate in \
     /boot/EFI/arch-limine/limine.conf \
@@ -23,7 +25,7 @@ EOF
     /boot/EFI/limine/limine.conf \
     /boot/limine/limine.conf \
     /boot/limine.conf; do
-    if [[ -f $candidate ]]; then
+    if sudo test -f "$candidate"; then
       limine_config=$candidate
       break
     fi
@@ -32,12 +34,15 @@ EOF
   # Unusual ESP layouts: archinstall or manual installs may place the config
   # elsewhere under /boot
   if [[ -z $limine_config ]]; then
-    limine_config=$(sudo find /boot -name 'limine.conf' -print -quit 2>/dev/null)
+    limine_config=$(sudo find /boot -type f -name 'limine.conf' -print -quit 2>/dev/null || true)
   fi
 
+  # Read as root for the same reason; || true because "no cmdline line" (or a
+  # closed pipe under pipefail) must fall through to the /proc/cmdline backup,
+  # not abort the install.
   CMDLINE=""
   if [[ -n $limine_config ]]; then
-    CMDLINE=$(grep "^[[:space:]]*cmdline:" "$limine_config" | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//')
+    CMDLINE=$(sudo grep "^[[:space:]]*cmdline:" "$limine_config" 2>/dev/null | head -1 | sed 's/^[[:space:]]*cmdline:[[:space:]]*//' || true)
   fi
 
   # No config anywhere, or no cmdline line in it: this system was booted by
@@ -70,7 +75,7 @@ EOF
   fi
 
   # Remove the original config file if it's not /boot/limine.conf
-  if [[ $limine_config != "/boot/limine.conf" ]] && [[ -f $limine_config ]]; then
+  if [[ $limine_config != "/boot/limine.conf" ]] && sudo test -f "$limine_config"; then
     sudo rm "$limine_config"
   fi
 
@@ -113,15 +118,16 @@ echo "mkinitcpio hooks re-enabled"
 
 sudo limine-update
 
-# Verify that limine-update actually added boot entries
-if ! grep -q "^/+" /boot/limine.conf; then
+# Verify that limine-update actually added boot entries (root-only ESP: the
+# read itself fails as user, which would look like missing entries)
+if ! sudo grep -q "^/+" /boot/limine.conf; then
   echo "Error: limine-update failed to add boot entries to /boot/limine.conf" >&2
   exit 1
 fi
 
 if [[ -n $EFI ]] && efibootmgr &>/dev/null; then
-  # Remove the archinstall-created Limine entry
+  # Remove the archinstall-created Limine entry (efivars are root-only too)
   while IFS= read -r bootnum; do
     sudo efibootmgr -b "$bootnum" -B >/dev/null 2>&1 || true
-  done < <(efibootmgr | grep -E "^Boot[0-9]{4}\*? Arch Linux Limine" | sed 's/^Boot\([0-9]\{4\}\).*/\1/')
+  done < <(sudo efibootmgr | grep -E "^Boot[0-9]{4}\*? Arch Linux Limine" | sed 's/^Boot\([0-9]\{4\}\).*/\1/')
 fi
