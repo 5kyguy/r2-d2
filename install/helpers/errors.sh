@@ -131,9 +131,40 @@ catch_errors() {
   done
 }
 
+# Keep sudo credentials warm for the whole install. Long phases (AUR builds
+# and their downloads, the whisper model fetch) outlast sudo's timestamp; the
+# run_logged children read stdin from /dev/null and the live monitor owns the
+# screen, so a mid-install sudo prompt is invisible and times out — which
+# kills yay's internal 'sudo pacman' dependency installs. -n never prompts.
+SUDO_KEEPER_PID=""
+
+start_sudo_keeper() {
+  if [[ -n $SUDO_KEEPER_PID ]]; then
+    return 0
+  fi
+
+  (
+    while true; do
+      sudo -n -v 2>/dev/null || true
+      sleep 60
+    done
+  ) &
+  SUDO_KEEPER_PID=$!
+}
+
+stop_sudo_keeper() {
+  if [[ -n ${SUDO_KEEPER_PID:-} ]]; then
+    kill $SUDO_KEEPER_PID 2>/dev/null || true
+    wait $SUDO_KEEPER_PID 2>/dev/null || true
+    unset SUDO_KEEPER_PID
+  fi
+}
+
 # Exit handler - ensures cleanup happens on any exit
 exit_handler() {
   local exit_code=$?
+
+  stop_sudo_keeper
 
   # Only run if we're exiting with an error and haven't already handled it
   if ((exit_code != 0)) && [[ $ERROR_HANDLING != "true" ]]; then
