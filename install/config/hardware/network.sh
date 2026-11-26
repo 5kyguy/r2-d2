@@ -7,7 +7,11 @@ chrootable_systemctl_enable NetworkManager.service networkmanager
 # Don't let network-online.target hold up graphical.target waiting for DHCP/Wi-Fi.
 sudo systemctl mask NetworkManager-wait-online.service 2>/dev/null || true
 
-sudo systemctl disable --now iwd.service 2>/dev/null || true
+# Disable only, never --now: a fresh install may be connected through iwd at
+# this very moment, and stopping it severs the network mid-install —
+# NetworkManager has no saved Wi-Fi credentials to take over with. iwd keeps
+# running for the rest of the session and stays off after the reboot.
+sudo systemctl disable iwd.service 2>/dev/null || true
 
 for unit in \
   systemd-networkd.service \
