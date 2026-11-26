@@ -7,6 +7,65 @@ chrootable_systemctl_enable NetworkManager.service networkmanager
 # Don't let network-online.target hold up graphical.target waiting for DHCP/Wi-Fi.
 sudo systemctl mask NetworkManager-wait-online.service 2>/dev/null || true
 
+# Carry iwd Wi-Fi credentials over to NetworkManager before retiring iwd, so
+# the first reboot connects without a manual hop. iwd profiles live root-only
+# in /var/lib/iwd and NM keeps its own store, so nothing survives the handover
+# otherwise. Only .psk profiles migrate; open and 802.1x networks are skipped.
+if systemctl is-active --quiet NetworkManager.service 2>/dev/null; then
+  mapfile -t iwd_profiles < <(sudo find /var/lib/iwd -maxdepth 1 -name '*.psk' 2>/dev/null || true)
+
+  for profile in "${iwd_profiles[@]}"; do
+    base=${profile##*/}
+    base=${base%.psk}
+
+    # iwd names the file after the SSID verbatim when it contains only
+    # alphanumeric characters, spaces, underscores or minus signs, else as
+    # '=' followed by the lower-case hex encoding of the SSID.
+    if [[ $base == "="* ]]; then
+      hex=${base#=}
+      fmt=""
+      for ((i = 0; i < ${#hex}; i += 2)); do
+        fmt+="\\x${hex:$i:2}"
+      done
+      ssid=$(printf '%b' "$fmt")
+    else
+      ssid=$base
+    fi
+
+    # Skip networks NetworkManager already knows (re-runs, manual connects)
+    if nmcli --get-values 802-11-wireless.ssid connection show 2>/dev/null | grep -qxF "$ssid"; then
+      continue
+    fi
+
+    # iwd escapes \s (space), \t, \r, \n and \\ inside values
+    passphrase=$(sudo sed -n 's/^[[:space:]]*Passphrase=//p' "$profile" 2>/dev/null | head -1 || true)
+    passphrase=$(printf '%b' "${passphrase//\\s/ }")
+    psk_hex=$(sudo sed -n 's/^[[:space:]]*PreSharedKey=//p' "$profile" 2>/dev/null | head -1 || true)
+
+    if [[ -n $passphrase ]]; then
+      key=$passphrase
+    elif [[ -n $psk_hex ]]; then
+      key=$psk_hex
+    else
+      echo "iwd profile for '$ssid' has no stored key; skipping."
+      continue
+    fi
+
+    hidden=$(sudo sed -n 's/^[[:space:]]*Hidden=//p' "$profile" 2>/dev/null | head -1 || true)
+
+    args=(type wifi ifname '*' con-name "$ssid" 802-11-wireless.ssid "$ssid" 802-11-wireless-security.key-mgmt wpa-psk 802-11-wireless-security.psk "$key")
+    if [[ $hidden == "true" ]]; then
+      args+=(802-11-wireless.hidden yes)
+    fi
+
+    if nmcli connection add "${args[@]}" >/dev/null 2>&1; then
+      echo "Migrated iwd Wi-Fi profile: $ssid"
+    else
+      echo "Could not migrate iwd Wi-Fi profile: $ssid" >&2
+    fi
+  done
+fi
+
 # Disable only, never --now: a fresh install may be connected through iwd at
 # this very moment, and stopping it severs the network mid-install —
 # NetworkManager has no saved Wi-Fi credentials to take over with. iwd keeps
