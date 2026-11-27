@@ -49,8 +49,6 @@ build_install_status() {
 }
 
 start_log_output() {
-  local ANSI_SAVE_CURSOR="\033[s"
-  local ANSI_RESTORE_CURSOR="\033[u"
   local ANSI_CLEAR_LINE="\033[2K"
   local ANSI_HIDE_CURSOR="\033[?25l"
   local ANSI_RESET="\033[0m"
@@ -59,13 +57,18 @@ start_log_output() {
   local ANSI_GREEN="\033[32m"
   local ANSI_CYAN="\033[36m"
 
-  # Save cursor position and hide cursor
-  printf $ANSI_SAVE_CURSOR
+  # Hide cursor while the monitor owns the screen
   printf $ANSI_HIDE_CURSOR
 
   (
-    # Row 0 is the status bar; the remaining rows show the log
-    local log_lines=$((TERM_HEIGHT - LOGO_HEIGHT - 2))
+    # Row 0 is the status bar; the remaining rows show the log.
+    # Paint from an absolute row and budget the rows so the last one painted
+    # is at most TERM_HEIGHT - 1: a frame that ends with a newline on the
+    # bottom row scrolls the terminal, and at 10 Hz that is a 10 rows/second
+    # roll that wrecks the display. Absolute positioning also survives stray
+    # lines above (prompts, echoes) that would stale a saved cursor.
+    local start_row=$((LOGO_HEIGHT + 2))
+    local log_lines=$((TERM_HEIGHT - start_row))
     ((log_lines < 2)) && log_lines=2
 
     # Use full terminal width (bounded by LOG_LINE_WIDTH)
@@ -154,7 +157,7 @@ start_log_output() {
         fi
       done
 
-      printf "${ANSI_RESTORE_CURSOR}%b" "$output"
+      printf "\033[${start_row};1H%b" "$output"
 
       sleep 0.1
     done
