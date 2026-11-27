@@ -27,11 +27,18 @@ build_install_status() {
   local mins=$((elapsed / 60))
   local secs=$((elapsed % 60))
 
-  # Fit the bar into the width left over after the fixed text
+  # Fit the bar into the width left over after the fixed text. The status
+  # line must never exceed the terminal width: a wrapped monitor row puts
+  # a newline on the bottom row and scrolls the screen every frame. Drop
+  # the centering padding before shrinking the bar; hard-truncate last.
   local text="Installing: $name  ["
   local suffix="]  ${scripts_done}/${total_scripts}  ${mins}m ${secs}s"
   local bar_width=$((width - pad - ${#text} - ${#suffix}))
-  ((bar_width < 10)) && bar_width=10
+  if ((bar_width < 0)); then
+    bar_width=$((width - ${#text} - ${#suffix}))
+    pad=0
+  fi
+  ((bar_width < 0)) && bar_width=0
   ((total_scripts < 1)) && total_scripts=1
 
   local filled=$((bar_width * scripts_done / total_scripts))
@@ -45,7 +52,13 @@ build_install_status() {
     bar+="░"
   done
 
-  printf '%s%s%s' "$text" "$bar" "$suffix"
+  local status="$text$bar$suffix"
+  if ((pad > 0)); then
+    status="$(printf '%*s' "$pad" '')$status"
+  fi
+  status=${status:0:width}
+
+  printf '%s' "$status"
 }
 
 start_log_output() {
@@ -118,19 +131,21 @@ start_log_output() {
       # Build complete output buffer with escape sequences
       output=""
 
-      # Row 0: the status bar, aligned under the logo like the old header
+      # Row 0: the status bar (padding is embedded by build_install_status
+      # so the line can never exceed the width), aligned under the logo
       status_display=$status
       if ((${#status_display} > max_line_width)); then
-        status_display="${status_display:0:max_line_width}..."
+        status_display="${status_display:0:max_line_width-3}..."
       fi
-      output+="${ANSI_CLEAR_LINE}${ANSI_CYAN}${PADDING_LEFT_SPACES}${status_display}${ANSI_RESET}\n"
+      output+="${ANSI_CLEAR_LINE}${ANSI_CYAN}${status_display}${ANSI_RESET}\n"
 
       for ((i = 0; i < log_lines - 1; i++)); do
         line="${current_lines[i]:-}"
 
-        # Truncate if needed
+        # Truncate if needed ("..." stays inside the width: an over-wide
+        # row wraps and scrolls the screen every frame)
         if ((${#line} > max_line_width)); then
-          line="${line:0:max_line_width}..."
+          line="${line:0:max_line_width-3}..."
         fi
 
         # Add clear line escape and formatted output for each line (full width,

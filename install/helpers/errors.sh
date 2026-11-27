@@ -33,7 +33,7 @@ show_log_tail() {
   if [[ -n $lines ]]; then
     while IFS= read -r line; do
       if ((${#line} > max_line_width)); then
-        local truncated_line="${line:0:max_line_width}..."
+        local truncated_line="${line:0:max_line_width-3}..."
       else
         local truncated_line="$line"
       fi
@@ -56,7 +56,7 @@ show_failed_script_or_command() {
     local max_cmd_width=${LOG_LINE_WIDTH:-$((LOGO_WIDTH - 4))}
 
     if ((${#cmd} > max_cmd_width)); then
-      cmd="${cmd:0:max_cmd_width}..."
+      cmd="${cmd:0:max_cmd_width-3}..."
     fi
 
     gum style "$cmd"

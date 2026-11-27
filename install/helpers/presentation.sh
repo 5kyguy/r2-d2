@@ -31,9 +31,10 @@ LOGO_WIDTH=$(awk '{ if (length > max) max = length } END { print max+0 }' "$LOGO
 export LOGO_HEIGHT
 LOGO_HEIGHT=$(wc -l <"$LOGO_PATH" 2>/dev/null || echo 0)
 
-# Log area width: full terminal width, min 80
+# Log area width: the real terminal width. A floor above it (the old
+# minimum 80) paints rows wider than the screen on narrow consoles, and a
+# wrapped monitor row scrolls the screen every frame.
 export LOG_LINE_WIDTH=$TERM_WIDTH
-((LOG_LINE_WIDTH < 80)) && LOG_LINE_WIDTH=80
 
 export PADDING_LEFT=$(((TERM_WIDTH - LOGO_WIDTH) / 2))
 export PADDING_LEFT_SPACES
