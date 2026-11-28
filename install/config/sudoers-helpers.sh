@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Install passwordless sudoers for DNS presets and timezone changes, plus the
-# /usr/local/bin wrapper that sudoers/pkexec invoke.
+# Install passwordless sudoers for DNS presets, timezone changes, and
+# WatchCat's nethogs, plus the /usr/local/bin wrapper that sudoers/pkexec
+# invoke.
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
@@ -23,3 +24,4 @@ install_sudoers() {
 sudo install -Dm755 "$R2D2_PATH/bin/r2-d2-setup-dns" /usr/local/bin/r2-d2-setup-dns
 install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-dns" /etc/sudoers.d/r2-d2-dns
 install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-tzupdate" /etc/sudoers.d/r2-d2-tzupdate
+install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-watchcat" /etc/sudoers.d/r2-d2-watchcat
