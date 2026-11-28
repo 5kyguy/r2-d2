@@ -77,6 +77,11 @@ K-2SO task-completion notifications should always use it.
 - Repo `config/` is synced to `~/.config/` on update via `r2-d2-update-sync-files`.
 - Repo `default/` holds system-path assets (`/etc`, `/usr/share`, system-sleep
   hooks) applied via migrations or install scripts — NOT overwritten on every update.
+- Every `default/` asset needs an idempotent install-time deploy script
+  (`sudoers-helpers.sh`, `wireplumber.sh`, `zram.sh`, `default-config.sh`, …):
+  installs, repairs, and resets re-run them, so cleared migration history can
+  never leave a deployed file missing. `default/wireplumber/wireplumber.conf.d/`
+  is the exception — soft mixing is opt-in and must never be auto-deployed.
 - Repo `default/config/` holds `~/.config` support assets applied at install
   and via migrations only.
 - Hyprland compositor config is Lua (`config/hypr/hyprland.lua` + modules).

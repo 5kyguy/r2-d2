@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Install passwordless sudoers for DNS presets, timezone changes, and
-# WatchCat's nethogs, plus the /usr/local/bin wrapper that sudoers/pkexec
-# invoke.
+# Install every passwordless sudoers drop-in from default/etc/sudoers.d, plus
+# the /usr/local/bin wrapper that sudoers/pkexec invoke. Idempotent: install,
+# repair, and reset runs re-validate and re-install, so a lost drop-in
+# self-heals instead of waiting for a migration that may never run.
 
 R2D2_PATH="${R2D2_PATH:-$HOME/.local/share/r2-d2}"
 
@@ -22,6 +23,12 @@ install_sudoers() {
 }
 
 sudo install -Dm755 "$R2D2_PATH/bin/r2-d2-setup-dns" /usr/local/bin/r2-d2-setup-dns
-install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-dns" /etc/sudoers.d/r2-d2-dns
-install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-tzupdate" /etc/sudoers.d/r2-d2-tzupdate
-install_sudoers "$R2D2_PATH/default/etc/sudoers.d/r2-d2-watchcat" /etc/sudoers.d/r2-d2-watchcat
+
+shopt -s nullglob
+failed=0
+for src in "$R2D2_PATH"/default/etc/sudoers.d/*; do
+  install_sudoers "$src" "/etc/sudoers.d/$(basename "$src")" || failed=1
+done
+shopt -u nullglob
+
+exit $failed

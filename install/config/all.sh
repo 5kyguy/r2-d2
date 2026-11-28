@@ -3,6 +3,7 @@
 run_logged $R2D2_INSTALL/config/config.sh
 run_logged $R2D2_INSTALL/config/voxtype.sh
 run_logged $R2D2_INSTALL/config/default-config.sh
+run_logged $R2D2_INSTALL/config/wireplumber.sh
 run_logged $R2D2_INSTALL/config/theme.sh
 run_logged $R2D2_INSTALL/config/branding.sh
 run_logged $R2D2_INSTALL/config/git.sh
