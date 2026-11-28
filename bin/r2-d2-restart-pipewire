@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # Restart the PipeWire audio service to fix audio issues or apply new configuration.
+# wireplumber is restarted too: a crash-looped session manager (start limit hit)
+# leaves pipewire running with a dummy output only, and reset-failed clears that.
 
 echo -e "Restarting pipewire audio service...\n"
-systemctl --user restart pipewire.service
+systemctl --user reset-failed wireplumber.service 2>/dev/null || true
+systemctl --user restart pipewire.service wireplumber.service
